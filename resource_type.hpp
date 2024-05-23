@@ -3,7 +3,7 @@
 
 namespace ariel {
 
-    enum ResourceType { WOOD, BRICK, WOOL, GRAIN, ORE };
+    enum ResourceType { WOOD, BRICK, WOOL, GRAIN, ORE , NONE};
 
 }
 

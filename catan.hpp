@@ -19,11 +19,14 @@ namespace ariel {
 
         public:
 
-        // Constructor that initializes the game with a list of players.
-        Catan(const vector<Player*>& players);                              // TO DO: Exception if less than 3 players
+        // Constructor that initializes the game with three player references.
+        Catan(Player& p1, Player& p2, Player& p3);
 
         // Initializes the game, setting up the board and choosing the starting player.
         void initializeGame();
+
+        // Chooses the starting player index randomly from the number of players.
+        void ChooseStartingPlayer();
 
         // Manages the main game loop, controlling the flow of turns and checking for the game end condition.
         void playGame();

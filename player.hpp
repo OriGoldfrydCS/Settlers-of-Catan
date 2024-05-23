@@ -23,10 +23,23 @@ namespace ariel {
             // Constructor initializes the player with a name
             Player(const string& name) : name(name), resources(), developmentCards(), points(0) {}
             
-            // Building methods - these could be abstracted further depending on game rules
-            void buildRoad();
-            void buildSettlement();
-            void buildCity();
+            // Map of all building costs
+            static const map<string, map<ResourceType, int>> buildingCosts;
+
+            // Checking methods
+            bool canBuild(const string& structureType);
+            void build(const string& structureType);
+
+            // Building methods
+            void placeSettlement(const vector<string>& types, const vector<int>& numbers, Board& board);
+            void placeRoad(const vector<string>& types, const vector<int>& numbers, Board& board);
+            void placeCity(const string& type, int number, Board& board);
+            
+            
+
+            // void buildRoad();
+            // void buildSettlement();
+            // void buildCity();
             // virtual void buildRoad(const std::string& tile, int number, Board& board) = 0;
             // virtual void buildSettlement(const std::string& tile, int number, Board& board) = 0;
             // virtual void buildCity(const std::string& tile, int number, Board& board) = 0;
@@ -45,9 +58,13 @@ namespace ariel {
             // void useDevelopmentCard(const DevelopmentCard& card);
             
             // Trading method
-            void trade(Player& other, ResourceType giveType, ResourceType receiveType, int giveAmount, int receiveAmount);
-            // virtual void trade(Player* other, const string& give, const string& receive, int giveAmount, int receiveAmount) = 0;
-                        
+            // void trade(Player& other, ResourceType giveType, ResourceType receiveType, int giveAmount, int receiveAmount);
+            void trade(Player& other, const string& give, const string& receive, int giveAmount, int receiveAmount);
+
+            // Rolls a single six-sided die.
+            static int rollDice();
+            void endTurn();
+
             int getPoints() const;
             void printPoints() const;
     };

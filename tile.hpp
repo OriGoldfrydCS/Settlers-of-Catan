@@ -2,57 +2,52 @@
 #define TILE_HPP
 
 #include <string>
+#include "resource_type.hpp"
 
-using namespace std;
 namespace ariel {
 
-    class Tile 
-    {
-        protected:
-            string resourceType;
-            int number;
+    class Tile {
+    public:
+        ResourceType resourceType;
+        int number;
 
-        public:
-            Tile(std::string resourceType, int number);
-            virtual string getResourceType() const;
-            int getNumber() const;
-            
+        // Constructor
+        Tile(ResourceType resourceType = ResourceType::NONE, int number = 0);
+
+        // Method declarations
+        virtual ResourceType getResourceType() const;
+        int getNumber() const;
     };
 
     class ForestTile : public Tile {
         public:
-            ForestTile(int number);
+            ForestTile(int number) : Tile(ResourceType::WOOD, number) {}
+        };
+
+    class HillsTile : public Tile {
+        public:
+            HillsTile(int number) : Tile(ResourceType::BRICK, number) {}
     };
 
-    class HillsTile : public Tile 
-    {
+    class PastureTile : public Tile {
         public:
-            HillsTile(int number);
+            PastureTile(int number) : Tile(ResourceType::WOOL, number) {}
     };
 
-    class PastureTile : public Tile 
-    {
+    class AgriculturalTile : public Tile {
         public:
-            PastureTile(int number);
+            AgriculturalTile(int number) : Tile(ResourceType::GRAIN, number) {}
     };
 
-    class AgriculturalTile : public Tile 
-    {
+    class MountainsTile : public Tile {
         public:
-            AgriculturalTile(int number);
+            MountainsTile(int number) : Tile(ResourceType::ORE, number) {}
     };
 
-    class MountainsTile : public Tile 
-    {
+    class DesertTile : public Tile {
         public:
-            MountainsTile(int number);
-    };
-
-    class DesertTile : public Tile 
-    {
-        public:
-            DesertTile(int number);
-            string getResourceType() const override;      // We Override the function to indicate no resources
+            DesertTile(int number) : Tile(ResourceType::NONE, number) {}
+            ResourceType getResourceType() const { return ResourceType::NONE; }
     };
 
 }

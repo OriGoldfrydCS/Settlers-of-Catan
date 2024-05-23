@@ -5,15 +5,27 @@
 using namespace std;
 namespace ariel {
 
-    Catan::Catan(const std::vector<Player*>& players) : players(players), currentPlayerIndex(0) 
-    {
-        if (players.size() < 3) 
-        {
-            throw std::invalid_argument("Error: There must be at least 3 players");
-        }
-        // Implement the logic to initialize the Catan game
+
+    // Constructor
+    Catan::Catan(Player& p1, Player& p2, Player& p3) {
+        players.push_back(&p1);
+        players.push_back(&p2);
+        players.push_back(&p3);
+        currentPlayerIndex = 0;
     }
 
+    // In Settlers of Catan, the game board is composed of 19 hexagonal tiles arranged to form a 
+    // larger hexagon. Here’s a visual representation of axial coordinates on a hexagonal grid, 
+    // as implemented. Each hexagonal represents as (q,r) , where q represents the horizontal position
+    // of a hex tile; and r represents the diagonal position of a hex tile from top left to bottom right.
+    // Here is an illustration:
+    //
+    //            (-1,1)   (0,1)   (1,1)
+    //        (-2,2)   (-1,2)   (0,2)   (1,2)
+    //    (-3,3)   (-2,3)   (-1,3)   (0,3)   (1,3)
+    //        (-3,2)   (-2,2)   (-1,2)   (0,2)
+    //            (-3,1)   (-2,1)   (-1,1)
+    
     void Catan::initializeGame() 
     {
         board = Board();
@@ -21,6 +33,11 @@ namespace ariel {
         // Implement the logic to initialize the game, set up the board, and choose the starting player
     }
 
+    void Catan::ChooseStartingPlayer() 
+    {
+        // Implement
+    }
+    
     void Catan::playGame() 
     {
         while (true) 

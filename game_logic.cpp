@@ -1,23 +1,19 @@
 #include "game_logic.hpp"
 
 namespace ariel {
-    
-    int GameLogic::chooseStartingPlayer(const std::vector<Player*>& players) 
-    {
-        srand(time(0));
-        return rand() % players.size();
-    }
 
-    void GameLogic::performTurn(Player* currentPlayer, Board& board, std::vector<Player*>& players) 
-    {
-        int diceRoll = rollDice() + rollDice();
-        distributeResources(board, players, diceRoll);
-        // Handle trading, building, and using development cards
-    }
-
-    int GameLogic::rollDice() 
-    {
-        return rand() % 6 + 1;
+    void GameLogic::performTurn(Player* currentPlayer, Board& board, vector<Player*>& players) {
+        int diceRoll = rollDice();
+        if (diceRoll == 7) {
+            for (auto& player : players) {
+                if (player->totalResources() > 7) {
+                    player->discardHalfResources();
+                }
+            }
+        } else {
+            distributeResources(board, players, diceRoll);
+        }
+        // Development card usage can be handled here if it affects turn logic
     }
 
     void GameLogic::distributeResources(Board& board, std::vector<Player*>& players, int diceRoll) 
