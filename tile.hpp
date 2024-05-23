@@ -8,46 +8,66 @@ namespace ariel {
 
     class Tile {
     public:
-        ResourceType resourceType;
-        int number;
 
+        private:
+            ResourceType resourceType;  // The resource that the tile can produce
+            int number;                 // The number of the tile
+            bool settlement;            // Tracks if there's a settlement on this tile
+            bool road;                  // Tracks if there's a road on this tile
+
+    public:
         // Constructor
         Tile(ResourceType resourceType = ResourceType::NONE, int number = 0);
 
-        // Method declarations
+        // Destructor
+        virtual ~Tile() = default;
+
+        // Accessor methods
         virtual ResourceType getResourceType() const;
         int getNumber() const;
+
+        // Settlement management
+        bool hasSettlement() const;
+        void setSettlement(bool status);
+
+        // Road management
+        bool hasRoad() const;
+        void setRoad(bool status);
     };
+
+
+
+    // SUB-CLASSES
 
     class ForestTile : public Tile {
         public:
-            ForestTile(int number) : Tile(ResourceType::WOOD, number) {}
-        };
+            ForestTile(int number);
+    };
 
     class HillsTile : public Tile {
         public:
-            HillsTile(int number) : Tile(ResourceType::BRICK, number) {}
+            HillsTile(int number);
     };
 
     class PastureTile : public Tile {
         public:
-            PastureTile(int number) : Tile(ResourceType::WOOL, number) {}
+            PastureTile(int number);
     };
 
     class AgriculturalTile : public Tile {
         public:
-            AgriculturalTile(int number) : Tile(ResourceType::GRAIN, number) {}
+            AgriculturalTile(int number);
     };
 
     class MountainsTile : public Tile {
         public:
-            MountainsTile(int number) : Tile(ResourceType::ORE, number) {}
+            MountainsTile(int number);
     };
 
     class DesertTile : public Tile {
         public:
-            DesertTile(int number) : Tile(ResourceType::NONE, number) {}
-            ResourceType getResourceType() const { return ResourceType::NONE; }
+            DesertTile(int number);
+            ResourceType getResourceType() const override;
     };
 
 }

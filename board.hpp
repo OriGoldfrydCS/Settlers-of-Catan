@@ -2,8 +2,10 @@
 #define BOARD_HPP
 
 #include <map>
+#include <set>
 #include <utility>
 #include "tile.hpp"
+#include "vertex_edge.hpp"
 
 namespace ariel {
     
@@ -11,15 +13,23 @@ namespace ariel {
     {
         private:
             map<pair<int, int>, Tile> tiles;
+            map<Vertex, bool> settlements;
+            map<Edge, bool> roads;
 
         public:
             Board();
             void setupTiles();
 
-            const Tile& Board::getTile(const std::pair<int, int>& position) const;
+            const Tile& getTile(const pair<int, int>& position) const;
             void printBoard() const;
-            void addTile(const std::pair<int, int>& position, const Tile& tile);
-            bool isTileAvailable(const std::pair<int, int>& position) const;
+            void addTile(const pair<int, int>& position, const Tile& tile);
+            bool isTileAvailable(const pair<int, int>& position) const;
+
+            // Settlement and road management
+            bool canPlaceSettlement(const set<Vertex>& vertices);
+            void placeSettlement(const set<Vertex>& vertices);
+            bool canPlaceRoad(const Edge& edge);
+            void placeRoad(const Edge& edge);
 
             // Board();
             

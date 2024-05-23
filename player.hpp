@@ -3,6 +3,8 @@
 
 #include <string>
 #include <map>
+#include <set>
+#include <vector>
 #include "board.hpp"
 #include "resource.hpp"
 #include "developmentCard.hpp"
@@ -31,9 +33,12 @@ namespace ariel {
             void build(const string& structureType);
 
             // Building methods
-            void placeSettlement(const vector<string>& types, const vector<int>& numbers, Board& board);
-            void placeRoad(const vector<string>& types, const vector<int>& numbers, Board& board);
-            void placeCity(const string& type, int number, Board& board);
+            void placeSettlement(const set<Vertex>& vertices, Board& board);
+            void placeRoad(const Edge& edge, Board& board);
+
+            // void placeSettlement(const vector<string>& types, const vector<int>& numbers, Board& board);
+            // void placeRoad(const vector<string>& types, const vector<int>& numbers, Board& board);
+            // void placeCity(const string& type, int number, Board& board);
             
             
 

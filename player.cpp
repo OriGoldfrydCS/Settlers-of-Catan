@@ -38,15 +38,22 @@ namespace ariel {
     }
 
 
-    void placeRoad(const vector<string>& types, const vector<int>& numbers, Board& board)
+    void Player::placeSettlement(const std::set<Vertex>& vertices, Board& board) 
     {
-        // Implement the logic to build a road
+        if (board.canPlaceSettlement(vertices)) 
+        {
+            board.placeSettlement(vertices);
+        }
     }
 
-    void placeSettlement(const vector<string>& types, const vector<int>& numbers, Board& board)
+    void Player::placeRoad(const Edge& edge, Board& board) 
     {
-        // Implement the logic to build a settlement
+        if (board.canPlaceRoad(edge)) 
+        {
+            board.placeRoad(edge);
+        }
     }
+
 
     void placeCity(const string& type, int number, Board& board)
     {

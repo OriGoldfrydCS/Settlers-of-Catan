@@ -1,4 +1,5 @@
 #include "catan.hpp"
+#include "vertex_edge.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -7,30 +8,40 @@ namespace ariel {
 
 
     // Constructor
-    Catan::Catan(Player& p1, Player& p2, Player& p3) {
-        players.push_back(&p1);
-        players.push_back(&p2);
-        players.push_back(&p3);
-        currentPlayerIndex = 0;
+    Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0) {
+        initializeGame();
     }
 
-    // In Settlers of Catan, the game board is composed of 19 hexagonal tiles arranged to form a 
-    // larger hexagon. Here’s a visual representation of axial coordinates on a hexagonal grid, 
-    // as implemented. Each hexagonal represents as (q,r) , where q represents the horizontal position
-    // of a hex tile; and r represents the diagonal position of a hex tile from top left to bottom right.
-    // Here is an illustration:
     //
-    //            (-1,1)   (0,1)   (1,1)
-    //        (-2,2)   (-1,2)   (0,2)   (1,2)
-    //    (-3,3)   (-2,3)   (-1,3)   (0,3)   (1,3)
-    //        (-3,2)   (-2,2)   (-1,2)   (0,2)
-    //            (-3,1)   (-2,1)   (-1,1)
+    //              (0,2)   (1,2)   (2,2)
+    //         (-1,1)   (0,1)   (1,1)   (2,1)
+    //    (-2,0)   (-1,0)   (0,0)   (1,0)   (2,0)
+    //         (-2,-1)   (-1,-1)   (0,-1)   (1,-1)
+    //             (-2,-2)   (-1,-2)   (0,-2)
     
     void Catan::initializeGame() 
     {
-        board = Board();
-        currentPlayerIndex = GameLogic::chooseStartingPlayer(players);
-        // Implement the logic to initialize the game, set up the board, and choose the starting player
+        board.setupTiles();  
+
+        // Blue (1st) Player Setup:
+        players[0]->placeSettlement({{Vertex(-1, 1), Vertex(-2, 2), Vertex(-1, 2)}}, board);  // Intersection touches Wood(8), Ore(3), Brick(5)
+        players[0]->placeSettlement({{Vertex(-2, 3), Vertex(-2, 2), Vertex(-1, 2)}}, board);  // Intersection touches Grain(4), Wool(5), Wool(11)
+        players[0]->placeRoad(Edge(Vertex(-2, 2), Vertex(-1, 2)), board);  // Road between Ore(3) and Brick(5)
+        players[0]->placeRoad(Edge(Vertex(-2, 3), Vertex(-1, 2)), board);  // Road between Grain(4) and Wool(5)
+
+        // Yellow (2nd) Player Setup:
+        players[1]->placeSettlement({{Vertex(0, -1), Vertex(1, -1), Vertex(0, -2)}}, board);  // Intersection touches Brick(10), Wood(9), Wool(4)
+        players[1]->placeSettlement({{Vertex(0, -1), Vertex(1, -2), Vertex(0, -2)}}, board);  // Intersection touches Ore(3), Grain(4), Grain(6)
+        players[1]->placeRoad(Edge(Vertex(0, -1), Vertex(0, -2)), board);  // Road between Wool(4) and Wood(9)
+        players[1]->placeRoad(Edge(Vertex(0, -1), Vertex(1, -2)), board);  // Road between Grain(4) and Grain(6)
+
+        // White (3rd) Player Setup:
+        players[2]->placeSettlement({{Vertex(2, 0), Vertex(1, 1), Vertex(2, 1)}}, board);   // Intersection touches Grain(12), Brick(6), Wood(11)
+        players[2]->placeSettlement({{Vertex(2, 0), Vertex(1, 0), Vertex(2, -1)}}, board);  // Intersection touches Wood(3), Ore(8), Wool(5)
+        players[2]->placeRoad(Edge(Vertex(2, 0), Vertex(1, 1)), board);  // Road between Grain(12) and Wood(11)
+        players[2]->placeRoad(Edge(Vertex(2, 0), Vertex(1, 0)), board);  // Road between Wood(3) and Ore(8)
+
+        ChooseStartingPlayer(); 
     }
 
     void Catan::ChooseStartingPlayer() 
