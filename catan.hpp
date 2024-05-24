@@ -29,10 +29,10 @@ namespace ariel {
         void ChooseStartingPlayer();
 
         // Manages the main game loop, controlling the flow of turns and checking for the game end condition.
-        void playGame();
+        // void playGame();
 
         // Advances the game to the next player's turn, updating the currentPlayerIndex.
-        void nextTurn();
+        // void nextTurn();
 
         // Displays the current state of the game, including players' statuses and the board state.
         void printGameState() const;

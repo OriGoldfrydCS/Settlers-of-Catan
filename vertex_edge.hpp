@@ -3,7 +3,11 @@
 
 #include <utility>
 #include <set>
+#include <algorithm>
+#include <initializer_list>
+#include <iostream>
 
+using namespace std;
 namespace ariel {
 
     struct Vertex 
@@ -19,44 +23,24 @@ namespace ariel {
             return x < other.x || (x == other.x && y < other.y);
         }
 
-        bool operator ==(const Vertex& other) const 
+        bool operator==(const Vertex& other) const 
         {
             return x == other.x && y == other.y;
         }
-    };
 
-    struct Edge 
-    {
-        Vertex v1, v2;
-
-        // Constructor 
-        Edge(const Vertex& a, const Vertex& b) 
-        {
-            // Ensure the smaller vertex is always v1 for consistent comparison
-            if (a < b) 
-            {
-                v1 = a;
-                v2 = b;
-            } 
-            else 
-            {
-                v1 = b;
-                v2 = a;
-            }
-        }
-
-        // Basic operator
-        bool operator<(const Edge& other) const 
-        {
-            return v1 < other.v1 || (v1 == other.v1 && v2 < other.v2);
+        // Overload operator<< for Vertex
+        friend ostream& operator<<(ostream& os, const Vertex& vertex) {
+            os << "(" << vertex.x << ", " << vertex.y << ")";
+            return os;
         }
     };
 
     struct Intersection 
     {
         set<Vertex> vertices;       // A set of vertices that define this intersection
-
-        // Constructor 
+        
+        // Constructors
+        Intersection() {} 
         Intersection(const std::initializer_list<Vertex>& verts) : vertices(verts) {}
 
         // Method to check if a given vertex is part of this intersection
@@ -72,6 +56,47 @@ namespace ariel {
                 return vertices.size() < other.vertices.size();
             return std::lexicographical_compare(vertices.begin(), vertices.end(),
                                                 other.vertices.begin(), other.vertices.end());
+        }
+
+        // Check equality
+        bool operator==(const Intersection& other) const
+        {
+            return vertices == other.vertices;
+        }
+
+        // Overload operator<< for Intersection
+        friend ostream& operator<<(ostream& os, const Intersection& intersection) {
+            os << "{ ";
+            for (const auto& vertex : intersection.vertices) {
+                os << vertex << " ";
+            }
+            os << "}";
+            return os;
+        }
+    };
+
+    struct Edge 
+    {
+        Intersection i1, i2;
+
+        // Constructor 
+        Edge(const Intersection& a, const Intersection& b) : i1(a < b ? a : b), i2(a < b ? b : a) {}
+
+        // Basic operator
+        bool operator<(const Edge& other) const 
+        {
+            return i1 < other.i1 || (i1 == other.i1 && i2 < other.i2);
+        }
+
+        bool operator==(const Edge& other) const 
+        {
+            return (i1 == other.i1 && i2 == other.i2) || (i1 == other.i2 && i2 == other.i1);
+        }
+
+        // Overload operator<< for Edge
+        friend ostream& operator<<(ostream& os, const Edge& edge) {
+            os << edge.i1 << " to " << edge.i2;
+            return os;
         }
     };
 }
