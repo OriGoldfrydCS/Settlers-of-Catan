@@ -4,6 +4,10 @@
 using namespace std;
 namespace ariel {
 
+    int Player::nextID = 1;     // Initialize the static member to 1
+
+    Player::Player(const string& name) : name(name), id(nextID++), resources(), developmentCards(), points(0) {}
+
     const map<string, map<ResourceType, int>> Player::buildingCosts = 
     {
         {"road", {{ResourceType::BRICK, 1}, {ResourceType::WOOD, 1}}},
@@ -38,19 +42,19 @@ namespace ariel {
     }
 
 
-    void Player::placeSettlement(const std::set<Vertex>& vertices, Board& board) 
+    void Player::placeSettlement(int intersectionID, Board& board) 
     {
-        if (board.canPlaceSettlement(vertices)) 
+        if (board.canPlaceSettlement(intersectionID, this->id)) 
         {
-            board.placeSettlement(vertices);
+            board.placeSettlement(intersectionID, this->id);
         }
     }
 
     void Player::placeRoad(const Edge& edge, Board& board) 
     {
-        if (board.canPlaceRoad(edge)) 
+        if (board.canPlaceRoad(edge, this->id)) 
         {
-            board.placeRoad(edge);
+            board.placeRoad(edge, this->id);
         }
     }
 
@@ -103,6 +107,16 @@ namespace ariel {
     int Player::rollDice() 
     {
         return rand() % 6 + 1;
+    }
+
+    string Player::getName() const 
+    { 
+        return name; 
+    }
+    
+    int Player::getId() const 
+    { 
+        return id; 
     }
 
     void Player::printPoints() const 

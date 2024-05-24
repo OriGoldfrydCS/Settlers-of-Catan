@@ -2,18 +2,21 @@
 #define TILE_HPP
 
 #include <string>
+#include <vector>
 #include "resource_type.hpp"
+#include "vertex_edge.hpp"
 
+using namespace std;
 namespace ariel {
 
     class Tile {
     public:
 
         private:
-            ResourceType resourceType;  // The resource that the tile can produce
-            int number;                 // The number of the tile
-            bool settlement;            // Tracks if there's a settlement on this tile
-            bool road;                  // Tracks if there's a road on this tile
+            ResourceType resourceType;   // The resource that the tile can produce
+            int number;                  // The number of the tile
+            vector<Vertex> settlements;  // Stores vertices where settlements are located
+            vector<Edge> roads;          // Stores edges where roads are built
 
     public:
         // Constructor
@@ -27,12 +30,12 @@ namespace ariel {
         int getNumber() const;
 
         // Settlement management
-        bool hasSettlement() const;
-        void setSettlement(bool status);
+        bool hasSettlement(const Vertex& location) const;
+        void addSettlement(const Vertex& location);
 
         // Road management
-        bool hasRoad() const;
-        void setRoad(bool status);
+        bool hasRoad(const Edge& edge) const;
+        void addRoad(const Edge& edge);
     };
 
 

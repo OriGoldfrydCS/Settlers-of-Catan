@@ -1,9 +1,11 @@
 // tile.cpp
 #include "tile.hpp"
+#include <algorithm>
 
+using namespace std;
 namespace ariel {
 
-    Tile::Tile(ResourceType type, int num) : resourceType(type), number(num), settlement(false), road(false) {}
+    Tile::Tile(ResourceType type, int num) : resourceType(type), number(num) {}
 
     ResourceType Tile::getResourceType() const 
     {
@@ -15,45 +17,40 @@ namespace ariel {
         return number;
     }
 
-    bool Tile::hasSettlement() const 
+    bool Tile::hasSettlement(const Vertex& location) const 
     {
-        return settlement;
+        return find(settlements.begin(), settlements.end(), location) != settlements.end();
     }
 
-    void Tile::setSettlement(bool status) 
+    void Tile::addSettlement(const Vertex& location) 
     {
-        settlement = status;
+        if (!hasSettlement(location)) 
+        {
+            settlements.push_back(location);
+        }
     }
 
-    bool Tile::hasRoad() const 
+    bool Tile::hasRoad(const Edge& edge) const 
     {
-        return road;
+        return find(roads.begin(), roads.end(), edge) != roads.end();
     }
 
-    void Tile::setRoad(bool status) 
+    void Tile::addRoad(const Edge& edge) 
     {
-        road = status;
+        if (!hasRoad(edge)) {
+            roads.push_back(edge);
+        }
     }
 
 
     // SUB-CLASSES
 
-    // ForestTile
+    // Specific Tile type implementations
     ForestTile::ForestTile(int number) : Tile(ResourceType::WOOD, number) {}
-
-    // HillsTile
     HillsTile::HillsTile(int number) : Tile(ResourceType::BRICK, number) {}
-
-    // PastureTile
     PastureTile::PastureTile(int number) : Tile(ResourceType::WOOL, number) {}
-
-    // AgriculturalTile
     AgriculturalTile::AgriculturalTile(int number) : Tile(ResourceType::GRAIN, number) {}
-
-    // MountainsTile
     MountainsTile::MountainsTile(int number) : Tile(ResourceType::ORE, number) {}
-
-    // DesertTile
     DesertTile::DesertTile(int number) : Tile(ResourceType::NONE, number) {}
 
     ResourceType DesertTile::getResourceType() const 
