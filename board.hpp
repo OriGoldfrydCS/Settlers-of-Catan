@@ -4,30 +4,27 @@
 #include <map>
 #include <set>
 #include <utility>
-#include <SFML/Graphics.hpp>
 #include "tile.hpp"
-#include "vertex_edge.hpp"
+#include "intersection.hpp"
+#include "edge.hpp"
+
 
 namespace ariel {
     
     class Board 
     {
         private:
-            map<std::pair<int, int>, Tile> tiles;       // Map of tiles by their coordinates
-            map<Vertex, std::set<int>> settlements;     // Tracks settlements at vertices by player ID
+            map<pair<int, int>, Tile> tiles;            // Map of tiles by their coordinates
+            map<int, std::set<int>> settlements;        // Tracks settlements at vertices by player ID
             map<Edge, int> roads;                       // Tracks roads along edges by player ID
-            map<int, Intersection> intersections;       // Map of all valid intersections
-
-            // Private variable for GUI
-            // std::map<ResourceType, sf::Texture> textures;
-            // sf::Font font;
+            // map<int, Intersection> intersections;       // Map of all valid intersections
 
         public:
 
             // Constructor and setup
             Board();
             void setupTiles();
-            void setupIntersections();
+            void linkTilesAndIntersections(); 
 
             // Setup methods for GUI
             // void loadResources();
@@ -48,7 +45,7 @@ namespace ariel {
             void placeRoad(const Edge& edge, int playerID);
 
             // Get intersection by ID
-            Intersection getIntersection(int intersectionID) const;
+            // Intersection getIntersection(int intersectionID) const;
             int getIntersectionID(const Intersection& intersection) const;
 
            

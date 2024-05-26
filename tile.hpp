@@ -5,6 +5,8 @@
 #include <vector>
 #include "resource_type.hpp"
 #include "vertex_edge.hpp"
+#include "intersection.hpp"
+#include "edge.hpp"
 
 using namespace std;
 namespace ariel {
@@ -13,10 +15,12 @@ namespace ariel {
     public:
 
         private:
-            ResourceType resourceType;   // The resource that the tile can produce
-            int number;                  // The number of the tile
-            vector<Vertex> settlements;  // Stores vertices where settlements are located
-            vector<Edge> roads;          // Stores edges where roads are built
+            ResourceType resourceType;         // The resource that the tile can produce
+            int number;                        // The number of the tile
+            vector<Intersection> settlements;  // Stores vertices where settlements are located
+            vector<Edge> roads;                // Stores edges where roads are built
+            set<int> intersectionIDs;          // Holds intersection IDs related to this tile
+
 
     public:
         // Constructor
@@ -30,12 +34,23 @@ namespace ariel {
         int getNumber() const;
 
         // Settlement management
-        bool hasSettlement(const Vertex& location) const;
-        void addSettlement(const Vertex& location);
+        bool hasSettlement(const Intersection& in) const;
+        void addSettlement(const Intersection& in);
 
         // Road management
         bool hasRoad(const Edge& edge) const;
         void addRoad(const Edge& edge);
+
+        void addIntersection(int intersectionID) {
+            intersectionIDs.insert(intersectionID);
+        }
+
+        vector<int> getIntersectionIDs() const;
+
+        // Getter methods
+        const std::vector<Intersection>& getSettlements() const;
+        const std::vector<Edge>& getRoads() const;
+
     };
 
 

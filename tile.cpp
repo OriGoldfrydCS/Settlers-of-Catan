@@ -1,6 +1,7 @@
 // tile.cpp
 #include "tile.hpp"
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 namespace ariel {
@@ -17,16 +18,16 @@ namespace ariel {
         return number;
     }
 
-    bool Tile::hasSettlement(const Vertex& location) const 
+    bool Tile::hasSettlement(const Intersection& in) const 
     {
-        return find(settlements.begin(), settlements.end(), location) != settlements.end();
+        return find(settlements.begin(), settlements.end(), in) != settlements.end();
     }
 
-    void Tile::addSettlement(const Vertex& location) 
+    void Tile::addSettlement(const Intersection& in) 
     {
-        if (!hasSettlement(location)) 
+        if (!hasSettlement(in)) 
         {
-            settlements.push_back(location);
+            settlements.push_back(in);
         }
     }
 
@@ -42,6 +43,18 @@ namespace ariel {
         }
     }
 
+    const std::vector<Intersection>& Tile::getSettlements() const {
+        return settlements;
+    }
+
+    const std::vector<Edge>& Tile::getRoads() const {
+        return roads;
+    }
+
+
+    vector<int> Tile::getIntersectionIDs() const {
+            return vector<int>(intersectionIDs.begin(), intersectionIDs.end());
+        }
 
     // SUB-CLASSES
 

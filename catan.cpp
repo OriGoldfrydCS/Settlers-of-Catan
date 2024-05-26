@@ -16,25 +16,25 @@ namespace ariel {
     void Catan::initializeGame() 
     {
         board.setupTiles();  
-        board.setupIntersections();
+        board.linkTilesAndIntersections();
 
         // Blue (1st) Player Setup:
         players[0]->placeSettlement(29, board);     // Intersection 29 touches Wood(8), Ore(3), Brick(5)
         players[0]->placeSettlement(33, board);     // Intersection 33 touches Grain(4), Wool(5), Wool(11)
-        players[0]->placeRoad(Edge(board.getIntersection(29), board.getIntersection(30)), board);   // Road between Ore(3) and Brick(5)
-         players[0]->placeRoad(Edge(board.getIntersection(25), board.getIntersection(33)), board);  // Road between Grain(4) and Wool(5)
+        players[0]->placeRoad(Edge(Intersection::getIntersection(29), Intersection::getIntersection(30)), board);   // Road between Ore(3) and Brick(5)
+        players[0]->placeRoad(Edge(Intersection::getIntersection(25), Intersection::getIntersection(33)), board);  // Road between Grain(4) and Wool(5)
 
         // Yellow (2nd) Player Setup:
         players[1]->placeSettlement(8, board);      // Intersection 8 touches Brick(10), Wood(9), Wool(4)
         players[1]->placeSettlement(31, board);     // Intersection 31 touches Ore(3), Grain(4), Grain(6)
-        players[1]->placeRoad(Edge(board.getIntersection(7), board.getIntersection(8)), board);   // Road between Wool(4) and Wood(9)
-        players[1]->placeRoad(Edge(board.getIntersection(31), board.getIntersection(32)), board); // Road between Grain(4) and Grain(6)
+        players[1]->placeRoad(Edge(Intersection::getIntersection(7), Intersection::getIntersection(8)), board);   // Road between Wool(4) and Wood(9)
+        players[1]->placeRoad(Edge(Intersection::getIntersection(31), Intersection::getIntersection(32)), board); // Road between Grain(4) and Grain(6)
 
         // White (3rd) Player Setup:
         players[2]->placeSettlement(12, board);     // Intersection 12 touches Grain(12), Brick(6), Wood(11)
         players[2]->placeSettlement(26, board);     // Intersection 26 touches Wood(3), Ore(8), Wool(5)
-        players[2]->placeRoad(Edge(board.getIntersection(11), board.getIntersection(12)), board);     // Road between Grain(12) and Wood(11)
-        players[2]->placeRoad(Edge(board.getIntersection(17), board.getIntersection(26)), board);     // Road between Wood(3) and Ore(8)
+        players[2]->placeRoad(Edge(Intersection::getIntersection(11), Intersection::getIntersection(12)), board);     // Road between Grain(12) and Wood(11)
+        players[2]->placeRoad(Edge(Intersection::getIntersection(17), Intersection::getIntersection(26)), board);     // Road between Wood(3) and Ore(8)
 
         ChooseStartingPlayer();  
     }

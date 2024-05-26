@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include <iostream>
 #include <cmath>
+#include <sstream>
 
 
 //              (0,2)   (1,2)   (2,2)
@@ -15,8 +16,10 @@ namespace ariel {
     
     Board::Board() 
     { 
-        setupTiles();               // Load tiles
-        setupIntersections();       // Load all intersection of the all tiles
+        Intersection::initialize();                  // Initiate intersections
+        setupTiles();                                // Load tiles
+        linkTilesAndIntersections();                 // Combine between each tile knows its intersections
+
     }
 
     // Beginner fixed layout (assuming a 5x5 grid with the middle part filled as per Catan rules)
@@ -52,105 +55,191 @@ namespace ariel {
         addTile({0, -2}, Tile(ResourceType::WOOL, 11));
     }
 
-    void Board::setupIntersections() 
+    void Board::linkTilesAndIntersections() 
     {
-        int id = 1;
+        // Row 1
+        tiles[{0, 2}].addIntersection(1);
+        tiles[{0, 2}].addIntersection(3);
+        tiles[{0, 2}].addIntersection(4);
+        tiles[{0, 2}].addIntersection(5);
 
-        // Edge cases with only two vertices (1 to 3)
-        intersections.insert({id++, Intersection({Vertex(0, 2), Vertex(1, 2)})});       
-        intersections.insert({id++, Intersection({Vertex(1, 2), Vertex(2, 2)})});          
-        intersections.insert({id++, Intersection({Vertex(-1, 1), Vertex(0, 2)})});         
+        tiles[{1, 2}].addIntersection(1);
+        tiles[{1, 2}].addIntersection(2);
+        tiles[{1, 2}].addIntersection(5);
+        tiles[{1, 2}].addIntersection(6);
+        tiles[{1, 2}].addIntersection(7);
 
-        // Three-vertex intersections: central-upper part of the board (4 to 9)
-        intersections.insert({id++, Intersection({Vertex(-1, 1), Vertex(0, 1), Vertex(0, 2)})});
-        intersections.insert({id++, Intersection({Vertex(0, 2), Vertex(0, 1), Vertex(1, 2)})});
-        intersections.insert({id++, Intersection({Vertex(0, 1), Vertex(1, 2), Vertex(1, 1)})});
-        intersections.insert({id++, Intersection({Vertex(1, 2), Vertex(1, 1), Vertex(2, 2)})});
-        intersections.insert({id++, Intersection({Vertex(1, 1), Vertex(2, 2), Vertex(2, 1)})});
-        
-        // Edge cases with only two vertices (9 to 10)
-        intersections.insert({id++, Intersection({Vertex(2, 2), Vertex(2, 1)})});
-        intersections.insert({id++, Intersection({Vertex(-2, 0), Vertex(-1, 1)})});
-         
-        // Three-vertex intersections: central-bottom part of the board (11 to 17)
-        intersections.insert({id++, Intersection({Vertex(-2, 0), Vertex(-1, 1), Vertex(-1, 0)})});
-        intersections.insert({id++, Intersection({Vertex(-1, 1), Vertex(-1, 0), Vertex(0, 1)})});
-        intersections.insert({id++, Intersection({Vertex(-1, 0), Vertex(0, 1), Vertex(0, 0)})});
-        intersections.insert({id++, Intersection({Vertex(0, 1), Vertex(0, 0), Vertex(1, 1)})});
-        intersections.insert({id++, Intersection({Vertex(0, 0), Vertex(1, 1), Vertex(1, 0)})});
-        intersections.insert({id++, Intersection({Vertex(1, 1), Vertex(1, 0), Vertex(2, 1)})});
-        intersections.insert({id++, Intersection({Vertex(1, 0), Vertex(2, 1), Vertex(2, 0)})});
+        tiles[{2, 2}].addIntersection(2);
+        tiles[{2, 2}].addIntersection(7);
+        tiles[{2, 2}].addIntersection(8);
+        tiles[{2, 2}].addIntersection(9);
 
-        // Edge cases with only two vertices (18 to 19)
-        intersections.insert({id++, Intersection({Vertex(2, 0), Vertex(2, 1)})});
-        intersections.insert({id++, Intersection({Vertex(-2, -1), Vertex(-2, 0)})});
+        // Row 2
+        tiles[{-1, 1}].addIntersection(3);
+        tiles[{-1, 1}].addIntersection(4);
+        tiles[{-1, 1}].addIntersection(10);
+        tiles[{-1, 1}].addIntersection(11);
+        tiles[{-1, 1}].addIntersection(12);
 
-        // Three-vertex intersections: central-bottom part of the board (20 to 26)
-        intersections.insert({id++, Intersection({Vertex(-2, 0), Vertex(-2, -1), Vertex(-1, 0)})});
-        intersections.insert({id++, Intersection({Vertex(-2, -1), Vertex(-1, 0), Vertex(-1, -1)})});
-        intersections.insert({id++, Intersection({Vertex(-1, 0), Vertex(-1, -1), Vertex(0, 0)})});
-        intersections.insert({id++, Intersection({Vertex(-1, -1), Vertex(0, 0), Vertex(0, -1)})});
-        intersections.insert({id++, Intersection({Vertex(0, 0), Vertex(0, -1), Vertex(1, 0)})});
-        intersections.insert({id++, Intersection({Vertex(-1, 0), Vertex(1, 0), Vertex(1, -1)})});
-        intersections.insert({id++, Intersection({Vertex(1, 0), Vertex(1, -1), Vertex(2, 0)})});
-        
-        // Edge cases with only two vertices (27 to 28)
-        intersections.insert({id++, Intersection({Vertex(2, 0), Vertex(1, -1)})});
-        intersections.insert({id++, Intersection({Vertex(-2, 2), Vertex(-2, -1)})});
+        tiles[{0, 1}].addIntersection(4);
+        tiles[{0, 1}].addIntersection(5);
+        tiles[{0, 1}].addIntersection(6);
+        tiles[{0, 1}].addIntersection(12);
+        tiles[{0, 1}].addIntersection(13);
+        tiles[{0, 1}].addIntersection(14);
 
-        // Three-vertex intersections: central-bottom part of the board (29 to 33)
-        intersections.insert({id++, Intersection({Vertex(-2, -1), Vertex(-2, -2), Vertex(-1, -1)})});
-        intersections.insert({id++, Intersection({Vertex(-2, -2), Vertex(-1, -1), Vertex(-1, -2)})});
-        intersections.insert({id++, Intersection({Vertex(-1, -1), Vertex(-1, -2), Vertex(0, -1)})});
-        intersections.insert({id++, Intersection({Vertex(-1, -2), Vertex(0, -1), Vertex(0, -2)})});
-        intersections.insert({id++, Intersection({Vertex(0, -1), Vertex(0, -2), Vertex(1, -1)})});
+        tiles[{1, 1}].addIntersection(6);
+        tiles[{1, 1}].addIntersection(7);
+        tiles[{1, 1}].addIntersection(8);
+        tiles[{1, 1}].addIntersection(14);
+        tiles[{1, 1}].addIntersection(15);
+        tiles[{1, 1}].addIntersection(16);
 
-        // Edge cases with only two vertices (34 to 36)
-        intersections.insert({id++, Intersection({Vertex(1, -1), Vertex(0, -2)})});
-        intersections.insert({id++, Intersection({Vertex(-1, -2), Vertex(-2, -2)})});
-        intersections.insert({id++, Intersection({Vertex(0, -2), Vertex(-1, -2)})});
+        tiles[{2, 1}].addIntersection(8);
+        tiles[{2, 1}].addIntersection(9);
+        tiles[{2, 1}].addIntersection(16);
+        tiles[{2, 1}].addIntersection(17);
+        tiles[{2, 1}].addIntersection(18);
+
+        // Row 3
+        tiles[{-2, 0}].addIntersection(10);
+        tiles[{-2, 0}].addIntersection(11);
+        tiles[{-2, 0}].addIntersection(19);
+        tiles[{-2, 0}].addIntersection(20);
+
+        tiles[{-1, 0}].addIntersection(11);
+        tiles[{-1, 0}].addIntersection(12);
+        tiles[{-1, 0}].addIntersection(13);
+        tiles[{-1, 0}].addIntersection(20);
+        tiles[{-1, 0}].addIntersection(21);
+        tiles[{-1, 0}].addIntersection(22);
+
+        tiles[{0, 0}].addIntersection(13);
+        tiles[{0, 0}].addIntersection(14);
+        tiles[{0, 0}].addIntersection(15);
+        tiles[{0, 0}].addIntersection(22);
+        tiles[{0, 0}].addIntersection(23);
+        tiles[{0, 0}].addIntersection(24);
+
+        tiles[{1, 0}].addIntersection(15);
+        tiles[{1, 0}].addIntersection(16);
+        tiles[{1, 0}].addIntersection(17);
+        tiles[{1, 0}].addIntersection(24);
+        tiles[{1, 0}].addIntersection(25);
+        tiles[{1, 0}].addIntersection(26);
+
+        tiles[{2, 0}].addIntersection(17);
+        tiles[{2, 0}].addIntersection(18);
+        tiles[{2, 0}].addIntersection(26);
+        tiles[{2, 0}].addIntersection(27);
+
+        // Row 3
+        tiles[{-2, -1}].addIntersection(19);
+        tiles[{-2, -1}].addIntersection(20);
+        tiles[{-2, -1}].addIntersection(21);
+        tiles[{-2, -1}].addIntersection(28);
+        tiles[{-2, -1}].addIntersection(29);
+
+        tiles[{-1, -1}].addIntersection(21);
+        tiles[{-1, -1}].addIntersection(22);
+        tiles[{-1, -1}].addIntersection(23);
+        tiles[{-1, -1}].addIntersection(29);
+        tiles[{-1, -1}].addIntersection(30);
+        tiles[{-1, -1}].addIntersection(31);
+
+        tiles[{0, -1}].addIntersection(23);
+        tiles[{0, -1}].addIntersection(24);
+        tiles[{0, -1}].addIntersection(25);
+        tiles[{0, -1}].addIntersection(31);
+        tiles[{0, -1}].addIntersection(32);
+        tiles[{0, -1}].addIntersection(33);
+
+        tiles[{1, -1}].addIntersection(25);
+        tiles[{1, -1}].addIntersection(26);
+        tiles[{1, -1}].addIntersection(27);
+        tiles[{1, -1}].addIntersection(33);
+        tiles[{1, -1}].addIntersection(34);
+
+        // Row 5
+        tiles[{-2, -2}].addIntersection(28);
+        tiles[{-2, -2}].addIntersection(29);
+        tiles[{-2, -2}].addIntersection(30);
+        tiles[{-2, -2}].addIntersection(35);
+
+        tiles[{-1, -2}].addIntersection(30);
+        tiles[{-1, -2}].addIntersection(31);
+        tiles[{-1, -2}].addIntersection(32);
+        tiles[{-1, -2}].addIntersection(35);
+        tiles[{-1, -2}].addIntersection(36);
+
+        tiles[{0, -2}].addIntersection(32);
+        tiles[{0, -2}].addIntersection(33);
+        tiles[{0, -2}].addIntersection(34);
+        tiles[{0, -2}].addIntersection(36);
     }
-
 
     const Tile& Board::getTile(const std::pair<int, int>& position) const
     {
         return tiles.at(position);
     }
 
-    Intersection Board::getIntersection(int intersectionID) const
-    {
-        auto it = intersections.find(intersectionID);
-        if (it != intersections.end()) {
-            return it->second;
-        }
-        throw std::out_of_range("Invalid intersection ID");
-    }
+    // Intersection Board::getIntersection(int intersectionID) const
+    // {
+    //     auto it = intersections.find(intersectionID);
+    //     if (it != intersections.end()) {
+    //         return it->second;
+    //     }
+    //     throw std::out_of_range("Invalid intersection ID");
+    // }
 
     int Board::getIntersectionID(const Intersection& intersection) const {
-        for (const auto& [id, inter] : intersections) {
+        const auto& allIntersections = Intersection::getAllIntersections();
+        for (const auto& [id, inter] : allIntersections) {
             if (inter == intersection) {
                 return id;
             }
         }
-        throw std::out_of_range("Invalid intersection");
+        throw std::out_of_range("Intersection not found");
     }
 
-    void Board::printBoard() const 
-    {
-        cout << "Board Layout:\n";
-        for (int y = 2; y >= -2; --y) {
-            for (int x = -2; x <= 2; x++) {
-                if (tiles.find({x, y}) != tiles.end()) {
-                    const Tile& tile = tiles.at({x, y});
-                    string resource = resourceTypeToString(tile.getResourceType());
-                    cout << resource[0] << "(" << tile.getNumber() << ") ";
-                } else {
-                    cout << "     ";  // Space for tiles that are not defined
+    void Board::printBoard() const {
+        const auto& allIntersections = Intersection::getAllIntersections(); // Fetch all intersections once, to use below
+
+        for (const auto& [pos, tile] : tiles) {
+            std::cout << "Tile at (" << pos.first << ", " << pos.second << "): "
+                    << resourceTypeToString(tile.getResourceType()) << " Number: " << tile.getNumber() << std::endl;
+
+            // Get the intersections IDs associated with the tile
+            const auto& intersectionIDs = tile.getIntersectionIDs();
+            for (const auto& id : intersectionIDs) {
+                // Print the intersection details
+                const auto& intersection = allIntersections.at(id); // Use at() to access the intersection directly
+                std::cout << "  Intersection " << id << " includes vertices: ";
+                for (const auto& vertex : intersection.vertices) {
+                    std::cout << vertex << " ";
+                }
+                std::cout << std::endl;
+
+                // Check for settlements
+                if (settlements.count(id) > 0) {
+                    for (const auto& playerID : settlements.at(id)) {
+                        std::cout << "    Settlement by Player " << playerID << std::endl;
+                    }
+                }
+
+                // Check for roads
+                for (const auto& [edge, playerID] : roads) {
+                    if (edge.involvesIntersection(id, allIntersections)) {
+                        std::cout << "    Road by Player " << playerID << " between "
+                                << getIntersectionID(edge.i1) << " and " << getIntersectionID(edge.i2) << std::endl;
+                    }
                 }
             }
-            cout << "\n";
         }
     }
+
+
+
 
     string Board::tileString(const pair<int, int>& position) const {
         try 
@@ -207,37 +296,29 @@ namespace ariel {
         return tiles.find(position) == tiles.end();
     }
 
-    bool Board::canPlaceSettlement(int intersectionID, int playerID) 
-    {
+    bool Board::canPlaceSettlement(int intersectionID, int playerID) {
+        // Access all intersections via the Intersection class
+        const auto& allIntersections = Intersection::getAllIntersections();
+
         // Ensure the intersection exists
-        if (intersections.find(intersectionID) == intersections.end())
+        if (allIntersections.find(intersectionID) == allIntersections.end())
             return false;
 
-        const auto& intersection = intersections[intersectionID];
-        for (const Vertex& v : intersection.vertices) 
+        // Check if the intersection already has a settlement by the player
+        if (settlements.find(intersectionID) != settlements.end() && settlements[intersectionID].count(playerID))
         {
-            // Check if any vertex already has a settlement
-            if (settlements.find(v) != settlements.end() && settlements[v].count(playerID)) 
-            {
-                return false;
-            }
+            return false;
         }
         return true;  // If no settlements conflict, the placement is valid
     }
 
-    void Board::placeSettlement(int intersectionID, int playerID) 
-    {
+
+    void Board::placeSettlement(int intersectionID, int playerID) {
         if (canPlaceSettlement(intersectionID, playerID)) {
-            const auto& intersection = intersections[intersectionID];
-            for (const Vertex& v : intersection.vertices) 
-            {
-                settlements[v].insert(playerID);  // Mark each vertex in the intersection as settled by this player
-            }
-            cout << "Player " << playerID << " placed a settlement at intersection ID " << intersectionID << "." << endl;
-        } 
-        else 
-        {
-            cout << "Settlement placement failed at intersection ID " << intersectionID << "." << endl;
+            settlements[intersectionID].insert(playerID);
+            std::cout << "Player " << playerID << " placed a settlement at intersection ID " << intersectionID << "." << std::endl;
+        } else {
+            std::cout << "Settlement placement failed at intersection ID " << intersectionID << "." << std::endl;
         }
     }
 
@@ -252,13 +333,11 @@ namespace ariel {
         // Check if the edge is connected to a settlement or another road of the same player
         bool connected = false;
         for (const auto& intersection : {edge.i1, edge.i2}) {
-            for (const auto& vertex : intersection.vertices) {
-                if (settlements.find(vertex) != settlements.end() && settlements[vertex].count(playerID)) {
-                    connected = true;
-                    break;
-                }
+            int intersectionID = getIntersectionID(intersection);
+            if (settlements.find(intersectionID) != settlements.end() && settlements[intersectionID].count(playerID)) {
+                connected = true;
+                break;
             }
-            if (connected) break;
         }
 
         // Check for adjacent roads of the same player
@@ -267,7 +346,7 @@ namespace ariel {
             for (const auto& [existingEdge, existingPlayerID] : roads) 
             {
                 if (existingPlayerID == playerID && (existingEdge.i1 == edge.i1 || existingEdge.i1 == edge.i2 || 
-                                                     existingEdge.i2 == edge.i1 || existingEdge.i2 == edge.i2)) 
+                                                    existingEdge.i2 == edge.i1 || existingEdge.i2 == edge.i2)) 
                 {
                     connected = true;
                     break;
@@ -277,6 +356,7 @@ namespace ariel {
 
         return connected;
     }
+
 
     void Board::placeRoad(const Edge& edge, int playerID) 
     {

@@ -20,7 +20,7 @@ namespace ariel {
             int id;
             map<ResourceType, int> resources;
             map<DevCardType, int> developmentCards;
-            size_t points;
+            size_t points = 2;
 
         public:
 
@@ -57,6 +57,7 @@ namespace ariel {
             string getName() const;
             int getId() const;
             void printPoints() const;
+            
     };
 }
 
