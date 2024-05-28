@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "player.hpp"  
 #include <iostream>
 #include <cmath>
 #include <sstream>
@@ -66,7 +67,6 @@ namespace ariel {
         tiles[{0, 2}].addIntersection(9);
         tiles[{0, 2}].addIntersection(10);
         tiles[{0, 2}].addIntersection(11);
-
 
         tiles[{1, 2}].addIntersection(3);
         tiles[{1, 2}].addIntersection(4);
@@ -298,7 +298,7 @@ namespace ariel {
 
             // Print the tile and its features if there are any
             if (!features.empty()) {
-                std::cout << "************************************************" << std::endl;
+                cout << "*******************************************************" << endl;
                 std::cout << resourceTypeToString(tile.getResourceType()) << " " << tile.getNumber()
                 << ", Tile at (" << pos.first << ", " << pos.second << "): " << std::endl;
 
@@ -308,7 +308,7 @@ namespace ariel {
             }
         }
 
-        std::cout << "************************************************" << std::endl;
+        cout << "*******************************************************" << endl;
 
     }
 
@@ -317,7 +317,8 @@ namespace ariel {
         {
             const Tile& tile = getTile(position);
             std::string resourceInitial;
-            switch (tile.getResourceType()) {
+            switch (tile.getResourceType()) 
+            {
                 case ResourceType::WOOD:    resourceInitial = "WOOD"; break;
                 case ResourceType::BRICK:   resourceInitial = "BRICK"; break;
                 case ResourceType::ORE:     resourceInitial = "ORE"; break;
@@ -331,6 +332,91 @@ namespace ariel {
             return "   ";  // Return spaces for non-existent tiles
         }
     }
+
+
+    vector<ResourceType> Board::getResourceTypesAroundIntersection(int intersectionID) {
+        set<ResourceType> uniqueResources; // Use a set to ensure uniqueness
+        set<pair<int, int>> contributingTiles; // To track which tiles contribute resources
+
+        for (const auto& [position, tile] : tiles) {
+            const auto& ids = tile.getIntersectionIDs();
+            if (ids.find(intersectionID) != ids.end()) {
+                ResourceType type = tile.getResourceType();
+                if (type != ResourceType::NONE) {  // Exclude deserts
+                    uniqueResources.insert(type);
+                    contributingTiles.insert(position); // Debug: Track contributing tile positions
+                }
+            }
+        }
+
+        // Debug output to see contributing tiles
+        cout << "Intersection " << intersectionID << " receives resources from tiles at: ";
+        for (const auto& pos : contributingTiles) {
+            cout << "(" << pos.first << ", " << pos.second << ") ";
+        }
+        cout << endl;
+
+        // Convert set back to vector for return type compliance or other needs
+        vector<ResourceType> resources(uniqueResources.begin(), uniqueResources.end());
+        return resources;
+    }
+
+
+
+
+    void Board::distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer) {
+    cout << "Distributing resources for dice roll: " << diceRoll << "." << endl;
+
+    // This will collect all resource options available for the dice roll
+    map<ResourceType, vector<pair<int, int>>> resourceOptions;
+
+    // Gather all tiles that match the dice roll
+    for (auto& [position, tile] : tiles) {
+        if (tile.getNumber() == diceRoll && tile.getResourceType() != ResourceType::NONE) {
+            resourceOptions[tile.getResourceType()].push_back(position);
+        }
+    }
+
+    // Present resource options to the player if more than one type is available
+    if (resourceOptions.empty()) {
+        cout << "No resources available for this roll." << endl;
+    } else if (resourceOptions.size() == 1 && resourceOptions.begin()->second.size() == 1) {
+        // If only one type of resource from one tile, directly add it
+        auto& resourceType = resourceOptions.begin()->first;
+        currentPlayer->addResource(resourceType, 1);
+        cout << "You received 1 " << resourceTypeToString(resourceType) << " from tile at (" 
+             << resourceOptions.begin()->second[0].first << ", " 
+             << resourceOptions.begin()->second[0].second << ")." << endl;
+    } else {
+        // More than one resource type or more than one tile for the same resource
+        cout << "Choose which resource to collect:" << endl;
+        int optionIndex = 1;
+        vector<ResourceType> choices;
+        for (auto& [resourceType, positions] : resourceOptions) {
+            for (auto& pos : positions) {
+                cout << "Option " << optionIndex++ << ": " << resourceTypeToString(resourceType) 
+                     << " from tile at (" << pos.first << ", " << pos.second << ")" << endl;
+                choices.push_back(resourceType);
+            }
+        }
+        
+        int selectedOption;
+        cout << "Enter option number: ";
+        cin >> selectedOption;
+        if (selectedOption > 0 && selectedOption <= choices.size()) {
+            currentPlayer->addResource(choices[selectedOption - 1], 1);
+            cout << "You received 1 " << resourceTypeToString(choices[selectedOption - 1]) << "." << endl;
+        } else {
+            cout << "Invalid option selected." << endl;
+        }
+    }
+}
+
+
+
+
+
+
 
     void Board::printBoardByTiles() const
     {
@@ -441,6 +527,11 @@ namespace ariel {
         }
     }
 
+    // Check if an intersection has any settlements
+    bool Board::hasSettlement(int intersectionID) 
+    {
+        return settlements.find(intersectionID) != settlements.end() && !settlements[intersectionID].empty();
+    }
     // void Board::draw(sf::RenderWindow& window) {
     //     float radius = 40;  // radius of the hexagon
 

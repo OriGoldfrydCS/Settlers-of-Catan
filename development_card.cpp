@@ -35,4 +35,5 @@ namespace ariel {
     {
         // Implement the logic to use the Victory Point card
     }
+    
 }

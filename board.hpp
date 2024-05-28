@@ -7,10 +7,11 @@
 #include "tile.hpp"
 #include "intersection.hpp"
 #include "edge.hpp"
+#include "player.hpp"
 
 
 namespace ariel {
-    
+    class Player;
     class Board 
     {
         private:
@@ -48,6 +49,12 @@ namespace ariel {
             // Get intersection by ID
             // Intersection getIntersection(int intersectionID) const;
             int getIntersectionID(const Intersection& intersection) const;
+
+
+            vector<ResourceType> getResourceTypesAroundIntersection(int intersectionID);
+                void distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer);
+            bool hasSettlement(int intersectionID);
+
 
            
     };

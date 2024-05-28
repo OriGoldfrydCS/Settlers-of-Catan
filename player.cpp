@@ -1,13 +1,18 @@
 #include "player.hpp"
 #include <iostream>
 #include <sstream>
+#include "card_type.hpp"
 
 using namespace std;
 namespace ariel {
 
     int Player::nextID = 1;     // Initialize the static member to 1
 
-    Player::Player(const string& name) : name(name), id(nextID++), resources(), developmentCards(), points(0) {}
+    Player::Player(const string& name) : name(name), id(nextID++), resources(), developmentCards(), points(0) { // Start with 2 points
+        for (auto& resource : {ResourceType::WOOD, ResourceType::BRICK, ResourceType::WOOL, ResourceType::GRAIN, ResourceType::ORE}) {
+            resources[resource] = 0;
+        }
+    }
 
     const map<string, map<ResourceType, int>> Player::buildingCosts = 
     {
@@ -43,14 +48,12 @@ namespace ariel {
     }
 
 
-    void Player::placeSettlement(int intersectionID, Board& board) 
-    {
-        if (board.canPlaceSettlement(intersectionID, this->id)) 
-        {
+    void Player::placeSettlement(int intersectionID, Board& board) {
+        if (board.canPlaceSettlement(intersectionID, this->id)) {
             board.placeSettlement(intersectionID, this->id);
-            settlements.insert(intersectionID);                 // Record the placement of the settlement
-
-        }
+            settlements.insert(intersectionID);  // Record the placement of the settlement
+            points += 1;  // Each settlement should give a point
+        } 
     }
 
     void Player::placeRoad(const Edge& edge, Board& board) 
@@ -69,11 +72,21 @@ namespace ariel {
         // Implement the logic to build a city
     }
 
-    void Player::addResource(ResourceType type, int quantity) 
-    {
-        resources[type] += quantity;
-    }
+    void Player::addResource(ResourceType type, int quantity) {
+    resources[type] += quantity;
+    cout << "Added " << quantity << " " << resourceTypeToString(type) << " to Player " << id 
+         << ", total now: " << resources[type] << endl;
+    printResources(); // Calling to print all resources after updating
 
+}
+
+void Player::printResources() const {
+    cout << name << "'s resources: ";
+    for (const auto& [resourceType, amount] : resources) {
+        cout << resourceTypeToString(resourceType) << ": " << amount << ", ";
+    }
+    cout << endl;
+}
     bool Player::useResources(ResourceType type, int quantity) 
     {
         if (resources[type] >= quantity) 
@@ -104,9 +117,9 @@ namespace ariel {
         return this->points;
     }
 
-    void endTurn()
-    {
-        // Implement
+    void Player::endTurn() {
+        cout << name << " has ended their turn." << endl;
+        // Any additional cleanup or end-of-turn actions can be added here
     }
 
     int Player::rollDice() 
@@ -129,17 +142,51 @@ namespace ariel {
         cout << name << " has " << points << " points." << endl;
     }
 
-    string Player::printPlayerStructures() const {
+    string Player::printPlayer() const {
         stringstream ss;
-        ss << "Player " << name << " (Id " << id << "): \nPoints: " << points << "\n";
+        ss << "Player " << name << " (Id " << id << "):\n";
+        ss << "Points: " << points << "\n";
+        
+        // Print settlements
         ss << "Settlements at: ";
         for (int settlement : settlements) {
             ss << settlement << " ";
         }
-        ss << "\nRoads on: ";
+        ss << "\n";
+
+        // Print roads
+        ss << "Roads on: ";
         for (const Edge& road : roads) {
             ss << "(" << road.getId1() << ", " << road.getId2() << ") ";
         }
+        ss << "\n";
+
+        // Print resources
+        ss << "Resources:\n";
+        string resources_str;
+        for (const auto& [resourceType, amount] : resources) {
+            resources_str += resourceTypeToString(resourceType) + " [" + std::to_string(amount) + "], ";
+        }
+        if (!resources_str.empty()) {
+            resources_str.pop_back();  // Remove last space
+            resources_str.pop_back();  // Remove last comma
+        }
+        ss << resources_str << "\n";
+
+        // Print development cards
+        ss << "Development Cards:\n";
+        string dev_cards_str;
+        for (const auto& [cardType, count] : developmentCards) {
+            dev_cards_str += devCardTypeToString(cardType) + ": " + std::to_string(count) + ", ";
+        }
+        if (!dev_cards_str.empty()) {
+            dev_cards_str.pop_back();  // Remove last space
+            dev_cards_str.pop_back();  // Remove last comma
+        }
+        ss << dev_cards_str << "\n";
+
         return ss.str();
     }
+
+    
 }

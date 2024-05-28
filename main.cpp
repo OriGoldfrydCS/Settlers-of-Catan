@@ -16,15 +16,17 @@ int main() {
     // Initialize the game with these players
     Catan game(player1, player2, player3);
 
-    // Initialize game settings (placing initial settlements and roads)
-    game.initializeGame();
-
     // Print state after initial placements
     game.printGameState();
 
     // Print players structures
-    cout << player1.printPlayerStructures() << endl;
-    cout << player3.printPlayerStructures() << endl;
+    cout << player1.printPlayer() << endl;
+    cout << player2.printPlayer() << endl;
+    cout << player3.printPlayer() << endl;
+
+    game.ChooseStartingPlayer();  
+
+    game.playGame();
 
     return 0;
 }

@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include "resource_type.hpp"
-#include "vertex_edge.hpp"
 #include "intersection.hpp"
 #include "edge.hpp"
 
@@ -45,7 +44,7 @@ namespace ariel {
             intersectionIDs.insert(intersectionID);
         }
 
-        vector<int> getIntersectionIDs() const;
+        set<int> getIntersectionIDs() const;
 
         // Getter methods
         const std::vector<Intersection>& getSettlements() const;

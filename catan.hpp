@@ -24,12 +24,16 @@ namespace ariel {
 
         // Initializes the game, setting up the board and choosing the starting player.
         void initializeGame();
+        void distributeResources(Player* player);
+        void placeInitialSettlementAndResources(int intersectionID, Player* player);
 
         // Chooses the starting player index randomly from the number of players.
         void ChooseStartingPlayer();
 
         // Manages the main game loop, controlling the flow of turns and checking for the game end condition.
-        // void playGame();
+        void playGame();
+
+        void nextTurn() ;
 
         // Advances the game to the next player's turn, updating the currentPlayerIndex.
         // void nextTurn();
@@ -43,6 +47,7 @@ namespace ariel {
         // Prints the winner of the game based on current scores.
         void printWinner();
 
+        
     };
 }
 

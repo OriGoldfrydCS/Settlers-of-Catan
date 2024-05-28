@@ -52,8 +52,8 @@ namespace ariel {
     }
 
 
-    vector<int> Tile::getIntersectionIDs() const {
-            return vector<int>(intersectionIDs.begin(), intersectionIDs.end());
+    set<int> Tile::getIntersectionIDs() const {
+            return set<int>(intersectionIDs.begin(), intersectionIDs.end());
         }
 
     // SUB-CLASSES

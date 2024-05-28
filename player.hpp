@@ -6,14 +6,17 @@
 #include <set>
 #include <vector>
 #include "board.hpp"
+#include "player.hpp"
 #include "intersection.hpp"
 #include "resource.hpp"
 #include "developmentCard.hpp"
 #include "edge.hpp"
+#include "card_type.hpp"
+
 
 using namespace std;
 namespace ariel {
-
+    class Board;
     class Player
     {
         private:
@@ -45,7 +48,9 @@ namespace ariel {
 
             // Methods to manage resources
             void addResource(ResourceType type, int quantity);
+            void printResources() const;
             bool useResources(ResourceType type, int quantity);
+            int getResourceCount(ResourceType type) const;
 
             // Methods to manage development cards
             void buyDevelopmentCard(DevCardType type);
@@ -67,7 +72,7 @@ namespace ariel {
             const set<int>& getSettlements() const { return settlements; }
             const set<Edge>& getRoads() const { return roads; }
 
-            string printPlayerStructures() const;
+            string printPlayer() const;
 
             
     };
