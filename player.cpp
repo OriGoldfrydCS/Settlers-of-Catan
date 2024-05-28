@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 namespace ariel {
@@ -47,6 +48,8 @@ namespace ariel {
         if (board.canPlaceSettlement(intersectionID, this->id)) 
         {
             board.placeSettlement(intersectionID, this->id);
+            settlements.insert(intersectionID);                 // Record the placement of the settlement
+
         }
     }
 
@@ -55,6 +58,8 @@ namespace ariel {
         if (board.canPlaceRoad(edge, this->id)) 
         {
             board.placeRoad(edge, this->id);
+            roads.insert(edge);                                 // Record the placement of the road
+
         }
     }
 
@@ -122,5 +127,19 @@ namespace ariel {
     void Player::printPoints() const 
     {
         cout << name << " has " << points << " points." << endl;
+    }
+
+    string Player::printPlayerStructures() const {
+        stringstream ss;
+        ss << "Player " << name << " (Id " << id << "): \nPoints: " << points << "\n";
+        ss << "Settlements at: ";
+        for (int settlement : settlements) {
+            ss << settlement << " ";
+        }
+        ss << "\nRoads on: ";
+        for (const Edge& road : roads) {
+            ss << "(" << road.getId1() << ", " << road.getId2() << ") ";
+        }
+        return ss.str();
     }
 }

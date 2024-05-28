@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <algorithm>
+
 
 
 //              (0,2)   (1,2)   (2,2)
@@ -59,123 +61,144 @@ namespace ariel {
     {
         // Row 1
         tiles[{0, 2}].addIntersection(1);
+        tiles[{0, 2}].addIntersection(2);
         tiles[{0, 2}].addIntersection(3);
-        tiles[{0, 2}].addIntersection(4);
-        tiles[{0, 2}].addIntersection(5);
+        tiles[{0, 2}].addIntersection(9);
+        tiles[{0, 2}].addIntersection(10);
+        tiles[{0, 2}].addIntersection(11);
 
-        tiles[{1, 2}].addIntersection(1);
-        tiles[{1, 2}].addIntersection(2);
+
+        tiles[{1, 2}].addIntersection(3);
+        tiles[{1, 2}].addIntersection(4);
         tiles[{1, 2}].addIntersection(5);
-        tiles[{1, 2}].addIntersection(6);
-        tiles[{1, 2}].addIntersection(7);
+        tiles[{1, 2}].addIntersection(11);
+        tiles[{1, 2}].addIntersection(12);
+        tiles[{1, 2}].addIntersection(13);
 
-        tiles[{2, 2}].addIntersection(2);
+
+        tiles[{2, 2}].addIntersection(5);
+        tiles[{2, 2}].addIntersection(6);
         tiles[{2, 2}].addIntersection(7);
-        tiles[{2, 2}].addIntersection(8);
-        tiles[{2, 2}].addIntersection(9);
+        tiles[{2, 2}].addIntersection(13);
+        tiles[{2, 2}].addIntersection(14);
+        tiles[{2, 2}].addIntersection(15);
 
         // Row 2
-        tiles[{-1, 1}].addIntersection(3);
-        tiles[{-1, 1}].addIntersection(4);
+        tiles[{-1, 1}].addIntersection(8);
+        tiles[{-1, 1}].addIntersection(9);
         tiles[{-1, 1}].addIntersection(10);
-        tiles[{-1, 1}].addIntersection(11);
-        tiles[{-1, 1}].addIntersection(12);
+        tiles[{-1, 1}].addIntersection(18);
+        tiles[{-1, 1}].addIntersection(19);
+        tiles[{-1, 1}].addIntersection(20);
 
-        tiles[{0, 1}].addIntersection(4);
-        tiles[{0, 1}].addIntersection(5);
-        tiles[{0, 1}].addIntersection(6);
+        tiles[{0, 1}].addIntersection(10);
+        tiles[{0, 1}].addIntersection(11);
         tiles[{0, 1}].addIntersection(12);
-        tiles[{0, 1}].addIntersection(13);
-        tiles[{0, 1}].addIntersection(14);
+        tiles[{0, 1}].addIntersection(20);
+        tiles[{0, 1}].addIntersection(21);
+        tiles[{0, 1}].addIntersection(22);
 
-        tiles[{1, 1}].addIntersection(6);
-        tiles[{1, 1}].addIntersection(7);
-        tiles[{1, 1}].addIntersection(8);
+        tiles[{1, 1}].addIntersection(12);
+        tiles[{1, 1}].addIntersection(13);
         tiles[{1, 1}].addIntersection(14);
-        tiles[{1, 1}].addIntersection(15);
-        tiles[{1, 1}].addIntersection(16);
+        tiles[{1, 1}].addIntersection(22);
+        tiles[{1, 1}].addIntersection(23);
+        tiles[{1, 1}].addIntersection(24);
 
-        tiles[{2, 1}].addIntersection(8);
-        tiles[{2, 1}].addIntersection(9);
+        tiles[{2, 1}].addIntersection(14);
+        tiles[{2, 1}].addIntersection(15);
         tiles[{2, 1}].addIntersection(16);
-        tiles[{2, 1}].addIntersection(17);
-        tiles[{2, 1}].addIntersection(18);
+        tiles[{2, 1}].addIntersection(24);
+        tiles[{2, 1}].addIntersection(25);
+        tiles[{2, 1}].addIntersection(26);
 
         // Row 3
-        tiles[{-2, 0}].addIntersection(10);
-        tiles[{-2, 0}].addIntersection(11);
+        tiles[{-2, 0}].addIntersection(17);
+        tiles[{-2, 0}].addIntersection(18);
         tiles[{-2, 0}].addIntersection(19);
-        tiles[{-2, 0}].addIntersection(20);
+        tiles[{-2, 0}].addIntersection(28);
+        tiles[{-2, 0}].addIntersection(29);
+        tiles[{-2, 0}].addIntersection(30);
 
-        tiles[{-1, 0}].addIntersection(11);
-        tiles[{-1, 0}].addIntersection(12);
-        tiles[{-1, 0}].addIntersection(13);
+
+        tiles[{-1, 0}].addIntersection(19);
         tiles[{-1, 0}].addIntersection(20);
         tiles[{-1, 0}].addIntersection(21);
-        tiles[{-1, 0}].addIntersection(22);
+        tiles[{-1, 0}].addIntersection(30);
+        tiles[{-1, 0}].addIntersection(31);
+        tiles[{-1, 0}].addIntersection(32);
 
-        tiles[{0, 0}].addIntersection(13);
-        tiles[{0, 0}].addIntersection(14);
-        tiles[{0, 0}].addIntersection(15);
+        tiles[{0, 0}].addIntersection(21);
         tiles[{0, 0}].addIntersection(22);
         tiles[{0, 0}].addIntersection(23);
-        tiles[{0, 0}].addIntersection(24);
+        tiles[{0, 0}].addIntersection(32);
+        tiles[{0, 0}].addIntersection(33);
+        tiles[{0, 0}].addIntersection(34);
 
-        tiles[{1, 0}].addIntersection(15);
-        tiles[{1, 0}].addIntersection(16);
-        tiles[{1, 0}].addIntersection(17);
+        tiles[{1, 0}].addIntersection(23);
         tiles[{1, 0}].addIntersection(24);
         tiles[{1, 0}].addIntersection(25);
-        tiles[{1, 0}].addIntersection(26);
+        tiles[{1, 0}].addIntersection(34);
+        tiles[{1, 0}].addIntersection(35);
+        tiles[{1, 0}].addIntersection(36);
 
-        tiles[{2, 0}].addIntersection(17);
-        tiles[{2, 0}].addIntersection(18);
+        tiles[{2, 0}].addIntersection(25);
         tiles[{2, 0}].addIntersection(26);
         tiles[{2, 0}].addIntersection(27);
+        tiles[{2, 0}].addIntersection(36);
+        tiles[{2, 0}].addIntersection(37);
+        tiles[{2, 0}].addIntersection(38);
 
         // Row 3
-        tiles[{-2, -1}].addIntersection(19);
-        tiles[{-2, -1}].addIntersection(20);
-        tiles[{-2, -1}].addIntersection(21);
-        tiles[{-2, -1}].addIntersection(28);
         tiles[{-2, -1}].addIntersection(29);
+        tiles[{-2, -1}].addIntersection(30);
+        tiles[{-2, -1}].addIntersection(31);
+        tiles[{-2, -1}].addIntersection(39);
+        tiles[{-2, -1}].addIntersection(40);
+        tiles[{-2, -1}].addIntersection(41);
 
-        tiles[{-1, -1}].addIntersection(21);
-        tiles[{-1, -1}].addIntersection(22);
-        tiles[{-1, -1}].addIntersection(23);
-        tiles[{-1, -1}].addIntersection(29);
-        tiles[{-1, -1}].addIntersection(30);
         tiles[{-1, -1}].addIntersection(31);
+        tiles[{-1, -1}].addIntersection(32);
+        tiles[{-1, -1}].addIntersection(33);
+        tiles[{-1, -1}].addIntersection(41);
+        tiles[{-1, -1}].addIntersection(42);
+        tiles[{-1, -1}].addIntersection(43);
 
-        tiles[{0, -1}].addIntersection(23);
-        tiles[{0, -1}].addIntersection(24);
-        tiles[{0, -1}].addIntersection(25);
-        tiles[{0, -1}].addIntersection(31);
-        tiles[{0, -1}].addIntersection(32);
         tiles[{0, -1}].addIntersection(33);
+        tiles[{0, -1}].addIntersection(34);
+        tiles[{0, -1}].addIntersection(35);
+        tiles[{0, -1}].addIntersection(43);
+        tiles[{0, -1}].addIntersection(44);
+        tiles[{0, -1}].addIntersection(45);
 
-        tiles[{1, -1}].addIntersection(25);
-        tiles[{1, -1}].addIntersection(26);
-        tiles[{1, -1}].addIntersection(27);
-        tiles[{1, -1}].addIntersection(33);
-        tiles[{1, -1}].addIntersection(34);
+        tiles[{1, -1}].addIntersection(35);
+        tiles[{1, -1}].addIntersection(36);
+        tiles[{1, -1}].addIntersection(37);
+        tiles[{1, -1}].addIntersection(45);
+        tiles[{1, -1}].addIntersection(46);
+        tiles[{1, -1}].addIntersection(47);
 
         // Row 5
-        tiles[{-2, -2}].addIntersection(28);
-        tiles[{-2, -2}].addIntersection(29);
-        tiles[{-2, -2}].addIntersection(30);
-        tiles[{-2, -2}].addIntersection(35);
+        tiles[{-2, -2}].addIntersection(40);
+        tiles[{-2, -2}].addIntersection(41);
+        tiles[{-2, -2}].addIntersection(42);
+        tiles[{-2, -2}].addIntersection(48);
+        tiles[{-2, -2}].addIntersection(49);
+        tiles[{-2, -2}].addIntersection(50);
 
-        tiles[{-1, -2}].addIntersection(30);
-        tiles[{-1, -2}].addIntersection(31);
-        tiles[{-1, -2}].addIntersection(32);
-        tiles[{-1, -2}].addIntersection(35);
-        tiles[{-1, -2}].addIntersection(36);
+        tiles[{-1, -2}].addIntersection(42);
+        tiles[{-1, -2}].addIntersection(43);
+        tiles[{-1, -2}].addIntersection(44);
+        tiles[{-1, -2}].addIntersection(50);
+        tiles[{-1, -2}].addIntersection(51);
+        tiles[{-1, -2}].addIntersection(52);
 
-        tiles[{0, -2}].addIntersection(32);
-        tiles[{0, -2}].addIntersection(33);
-        tiles[{0, -2}].addIntersection(34);
-        tiles[{0, -2}].addIntersection(36);
+        tiles[{0, -2}].addIntersection(44);
+        tiles[{0, -2}].addIntersection(45);
+        tiles[{0, -2}].addIntersection(46);
+        tiles[{0, -2}].addIntersection(52);
+        tiles[{0, -2}].addIntersection(53);
+        tiles[{0, -2}].addIntersection(54);
     }
 
     const Tile& Board::getTile(const std::pair<int, int>& position) const
@@ -202,8 +225,10 @@ namespace ariel {
         throw std::out_of_range("Intersection not found");
     }
 
-    void Board::printBoard() const {
+    void Board::printAllBoardToCheckTileIntersections() const {
         const auto& allIntersections = Intersection::getAllIntersections(); // Fetch all intersections once, to use below
+        set<int> printedIntersections;
+        set<pair<int, int>> printedRoads; // Using pair of intersection IDs to track printed roads
 
         for (const auto& [pos, tile] : tiles) {
             std::cout << "Tile at (" << pos.first << ", " << pos.second << "): "
@@ -212,26 +237,30 @@ namespace ariel {
             // Get the intersections IDs associated with the tile
             const auto& intersectionIDs = tile.getIntersectionIDs();
             for (const auto& id : intersectionIDs) {
-                // Print the intersection details
-                const auto& intersection = allIntersections.at(id); // Use at() to access the intersection directly
-                std::cout << "  Intersection " << id << " includes vertices: ";
-                for (const auto& vertex : intersection.vertices) {
-                    std::cout << vertex << " ";
-                }
-                std::cout << std::endl;
+                if (printedIntersections.insert(id).second) { // Check if this intersection has already been printed
+                    // Print the intersection details
+                    const auto& intersection = allIntersections.at(id); // Use at() to access the intersection directly
+                    std::cout << "  Intersection " << id << " includes vertices: ";
+                    for (const auto& vertex : intersection.vertices) {
+                        std::cout << vertex << " ";
+                    }
+                    std::cout << std::endl;
 
-                // Check for settlements
-                if (settlements.count(id) > 0) {
-                    for (const auto& playerID : settlements.at(id)) {
-                        std::cout << "    Settlement by Player " << playerID << std::endl;
+                    // Check for settlements
+                    if (settlements.count(id) > 0) {
+                        for (const auto& playerID : settlements.at(id)) {
+                            std::cout << "    Settlement by Player " << playerID << std::endl;
+                        }
                     }
                 }
 
                 // Check for roads
                 for (const auto& [edge, playerID] : roads) {
-                    if (edge.involvesIntersection(id, allIntersections)) {
+                    int startID = getIntersectionID(edge.i1);
+                    int endID = getIntersectionID(edge.i2);
+                    if ((edge.involvesIntersection(id, allIntersections)) && printedRoads.insert({min(startID, endID), max(startID, endID)}).second) {
                         std::cout << "    Road by Player " << playerID << " between "
-                                << getIntersectionID(edge.i1) << " and " << getIntersectionID(edge.i2) << std::endl;
+                                << startID << " and " << endID << std::endl;
                     }
                 }
             }
@@ -239,7 +268,49 @@ namespace ariel {
     }
 
 
+    void Board::printBoard() const 
+    {
+        for (const auto& [pos, tile] : tiles) 
+        {
+            const auto& intersectionIDs = tile.getIntersectionIDs();
+            std::vector<std::string> features; // To collect features of the tile
 
+            // Check for settlements at each intersection
+            for (const auto& id : intersectionIDs) {
+                if (settlements.find(id) != settlements.end() && !settlements.at(id).empty()) {
+                    std::string settlementInfo = "    Settlements by Players ";
+                    for (const auto& playerID : settlements.at(id)) {
+                        settlementInfo += std::to_string(playerID) + " ";
+                    }
+                    settlementInfo += "on Intersection " + std::to_string(id);
+                    features.push_back(settlementInfo);
+                }
+            }
+
+            // Check for roads connected to intersections of this tile
+            for (const auto& [edge, playerID] : roads) {
+                if ((std::find(intersectionIDs.begin(), intersectionIDs.end(), edge.getId1()) != intersectionIDs.end()) &&
+                    (std::find(intersectionIDs.begin(), intersectionIDs.end(), edge.getId2()) != intersectionIDs.end())) {
+                    features.push_back("    Road by Player " + std::to_string(playerID) + 
+                                    " between " + std::to_string(edge.getId1()) + " and " + std::to_string(edge.getId2()));
+                }
+            }
+
+            // Print the tile and its features if there are any
+            if (!features.empty()) {
+                std::cout << "************************************************" << std::endl;
+                std::cout << resourceTypeToString(tile.getResourceType()) << " " << tile.getNumber()
+                << ", Tile at (" << pos.first << ", " << pos.second << "): " << std::endl;
+
+                for (const auto& feature : features) {
+                    std::cout << feature << std::endl;
+                }
+            }
+        }
+
+        std::cout << "************************************************" << std::endl;
+
+    }
 
     string Board::tileString(const pair<int, int>& position) const {
         try 

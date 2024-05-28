@@ -6,8 +6,10 @@
 #include <set>
 #include <vector>
 #include "board.hpp"
+#include "intersection.hpp"
 #include "resource.hpp"
 #include "developmentCard.hpp"
+#include "edge.hpp"
 
 using namespace std;
 namespace ariel {
@@ -20,7 +22,10 @@ namespace ariel {
             int id;
             map<ResourceType, int> resources;
             map<DevCardType, int> developmentCards;
+            set<int> settlements;   // Holds the intersection IDs where this player has settlements
+            set<Edge> roads;        // Holds the roads this player has built
             size_t points = 2;
+        
 
         public:
 
@@ -57,6 +62,13 @@ namespace ariel {
             string getName() const;
             int getId() const;
             void printPoints() const;
+
+            // New methods to access player's structures
+            const set<int>& getSettlements() const { return settlements; }
+            const set<Edge>& getRoads() const { return roads; }
+
+            string printPlayerStructures() const;
+
             
     };
 }

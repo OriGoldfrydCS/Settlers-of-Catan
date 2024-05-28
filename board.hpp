@@ -34,6 +34,7 @@ namespace ariel {
             const Tile& getTile(const pair<int, int>& position) const;
             void printBoard() const;
             void printBoardByTiles() const;
+            void printAllBoardToCheckTileIntersections() const;
             string tileString(const std::pair<int, int>& position) const;
             void addTile(const pair<int, int>& position, const Tile& tile);
             bool isTileAvailable(const pair<int, int>& position) const;

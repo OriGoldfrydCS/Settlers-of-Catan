@@ -22,7 +22,9 @@ int main() {
     // Print state after initial placements
     game.printGameState();
 
-
+    // Print players structures
+    cout << player1.printPlayerStructures() << endl;
+    cout << player3.printPlayerStructures() << endl;
 
     return 0;
 }
