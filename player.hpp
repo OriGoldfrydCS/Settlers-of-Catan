@@ -5,6 +5,8 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <random>
+#include <ctime>
 #include "board.hpp"
 // #include "player.hpp"
 #include "intersection.hpp"
@@ -31,6 +33,7 @@ namespace ariel {
             std::map<DevCardType, int> developmentCards;
             std::map<PromotionType, int> promotionCards;
             set<int> settlements;   // Holds the intersection IDs where this player has settlements
+            set<int> cities;
             set<Edge> roads;        // Holds the roads this player has built
             size_t points;
         
@@ -45,7 +48,12 @@ namespace ariel {
             static const map<ResourceType, int> devCardCosts;
 
             // Checking methods
+            void placeInitialSettlement(int intersectionID, Board& board);
+            void placeInitialRoad(const Edge& edge, Board& board);
             bool canBuild(const string& structureType);
+            void buildRoad(const Edge& edge, Board& board);
+            void buildSettlement(int intersectionID, Board& board);
+            void upgradeToCity(int intersectionID, Board& board);
             void build(const string& structureType);
 
             // Building methods
@@ -60,7 +68,7 @@ namespace ariel {
 
             // Methods to manage development cards
             CardPurchaseError buyDevelopmentCard(DevCardType type);
-            CardUseError useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board);
+            CardUseError useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn);
             void useKnightCard(); 
             void usePromotionCard(PromotionType type, vector<Player*>& allPlayers, Board& board);
             void useMonopoly(vector<Player*>& allPlayers);
@@ -79,6 +87,7 @@ namespace ariel {
             int getPoints() const;
             string getName() const;
             int getId() const;
+            const set<int>& getCities() const { return cities; }
             void printPoints() const;
             void addPoints(int pointsToAdd);
 

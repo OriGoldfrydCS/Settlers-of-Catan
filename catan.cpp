@@ -22,13 +22,14 @@ namespace ariel {
         board.setupTiles();  
         board.linkTilesAndIntersections();
 
+        
          // Setup each player's initial resources and settlements
-        players[0]->placeSettlement(41, board);     // Intersection 41 touches Wood(8), Ore(3), Brick(5)
-        players[0]->placeSettlement(45, board);     // Intersection 45 touches Grain(4), Wool(5), Wool(11)
-        players[1]->placeSettlement(14, board);     // Road between Wool(4) and Wood(9)
-        players[1]->placeSettlement(43, board);     // Road between Grain(4) and Grain(6)
-        players[2]->placeSettlement(20, board);     // Road between Grain(12) and Wood(11)
-        players[2]->placeSettlement(36, board);     // Road between Wood(3) and Ore(8)
+        players[0]->placeInitialSettlement(41, board);     // Intersection 41 touches Wood(8), Ore(3), Brick(5)
+        players[0]->placeInitialSettlement(45, board);     // Intersection 45 touches Grain(4), Wool(5), Wool(11)
+        players[1]->placeInitialSettlement(14, board);     // Road between Wool(4) and Wood(9)
+        players[1]->placeInitialSettlement(43, board);     // Road between Grain(4) and Grain(6)
+        players[2]->placeInitialSettlement(20, board);     // Road between Grain(12) and Wood(11)
+        players[2]->placeInitialSettlement(36, board);     // Road between Wood(3) and Ore(8)
 
         // Now distribute resources after all settlements are placed
         for (auto* player : players) 
@@ -37,18 +38,20 @@ namespace ariel {
         }
         
         // Place initial roads
-        players[0]->placeRoad(Edge(Intersection::getIntersection(41), Intersection::getIntersection(42)), board);   // Road between Ore(3) and Brick(5)
-        players[0]->placeRoad(Edge(Intersection::getIntersection(35), Intersection::getIntersection(45)), board);   // Road between Grain(4) and Wool(5)
-        players[1]->placeRoad(Edge(Intersection::getIntersection(13), Intersection::getIntersection(14)), board);   // Road between Wool(4) and Wood(9)
-        players[1]->placeRoad(Edge(Intersection::getIntersection(43), Intersection::getIntersection(44)), board);   // Road between Grain(4) and Grain(6)
-        players[2]->placeRoad(Edge(Intersection::getIntersection(19), Intersection::getIntersection(20)), board);     // Road between Grain(12) and Wood(11)
-        players[2]->placeRoad(Edge(Intersection::getIntersection(25), Intersection::getIntersection(36)), board);     // Road between Wood(3) and Ore(8)
+        players[0]->placeInitialRoad(Edge(Intersection::getIntersection(41), Intersection::getIntersection(42)), board);   // Road between Ore(3) and Brick(5)
+        players[0]->placeInitialRoad(Edge(Intersection::getIntersection(35), Intersection::getIntersection(45)), board);   // Road between Grain(4) and Wool(5)
+        players[1]->placeInitialRoad(Edge(Intersection::getIntersection(13), Intersection::getIntersection(14)), board);   // Road between Wool(4) and Wood(9)
+        players[1]->placeInitialRoad(Edge(Intersection::getIntersection(43), Intersection::getIntersection(44)), board);   // Road between Grain(4) and Grain(6)
+        players[2]->placeInitialRoad(Edge(Intersection::getIntersection(19), Intersection::getIntersection(20)), board);     // Road between Grain(12) and Wood(11)
+        players[2]->placeInitialRoad(Edge(Intersection::getIntersection(25), Intersection::getIntersection(36)), board);     // Road between Wood(3) and Ore(8)
         
         cout << "Initial resources were distributed to the players" << endl;
         cout << "Settlements & roads places by the game's instructions for beginners" << endl;
 
     }
 
+
+   
     // void Catan::placeInitialSettlementAndResources(int intersectionID, Player* player) {
     //     player->placeSettlement(intersectionID, board);
 
@@ -115,35 +118,40 @@ namespace ariel {
             for (Player* currentPlayer : players) 
             {
                 cout << "\nIt's " << currentPlayer->getName() << "'s turn." << endl;
-                cout << "Press 'r' when you are ready to roll the dice." << endl;
-                char ready;
-                cin >> ready;
-                if (ready != 'r' && ready != 'R') {
-                    continue; // Skip to the next player if not ready
+                cout << "Do you want to (1) Roll Dice or (2) Use Development Card? ";
+
+                char preChoice;
+                cin >> preChoice;
+                if (preChoice == 2) 
+                {
+                    cout << "This is you choice" << endl;
+                    handleDevelopmentCardUsage(currentPlayer);
                 }
+                else{
+                    bool validRoll = false;
+                    int total;
+                    while (!validRoll) {
+                        int dice1 = Player::rollDice();
+                        int dice2 = Player::rollDice();
+                        total = dice1 + dice2;
+                        cout << "Player " << currentPlayer->getName() << " rolls a " << dice1 << " and a " << dice2 << " = " << total << "." << endl;
 
-                bool validRoll = false;
-                int total;
-                while (!validRoll) {
-                    int dice1 = Player::rollDice();
-                    int dice2 = Player::rollDice();
-                    total = dice1 + dice2;
-                    cout << "Player " << currentPlayer->getName() << " rolls a " << dice1 << " and a " << dice2 << " = " << total << "." << endl;
-
-                    if (total == 7) {
-                        cout << "Rolled a 7. No resources this turn, roll again." << endl;
-                    } else {
-                        validRoll = true;
+                        if (total == 7) {
+                            cout << "Rolled a 7. No resources this turn, roll again." << endl;
+                        } else {
+                            validRoll = true;
+                        }
                     }
-                }
 
-                if (validRoll && total != 7) {
+                    if (validRoll && total != 7) {
                     cout << "Distributing resources based on dice roll..." << endl;
                     board.distributeResourcesBasedOnDiceRoll(total, players);
                     cout << "Resource distribution complete." << endl;
-                } else {
-                    cout << "No resources distributed this turn." << endl;
+                    } else {
+                        cout << "No resources distributed this turn." << endl;
+                    }
                 }
+                
 
                 cout << "Proceeding to action selection..." << endl;
 
@@ -178,13 +186,13 @@ namespace ariel {
                             cout << "Trading resources...\n";
                             break;
                         case 3:
-                            cout << "Building a road...\n";
+                            handleBuildRoad(currentPlayer);
                             break;
                         case 4:
-                            cout << "Building a settlement...\n";
+                            handleBuildSettlement(currentPlayer);
                             break;
                         case 5:
-                            cout << "Upgrading to a city...\n";
+                            handleUpgradeToCity(currentPlayer);
                             break;
                         case 6: 
                         {
@@ -228,6 +236,7 @@ namespace ariel {
 
                         case 7:
                         {
+                            bool shouldEndTurn = false;
                             cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
                             int devCardChoice;
                             cin >> devCardChoice;
@@ -247,7 +256,7 @@ namespace ariel {
                                     cout << "Invalid card type selected.\n";
                                     continue;
                             }
-                            CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board);
+                            CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
                             if (useResult == CardUseError::Success) {
                                 cout << "Development card used successfully." << endl;
                             } else if (useResult == CardUseError::InsufficientCards) {
@@ -279,7 +288,78 @@ namespace ariel {
         }
     }
 
+    void Catan::handleBuildRoad(Player* currentPlayer) {
+        cout << "Enter the intersection IDs to place a road (e.g., 4 5): ";
+        int id1, id2;
+        cin >> id1 >> id2;
+        try {
+            Edge edge(Intersection::getIntersection(id1), Intersection::getIntersection(id2));
+            if (currentPlayer->canBuild("road") && board.canPlaceRoad(edge, currentPlayer->getId())) {
+                currentPlayer->buildRoad(edge, board);
+                cout << "Road successfully built between " << id1 << " and " << id2 << "." << endl;
+            } else {
+                cout << "Failed to build road. Check if the road is valid or if you have enough resources." << endl;
+            }
+        } catch (const std::exception& e) {
+            cout << "Invalid intersection IDs provided. Please try again." << endl;
+        }
+    }
 
+    void Catan::handleBuildSettlement(Player* currentPlayer) {
+        cout << "Enter the intersection ID to place a settlement: ";
+        int intersectionID;
+        cin >> intersectionID;
+        if (currentPlayer->canBuild("settlement") && board.canPlaceSettlement(intersectionID, currentPlayer->getId())) {
+            currentPlayer->buildSettlement(intersectionID, board);
+            cout << "Settlement successfully built at intersection " << intersectionID << "." << endl;
+        } else {
+            cout << "Failed to build settlement. Check if the location is valid or if you have enough resources." << endl;
+        }
+    }
+
+    void Catan::handleUpgradeToCity(Player* currentPlayer) {
+        cout << "Enter the intersection ID to upgrade to a city: ";
+        int intersectionID;
+        cin >> intersectionID;
+        if (currentPlayer->canBuild("city") && board.canUpgradeSettlementToCity(intersectionID, currentPlayer->getId())) {
+            currentPlayer->upgradeToCity(intersectionID, board);
+            cout << "Settlement at intersection " << intersectionID << " has been upgraded to a city." << endl;
+        } else {
+            cout << "Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
+        }
+    }
+
+    void Catan::handleDevelopmentCardUsage(Player* currentPlayer) {
+        // Assume function that manages the choice and use of a development card
+        bool shouldEndTurn = false;
+        cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
+        int devCardChoice;
+        cin >> devCardChoice;
+        DevCardType cardType;
+        switch(devCardChoice) 
+        {
+            case 1:
+                cardType = DevCardType::KNIGHT;
+                break;
+            case 2:
+                cardType = DevCardType::VICTORY_POINT;
+                break;
+            case 3:
+                cardType = DevCardType::PROMOTION;
+                break;
+            default:
+                cout << "Invalid card type selected.\n";
+                break;
+        }
+        CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
+        if (useResult == CardUseError::Success) {
+            cout << "Development card used successfully." << endl;
+            } else if (useResult == CardUseError::InsufficientCards) {
+                cout << "You do not have enough of this card to use." << endl;
+            } else {
+                cout << "Invalid card type or other error." << endl;
+        }
+    }
     void Catan::clearInputBuffer() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }

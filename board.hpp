@@ -17,6 +17,7 @@ namespace ariel {
         private:
             map<pair<int, int>, Tile> tiles;            // Map of tiles by their coordinates
             map<int, std::set<int>> settlements;        // Tracks settlements at vertices by player ID
+            std::map<int, int> cities;                  // Cities mapped by intersection IDs to player IDs
             map<Edge, int> roads;                       // Tracks roads along edges by player ID
             // map<int, Intersection> intersections;       // Map of all valid intersections
             static map<int, std::set<int>> adjacencyList;      // adjacencyList for all intersection for placing a valid road
@@ -43,10 +44,15 @@ namespace ariel {
             bool isTileAvailable(const pair<int, int>& position) const;
 
             // Settlement and road management
+            void placeInitialSettlement(int intersectionID, int playerID);
+            void placeInitialRoad(const Edge& edge, int playerID);
             bool canPlaceSettlement(int intersectionID, int playerID);
+            bool isIntersectionConnectedToPlayerRoad(int intersectionID, int playerID);
             void placeSettlement(int intersectionID, int playerID);
             bool canPlaceRoad(const Edge& edge, int playerID);
             void placeRoad(const Edge& edge, int playerID);
+            bool canUpgradeSettlementToCity(int intersectionID, int playerID);
+            void upgradeSettlementToCity(int intersectionID, int playerID);
 
             // Get intersection by ID
             // Intersection getIntersection(int intersectionID) const;

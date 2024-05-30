@@ -36,7 +36,8 @@ namespace ariel {
         {ResourceType::GRAIN, 1}
     };
 
-    bool Player::canBuild(const string& structureType) {
+    bool Player::canBuild(const string& structureType) 
+    {
         const auto& cost = buildingCosts.at(structureType);
         for (const auto& resource : cost) {
             if (resources[resource.first] < resource.second)
@@ -62,6 +63,16 @@ namespace ariel {
         }
     }
 
+    void Player::placeInitialSettlement(int intersectionID, Board& board) {
+        board.placeInitialSettlement(intersectionID, this->id);
+        this->settlements.insert(intersectionID);  // Update the player's record of settlements
+        addPoints(1);  // Each initial settlement should still count towards points
+    }
+
+    void Player::placeInitialRoad(const Edge& edge, Board& board) {
+        board.placeInitialRoad(edge, this->id);
+        this->roads.insert(edge);  // Update the player's record of roads
+    }
 
     void Player::placeSettlement(int intersectionID, Board& board) {
         if (board.canPlaceSettlement(intersectionID, this->id)) {
@@ -74,6 +85,50 @@ namespace ariel {
 
     void Player::addPoints(int pointsToAdd) {
         points = points + pointsToAdd;
+    }
+
+    void Player::buildRoad(const Edge& edge, Board& board) {
+        if (canBuild("road") && board.canPlaceRoad(edge, this->id)) {
+            resources[ResourceType::BRICK] -= 1;
+            resources[ResourceType::WOOD] -= 1;
+            roads.insert(edge);
+            board.placeRoad(edge, this->id);
+        }
+    }
+
+    void Player::buildSettlement(int intersectionID, Board& board) {
+        if (canBuild("settlement") && board.canPlaceSettlement(intersectionID, this->id)) {
+            resources[ResourceType::BRICK] -= 1;
+            resources[ResourceType::WOOD] -= 1;
+            resources[ResourceType::WOOL] -= 1;
+            resources[ResourceType::GRAIN] -= 1;
+            settlements.insert(intersectionID);
+            board.placeSettlement(intersectionID, this->id);
+            addPoints(1);
+        }
+    }
+
+    void Player::upgradeToCity(int intersectionID, Board& board) {
+        if (settlements.count(intersectionID) && canBuild("city")) {
+            // Check if there are enough resources
+            if (useResources(ResourceType::ORE, 3) && useResources(ResourceType::GRAIN, 2)) {
+                // Remove from settlements and add to cities
+                settlements.erase(intersectionID);
+                cities.insert(intersectionID);
+                
+                // Perform the upgrade on the board as well
+                board.upgradeSettlementToCity(intersectionID, this->id);
+                
+                // Adjust points (city gives 2 points, removing a settlement subtracts the 1 point it gave)
+                addPoints(1);  // Net gain of 1 additional point
+                
+                cout << "Upgraded settlement at intersection " << intersectionID << " to a city." << endl;
+            } else {
+                cout << "Not enough resources to upgrade to a city." << endl;
+            }
+        } else {
+            cout << "No settlement to upgrade at intersection " << intersectionID << endl;
+        }
     }
 
 
@@ -210,10 +265,11 @@ namespace ariel {
     }
 
 
-    CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board) 
+    CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
     {
         // Print the attempt to use a card
         cout << "Attempting to use card type: " << devCardTypeToString(cardType) << endl;
+        endTurn = false;        // Default to not ending the turn
 
         // First, handle the case where a promotion card is used
         if (cardType == DevCardType::PROMOTION) 
@@ -271,6 +327,7 @@ namespace ariel {
                 return CardUseError::InvalidCardType;
         }
 
+        endTurn = true; // Turn ends after using any development card successfully
         developmentCards[cardType]--;  // Decrement the card after use
         cout << "Used " << devCardTypeToString(cardType) << " card. Remaining count: " << developmentCards[cardType] << endl;
 
@@ -437,9 +494,11 @@ namespace ariel {
         // Any additional cleanup or end-of-turn actions can be added here
     }
 
-    int Player::rollDice() 
-    {
-        return rand() % 6 + 1;
+    int Player::rollDice() {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_int_distribution<> dis(1, 6);
+        return dis(gen);
     }
 
     string Player::getName() const 
@@ -466,11 +525,14 @@ namespace ariel {
         ss << "Settlements at: ";
         for (int settlement : settlements) {
             ss << settlement << " ";
+        }   
+        // Print cities
+        ss << "\nCities at: ";
+        for (int city : cities) {
+            ss << city << " ";
         }
-        ss << "\n";
-
         // Print roads
-        ss << "Roads on: ";
+        ss << "\nRoads on: ";
         for (const Edge& road : roads) {
             ss << "(" << road.getId1() << ", " << road.getId2() << ") ";
         }
@@ -486,7 +548,7 @@ namespace ariel {
             resources_str.pop_back();  // Remove last space
             resources_str.pop_back();  // Remove last comma
         }
-        ss << resources_str << "\n";
+        ss << resources_str;
 
         // Development Cards
         ss << "\nDevelopment Cards:\n";
@@ -502,7 +564,7 @@ namespace ariel {
             // Handle the case where a key does not exist, although in your case, this should not happen
             ss << "Error accessing card data.";
         }
-
+        ss << "\n";
         return ss.str();
     }
 

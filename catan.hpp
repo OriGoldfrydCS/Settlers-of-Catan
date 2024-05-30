@@ -31,7 +31,11 @@ namespace ariel {
         void ChooseStartingPlayer();
 
         // Manages the main game loop, controlling the flow of turns and checking for the game end condition.
-        void playGame();
+        void playGame();        
+        void handleBuildRoad(Player* currentPlayer);
+        void handleBuildSettlement(Player* currentPlayer);
+        void handleUpgradeToCity(Player* currentPlayer);
+        void handleDevelopmentCardUsage(Player* currentPlayer);
 
         void nextTurn() ;
 

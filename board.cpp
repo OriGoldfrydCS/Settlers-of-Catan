@@ -355,6 +355,13 @@ namespace ariel {
                     settlementInfo += "on Intersection " + std::to_string(id);
                     features.push_back(settlementInfo);
                 }
+
+                // Check for cities at each intersection
+                auto cityIter = cities.find(id);
+                if (cityIter != cities.end()) {
+                    std::string cityInfo = "    City by Player " + std::to_string(cityIter->second) + " on Intersection " + std::to_string(id);
+                    features.push_back(cityInfo);
+                }
             }
 
             // Check for roads connected to intersections of this tile
@@ -435,36 +442,41 @@ namespace ariel {
 
 
     void Board::distributeResourcesBasedOnDiceRoll(int diceRoll, const std::vector<Player*>& players) {
-    cout << "Distributing resources for dice roll: " << diceRoll << "." << endl;
+        cout << "Distributing resources for dice roll: " << diceRoll << "." << endl;
 
-    // Mapping from ResourceType to players who should receive that resource this turn
-    map<ResourceType, vector<Player*>> resourcesToDistribute;
+        // Mapping from ResourceType to players who should receive that resource this turn
+        map<Player*, map<ResourceType, int>> resourcesToDistribute;
 
-    // Find all tiles that match the dice roll number and are not "NONE"
-    for (auto& [position, tile] : tiles) {
-        if (tile.getNumber() == diceRoll && tile.getResourceType() != ResourceType::NONE) {
-            // Get all intersections around this tile
-            const auto& intersectionIDs = tile.getIntersectionIDs();
-            for (int intersectionID : intersectionIDs) {
-                // Check each player if they have a settlement on this intersection
-                for (auto* player : players) {
-                    if (player->getSettlements().find(intersectionID) != player->getSettlements().end()) {
-                        // If the player has a settlement here, they should receive resources from this tile
-                        resourcesToDistribute[tile.getResourceType()].push_back(player);
+        // Find all tiles that match the dice roll number and are not "NONE"
+        for (auto& [position, tile] : tiles) {
+            if (tile.getNumber() == diceRoll && tile.getResourceType() != ResourceType::NONE) {
+                // Get all intersections around this tile
+                const auto& intersectionIDs = tile.getIntersectionIDs();
+                for (int intersectionID : intersectionIDs) {
+                    // Check each player if they have a settlement or city on this intersection
+                    for (auto* player : players) {
+                        if (player->getSettlements().find(intersectionID) != player->getSettlements().end()) {
+                            // If the player has a settlement here, they should receive resources from this tile
+                            resourcesToDistribute[player][tile.getResourceType()] += 1;
+                        }
+                        if (player->getCities().find(intersectionID) != player->getCities().end()) {
+                            // If the player has a city here, they should receive double resources from this tile
+                            resourcesToDistribute[player][tile.getResourceType()] += 2;  // Double the resources for cities
+                        }
                     }
                 }
             }
         }
-    }
 
-    // Distribute the resources to players
-    for (auto& [resourceType, players] : resourcesToDistribute) {
-        for (auto* player : players) {
-            player->addResource(resourceType, 1);  // Each settlement collects one resource card of the given type
-            cout << "Player " << player->getName() << " received 1 " << resourceTypeToString(resourceType) << "." << endl;
+        // Distribute the resources to players
+        for (auto& [player, resources] : resourcesToDistribute) {
+            for (auto& [resourceType, quantity] : resources) {
+                player->addResource(resourceType, quantity);  // Distribute the calculated resource quantity
+                cout << "Player " << player->getName() << " received " << quantity << " " << resourceTypeToString(resourceType) << "." << endl;
+            }
         }
     }
-}
+
 
 
 
@@ -517,29 +529,57 @@ namespace ariel {
         return tiles.find(position) == tiles.end();
     }
 
+
+     void Board::placeInitialSettlement(int intersectionID, int playerID) {
+        // Simply place the settlement without any checks for resources or surrounding settlements
+        settlements[intersectionID].insert(playerID);
+        std::cout << "Player " << playerID << " placed an initial settlement at intersection " << intersectionID << "." << std::endl;
+    }
+
+    void Board::placeInitialRoad(const Edge& edge, int playerID) {
+        // Place the road without checking for resources or connectivity to other roads
+        roads.insert({edge, playerID});
+        std::cout << "Player " << playerID << " placed an initial road between intersections " 
+                << getIntersectionID(edge.i1) << " and " << getIntersectionID(edge.i2) << "." << std::endl;
+    }
+
+
     bool Board::canPlaceSettlement(int intersectionID, int playerID) {
-        // Access all intersections via the Intersection class
+        // Ensure the intersection exists and is connected to a road owned by the player
         const auto& allIntersections = Intersection::getAllIntersections();
-
-        // Ensure the intersection exists
-        if (allIntersections.find(intersectionID) == allIntersections.end())
-            return false;
-
-        // Check if the intersection already has a settlement by the player
-        if (settlements.find(intersectionID) != settlements.end() && settlements[intersectionID].count(playerID))
-        {
+        if (allIntersections.find(intersectionID) == allIntersections.end() || !isIntersectionConnectedToPlayerRoad(intersectionID, playerID)) {
+            cout << "Cannot place settlement: no road connection or invalid intersection." << endl;
             return false;
         }
-        return true;  // If no settlements conflict, the placement is valid
+
+        // Check for settlements too close to the desired location
+        for (int neighbor : adjacencyList[intersectionID]) {
+            if (hasSettlement(neighbor)) {
+                cout << "Cannot place settlement: too close to another settlement." << endl;
+                return false;
+            }
+        }
+
+        return true; // Placement is valid
+    }
+
+
+    bool Board::isIntersectionConnectedToPlayerRoad(int intersectionID, int playerID) {
+        for (const auto& [edge, ownerID] : roads) {
+            if (ownerID == playerID && (edge.getId1() == intersectionID || edge.getId2() == intersectionID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     void Board::placeSettlement(int intersectionID, int playerID) {
         if (canPlaceSettlement(intersectionID, playerID)) {
             settlements[intersectionID].insert(playerID);
-            std::cout << "Player " << playerID << " placed a settlement at intersection ID " << intersectionID << "." << std::endl;
+            cout << "Player " << playerID << " placed a settlement at intersection " << intersectionID << "." << endl;
         } else {
-            std::cout << "Settlement placement failed at intersection ID " << intersectionID << "." << std::endl;
+            cout << "Settlement placement failed at intersection " << intersectionID << "." << endl;
         }
     }
 
@@ -549,23 +589,22 @@ namespace ariel {
         return false;
     }
 
-    bool isConnected = false;
+    // Check if the intersections are adjacent
+    if (!areIntersectionsAdjacent(newRoad.getId1(), newRoad.getId2())) {
+        cout << "Cannot place road: intersections are not neighbors." << endl;
+        return false;
+    }
 
-    // Check for connection to the player's settlements
+    // Check for connection to the player's settlements or existing roads
+    bool isConnected = false;
     if ((settlements.find(newRoad.getId1()) != settlements.end() && settlements[newRoad.getId1()].count(playerID)) ||
         (settlements.find(newRoad.getId2()) != settlements.end() && settlements[newRoad.getId2()].count(playerID))) {
         isConnected = true;
     }
-
-    // Check for continuity with other roads of the same player
-    if (!isConnected) {
-        for (const auto& [existingEdge, existingPlayerID] : roads) {
-            if (existingPlayerID == playerID) {
-                if (existingEdge.involvesIntersection(newRoad.getId1()) || existingEdge.involvesIntersection(newRoad.getId2())) {
-                    isConnected = true;
-                    break;
-                }
-            }
+    for (const auto& [existingEdge, existingPlayerID] : roads) {
+        if (existingPlayerID == playerID && (existingEdge.involvesIntersection(newRoad.getId1()) || existingEdge.involvesIntersection(newRoad.getId2()))) {
+            isConnected = true;
+            break;
         }
     }
 
@@ -585,6 +624,34 @@ namespace ariel {
         } else {
             cout << "Road placement failed between intersections "
                 << getIntersectionID(edge.i1) << " and " << getIntersectionID(edge.i2) << "." << endl;
+        }
+    }
+
+    bool Board::canUpgradeSettlementToCity(int intersectionID, int playerID) {
+        // Check if there's a settlement belonging to the player at the specified intersection
+        auto it = settlements.find(intersectionID);
+        if (it != settlements.end() && it->second.count(playerID) > 0) {
+            // Check if the player has enough resources to upgrade (handled in Player class)
+            return true;
+        }
+        return false;
+    }
+
+    void Board::upgradeSettlementToCity(int intersectionID, int playerID) 
+    {
+        if (canUpgradeSettlementToCity(intersectionID, playerID)) {
+            // Remove settlement entry
+            settlements[intersectionID].erase(playerID);
+            if (settlements[intersectionID].empty()) {
+                settlements.erase(intersectionID);
+            }
+
+            // Add to cities
+            cities[intersectionID] = playerID;
+
+            std::cout << "Player " << playerID << " upgraded a settlement to a city at intersection " << intersectionID << "." << std::endl;
+        } else {
+            std::cout << "Cannot upgrade to city at " << intersectionID << std::endl;
         }
     }
 
