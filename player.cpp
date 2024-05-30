@@ -228,6 +228,7 @@ namespace ariel {
                     if (MonopolyCard::getQuantity() > 0) {
                         MonopolyCard::decreaseQuantity();
                         promotionCards[PromotionType::MONOPOLY]++;
+                        developmentCards[DevCardType::PROMOTION]++;
                     } else {
                         return CardPurchaseError::CardUnavailable;
                     }
@@ -236,6 +237,7 @@ namespace ariel {
                     if (RoadBuildingCard::getQuantity() > 0) {
                         RoadBuildingCard::decreaseQuantity();
                         promotionCards[PromotionType::ROAD_BUILDING]++;
+                        developmentCards[DevCardType::PROMOTION]++;
                     } else {
                         return CardPurchaseError::CardUnavailable;
                     }
@@ -243,7 +245,9 @@ namespace ariel {
                 case 3:
                     if (YearOfPlentyCard::getQuantity() > 0) {
                         YearOfPlentyCard::decreaseQuantity();
-                        // promotionCards[PromotionType::YEAR_OF_PLENTY]++;
+                        promotionCards[PromotionType::YEAR_OF_PLENTY]++;
+                        developmentCards[DevCardType::PROMOTION]++;
+
                     } else {
                         return CardPurchaseError::CardUnavailable;
                     }
@@ -302,6 +306,14 @@ namespace ariel {
 
             usePromotionCard(promoType, allPlayers, board);
             cout << "Used " << promotionTypeToString(promoType) << " card. Remaining: " << promotionCards[promoType] << endl;
+            
+            if (promoType == PromotionType::YEAR_OF_PLENTY) {
+            additionalActions(board); // Call additional actions specific to Year of Plenty
+            endTurn = false;  // Do not end the turn after Year of Plenty
+            } else {
+                endTurn = true;  // End the turn after using Monopoly or Road Building
+            }
+
             return CardUseError::Success;
         }
 
@@ -335,6 +347,74 @@ namespace ariel {
     }
 
 
+    void Player::additionalActions(Board& board) {
+        cout << "You have activated the 'Year of Plenty' card and may take two additional actions with your new resources." << endl;
+        int actionCount = 2;  // Allowing two actions as per the card's benefit
+
+        while (actionCount > 0) {
+            cout << "You have " << actionCount << " actions remaining." << endl;
+            cout << "Choose an action:\n";
+            cout << "1. Build a road\n";
+            cout << "2. Build a settlement\n";
+            cout << "3. Upgrade to a city\n";
+            cout << "4. Pass (skip action)\n";
+            cout << "Enter your choice: ";
+            int choice;
+            cin >> choice;
+
+            int intersectionID1, intersectionID2;
+
+            switch (choice) {
+                case 1:
+                    cout << "Enter the intersection IDs to place a road (e.g., 4 5): ";
+                    cin >> intersectionID1 >> intersectionID2;
+                    try {
+                        Edge edge(Intersection::getIntersection(intersectionID1), Intersection::getIntersection(intersectionID2));
+                        if (canBuild("road") && board.canPlaceRoad(edge, this->id)) {
+                            buildRoad(edge, board);
+                            cout << "Road built successfully." << endl;
+                            actionCount--;
+                        } else {
+                            cout << "Failed to build road. Check if the road is valid or if you have enough resources." << endl;
+                        }
+                    } catch (const std::exception& e) {
+                        cout << "Invalid intersection IDs provided. Error: " << e.what() << endl;
+                    }
+                    break;
+
+                case 2:
+                    cout << "Enter the intersection ID to place a settlement: ";
+                    cin >> intersectionID1;
+                    if (canBuild("settlement") && board.canPlaceSettlement(intersectionID1, this->id)) {
+                        buildSettlement(intersectionID1, board);
+                        cout << "Settlement built successfully." << endl;
+                        actionCount--;
+                    } else {
+                        cout << "Failed to build settlement. Ensure you have enough resources and a valid location." << endl;
+                    }
+                    break;
+                case 3:
+                    cout << "Enter the intersection ID to upgrade to a city: ";
+                    cin >> intersectionID1;
+                    if (canBuild("city") && board.canUpgradeSettlementToCity(intersectionID1, this->id)) {
+                        upgradeToCity(intersectionID1, board);
+                        cout << "City upgraded successfully." << endl;
+                        actionCount--;
+                    } else {
+                        cout << "Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
+                    }
+                    break;
+                case 4:
+                    cout << "Skipping action." << endl;
+                    actionCount--;
+                    break;
+                default:
+                    cout << "Invalid choice. Please choose a valid action." << endl;
+                    break;
+            }
+        }
+        cout << "All actions completed or skipped." << endl;
+    }
 
 
     void Player::useKnightCard() 
@@ -456,25 +536,205 @@ namespace ariel {
 
 
     void Player::useYearOfPlenty() {
-        // Allow player to choose two resources to gain from the bank
-        ResourceType res1 = chooseResource();
-        ResourceType res2 = chooseResource();
-        resources[res1] += 1;
-        resources[res2] += 1;
-        cout << name << " gains " << resourceTypeToString(res1) << " and " << resourceTypeToString(res2) << " from Year of Plenty." << endl;
+        cout << name << " is using a 'Year of Plenty' card." << endl;
+
+        // Player selects the first resource
+        ResourceType res1 = chooseResource("Choose the first resource to receive:");
+        addResource(res1, 1);  // Add one resource card of the selected type
+
+        // Player selects the second resource
+        ResourceType res2 = chooseResource("Choose the second resource to receive:");
+        addResource(res2, 1);  // Add one resource card of the selected type
+
+        cout << name << " received " << resourceTypeToString(res1) << " and " << resourceTypeToString(res2) << " from the bank." << endl;
+        printResources(); // Optionally print updated resources
     }
 
-    ResourceType Player::chooseResource() {
-        // Implementation to choose a resource (could be simplified here)
-        return ResourceType::WOOD; // Example default
+    ResourceType Player::chooseResource(const string& prompt) {
+        cout << prompt << endl;
+        cout << "1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
+        int choice;
+        cin >> choice;
+        switch (choice) {
+            case 1: return ResourceType::WOOD;
+            case 2: return ResourceType::BRICK;
+            case 3: return ResourceType::WOOL;
+            case 4: return ResourceType::GRAIN;
+            case 5: return ResourceType::ORE;
+            default:
+                cout << "Invalid choice, defaulting to Wood." << endl;
+                return ResourceType::WOOD;
+        }
     }
+
+
+
     
 
-    void trade(Player& other, const string& give, const string& receive, int giveAmount, int receiveAmount)
-    {
-        // Implement the logic to trade resources between players
+    void Player::discardResources(int toDiscard) {
+        cout << name << " has more than 7 resources and must discard " << toDiscard << " of them." << endl;
+        int totalDiscarded = 0;
+        while (totalDiscarded < toDiscard) {
+            cout << "You need to discard " << toDiscard - totalDiscarded << " more resources." << endl;
+            cout << "Current resources: WOOD: " << resources[WOOD] << ", BRICK: " << resources[BRICK]
+                << ", WOOL: " << resources[WOOL] << ", GRAIN: " << resources[GRAIN] << ", ORE: " << resources[ORE] << endl;
+            cout << "Type the number of each resource to discard separated by space (WOOD BRICK WOOL GRAIN ORE): ";
+            int wood, brick, wool, grain, ore;
+            cin >> wood >> brick >> wool >> grain >> ore;
+
+            // Validate the input
+            if (wood <= resources[WOOD] && brick <= resources[BRICK] &&
+                wool <= resources[WOOL] && grain <= resources[GRAIN] &&
+                ore <= resources[ORE] && (wood + brick + wool + grain + ore) == (toDiscard - totalDiscarded)) {
+                resources[WOOD] -= wood;
+                resources[BRICK] -= brick;
+                resources[WOOL] -= wool;
+                resources[GRAIN] -= grain;
+                resources[ORE] -= ore;
+                totalDiscarded += wood + brick + wool + grain + ore;
+            } else {
+                cout << "Invalid input. Please ensure the numbers are correct and total the amount you need to discard." << endl;
+            }
+        }
+        cout << "Discarding complete. " << name << " now has:" << endl;
+        printResources();
+
     }
 
+
+
+    ResourceType Player::stringToResourceType(const string& input) {
+        if (input == "Wood") return ResourceType::WOOD;
+        if (input == "Brick") return ResourceType::BRICK;
+        if (input == "Wool") return ResourceType::WOOL;
+        if (input == "Grain") return ResourceType::GRAIN;
+        if (input == "Ore") return ResourceType::ORE;
+        throw std::invalid_argument("Invalid resource type");
+    }
+
+    int Player::countTotalResources() const {
+        int sum = 0;
+        for (const auto& resource : resources) {
+            sum += resource.second;
+        }
+        return sum;
+    }
+    
+    void Player::trade(std::vector<Player*>& allPlayers) {
+        std::map<ResourceType, int> offerResources, requestResources;
+        std::map<DevCardType, int> offerCards, requestCards;
+
+        // Displaying all players to choose from
+        std::cout << "Choose a player to trade with:" << std::endl;
+        for (size_t i = 0; i < allPlayers.size(); ++i) {
+            if (allPlayers[i]->getId() != this->getId()) {  // Ensure player cannot trade with themselves
+                std::cout << i + 1 << ". " << allPlayers[i]->getName() << std::endl;
+            }
+        }
+
+        size_t playerIndex;
+        std::cin >> playerIndex;
+        playerIndex--;  // Adjust for zero-indexed vector
+
+        if (playerIndex < 0 || playerIndex >= allPlayers.size() || allPlayers[playerIndex]->getId() == this->getId()) {
+            std::cout << "Invalid player selection." << std::endl;
+            return;
+        }
+
+        Player* recipient = allPlayers[playerIndex];
+
+        // Collect offer details
+        std::cout << "Enter the number of each resource you want to offer:" << std::endl;
+        for (auto& resource : resources) {
+            std::cout << resourceTypeToString(resource.first) << ": ";
+            std::cin >> offerResources[resource.first];
+        }
+
+        std::cout << "Enter the number of each development card you want to offer:" << std::endl;
+        for (auto& card : developmentCards) {
+            std::cout << devCardTypeToString(card.first) << ": ";
+            std::cin >> offerCards[card.first];
+        }
+
+        // Collect request details
+        std::cout << "Enter the number of each resource you want in return:" << std::endl;
+        for (auto& resource : resources) {
+            std::cout << resourceTypeToString(resource.first) << ": ";
+            std::cin >> requestResources[resource.first];
+        }
+
+        std::cout << "Enter the number of each development card you want in return:" << std::endl;
+        for (auto& card : developmentCards) {
+            std::cout << devCardTypeToString(card.first) << ": ";
+            std::cin >> requestCards[card.first];
+        }
+
+        // Check if the player has enough resources and cards to offer
+        bool hasEnoughOffer = true;
+        for (auto& offer : offerResources) {
+            if (resources[offer.first] < offer.second) {
+                hasEnoughOffer = false;
+                break;
+            }
+        }
+        for (auto& offer : offerCards) {
+            if (developmentCards[offer.first] < offer.second) {
+                hasEnoughOffer = false;
+                break;
+            }
+        }
+
+        if (!hasEnoughOffer) {
+            std::cout << "You do not have enough resources or cards to make this offer." << std::endl;
+            return;
+        }
+
+        // Check if recipient has enough resources and cards to fulfill the request
+        bool recipientCanFulfill = true;
+        for (auto& request : requestResources) {
+            if (recipient->resources[request.first] < request.second) {
+                recipientCanFulfill = false;
+                break;
+            }
+        }
+        for (auto& request : requestCards) {
+            if (recipient->developmentCards[request.first] < request.second) {
+                recipientCanFulfill = false;
+                break;
+            }
+        }
+
+        if (!recipientCanFulfill) {
+            std::cout << recipient->getName() << " does not have enough resources or cards to fulfill the request." << std::endl;
+            return;
+        }
+
+        // Trade confirmation
+        std::string response;
+        std::cout << recipient->getName() << ", do you accept this trade? (yes/no): ";
+        std::cin >> response;
+        if (response == "yes") {
+            for (auto& offer : offerResources) {
+                resources[offer.first] -= offer.second;
+                recipient->resources[offer.first] += offer.second;
+            }
+            for (auto& offer : offerCards) {
+                developmentCards[offer.first] -= offer.second;
+                recipient->developmentCards[offer.first] += offer.second;
+            }
+            for (auto& request : requestResources) {
+                recipient->resources[request.first] -= request.second;
+                resources[request.first] += request.second;
+            }
+            for (auto& request : requestCards) {
+                recipient->developmentCards[request.first] -= request.second;
+                developmentCards[request.first] += request.second;
+            }
+            std::cout << "Trade accepted and completed." << std::endl;
+        } else {
+            std::cout << recipient->getName() << " rejected the trade." << std::endl;
+        }
+    }
 
     int Player::getResourceCount(ResourceType type) const {
         auto it = resources.find(type);

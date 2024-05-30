@@ -120,42 +120,35 @@ namespace ariel {
                 cout << "\nIt's " << currentPlayer->getName() << "'s turn." << endl;
                 cout << "Do you want to (1) Roll Dice or (2) Use Development Card? ";
 
-                char preChoice;
+                int preChoice;
                 cin >> preChoice;
                 if (preChoice == 2) 
                 {
-                    cout << "This is you choice" << endl;
-                    handleDevelopmentCardUsage(currentPlayer);
-                }
-                else{
-                    bool validRoll = false;
-                    int total;
-                    while (!validRoll) {
-                        int dice1 = Player::rollDice();
-                        int dice2 = Player::rollDice();
-                        total = dice1 + dice2;
-                        cout << "Player " << currentPlayer->getName() << " rolls a " << dice1 << " and a " << dice2 << " = " << total << "." << endl;
-
-                        if (total == 7) {
-                            cout << "Rolled a 7. No resources this turn, roll again." << endl;
-                        } else {
-                            validRoll = true;
-                        }
+                    bool shouldEndTurn = false;
+                    handleDevelopmentCardUsage(currentPlayer, shouldEndTurn);
+                    if (shouldEndTurn) {
+                        currentPlayer->endTurn();
+                        nextTurn();
+                        continue; // Skip to next player immediately
                     }
+                }
+                else {
+                    // Proceed with dice roll
+                    int dice1 = Player::rollDice();
+                    int dice2 = Player::rollDice();
+                    int total = dice1 + dice2;
+                    cout << "Player " << currentPlayer->getName() << " rolls " << dice1 << " + " << dice2 << " = " << total << "." << endl;
 
-                    if (validRoll && total != 7) {
-                    cout << "Distributing resources based on dice roll..." << endl;
-                    board.distributeResourcesBasedOnDiceRoll(total, players);
-                    cout << "Resource distribution complete." << endl;
+                    if (total == 7) {
+                        handleSevenRoll();
                     } else {
-                        cout << "No resources distributed this turn." << endl;
+                        board.distributeResourcesBasedOnDiceRoll(total, players);
+                        cout << "Resources distributed based on dice roll." << endl;
                     }
                 }
-                
 
                 cout << "Proceeding to action selection..." << endl;
 
-                
                 // Action selection
                 bool endTurn = false;
                 while (!endTurn) {
@@ -174,7 +167,6 @@ namespace ariel {
                     cin >> choice;
                     clearInputBuffer(); // Clear the buffer after reading an integer
 
-
                     switch(choice) {
                         case 0:
                             printGameState();
@@ -183,86 +175,35 @@ namespace ariel {
                             cout << currentPlayer->printPlayer();
                             break;
                         case 2:
+                            currentPlayer->trade(players);
                             cout << "Trading resources...\n";
                             break;
                         case 3:
                             handleBuildRoad(currentPlayer);
+                            // endTurn = true;
                             break;
                         case 4:
                             handleBuildSettlement(currentPlayer);
+                            // endTurn = true;
                             break;
                         case 5:
                             handleUpgradeToCity(currentPlayer);
+                            // endTurn = true;
                             break;
                         case 6: 
                         {
-                            cout << "Select the type of Development Card to buy:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
-                            int cardChoice;
-                            cin >> cardChoice;
-                            DevCardType cardType;
-
-                            switch(cardChoice) {
-                                case 1:
-                                    cardType = DevCardType::KNIGHT;
-                                    break;
-                                case 2:
-                                    cardType = DevCardType::VICTORY_POINT;
-                                    break;
-                                case 3:
-                                    cardType = DevCardType::PROMOTION;
-                                    break;
-                                default:
-                                    cout << "Invalid card type selected.\n";
-                                    continue;
-                            }
-
-                            CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType);
-                            switch(result) {
-                                case CardPurchaseError::Success:
-                                    cout << "Development card purchased successfully.\n";
-                                    break;
-                                case CardPurchaseError::InsufficientResources:
-                                    cout << "Not enough resources to buy a development card.\n";
-                                    break;
-                                case CardPurchaseError::CardUnavailable:
-                                    cout << "The selected card is currently unavailable.\n";
-                                    break;
-                                default:
-                                    cout << "An unexpected error occurred.\n";
-                                    break;
-                            }
+                            handleBuyDevelopmentCard(currentPlayer);
+                            // endTurn = true;
                             break;
                         }
 
                         case 7:
                         {
                             bool shouldEndTurn = false;
-                            cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
-                            int devCardChoice;
-                            cin >> devCardChoice;
-                            DevCardType cardType;
-                            switch(devCardChoice) 
-                            {
-                                case 1:
-                                    cardType = DevCardType::KNIGHT;
-                                    break;
-                                case 2:
-                                    cardType = DevCardType::VICTORY_POINT;
-                                    break;
-                                case 3:
-                                    cardType = DevCardType::PROMOTION;
-                                    break;
-                                default:
-                                    cout << "Invalid card type selected.\n";
-                                    continue;
-                            }
-                            CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
-                            if (useResult == CardUseError::Success) {
-                                cout << "Development card used successfully." << endl;
-                            } else if (useResult == CardUseError::InsufficientCards) {
-                                cout << "You do not have enough of this card to use." << endl;
-                            } else {
-                                cout << "Invalid card type or other error." << endl;
+                            handleDevelopmentCardUsage(currentPlayer, shouldEndTurn);
+                            if (shouldEndTurn) {
+                                cout << "Proceeding to additional actions after using the card..." << endl;
+                                endTurn = true; // End turn if the card used should end the turn
                             }
                             break;
                         }
@@ -329,9 +270,50 @@ namespace ariel {
         }
     }
 
-    void Catan::handleDevelopmentCardUsage(Player* currentPlayer) {
+    void Catan::handleBuyDevelopmentCard(Player* currentPlayer) {
+        cout << "Select the type of Development Card to buy:\n";
+        cout << "1. Knight\n";
+        cout << "2. Victory Point\n";
+        cout << "3. Promotion\n";
+        cout << "Enter your choice: ";
+        int cardChoice;
+        cin >> cardChoice;
+        DevCardType cardType;
+
+        switch(cardChoice) {
+            case 1:
+                cardType = DevCardType::KNIGHT;
+                break;
+            case 2:
+                cardType = DevCardType::VICTORY_POINT;
+                break;
+            case 3:
+                cardType = DevCardType::PROMOTION;
+                break;
+            default:
+                cout << "Invalid card type selected.\n";
+                return;
+        }
+
+        CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType);
+        switch(result) {
+            case CardPurchaseError::Success:
+                cout << "Development card purchased successfully.\n";
+                break;
+            case CardPurchaseError::InsufficientResources:
+                cout << "Not enough resources to buy a development card.\n";
+                break;
+            case CardPurchaseError::CardUnavailable:
+                cout << "The selected card is currently unavailable.\n";
+                break;
+            default:
+                cout << "An unexpected error occurred.\n";
+                break;
+        }
+    }
+
+    void Catan::handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn) {
         // Assume function that manages the choice and use of a development card
-        bool shouldEndTurn = false;
         cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
         int devCardChoice;
         cin >> devCardChoice;
@@ -354,12 +336,32 @@ namespace ariel {
         CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
         if (useResult == CardUseError::Success) {
             cout << "Development card used successfully." << endl;
+            shouldEndTurn = true;
             } else if (useResult == CardUseError::InsufficientCards) {
                 cout << "You do not have enough of this card to use." << endl;
             } else {
                 cout << "Invalid card type or other error." << endl;
         }
     }
+
+    void Catan::handleSevenRoll() {
+        cout << "A 7 was rolled. Players with more than 7 resources must discard half of them." << endl;
+        size_t currentPlayerPosition = currentPlayerIndex; // Remember the current player index
+        do {
+            Player* currentPlayer = players[currentPlayerIndex];
+            int totalResources = currentPlayer->countTotalResources();
+            if (totalResources > 7) {
+                int toDiscard = totalResources / 2; // Calculate half to discard, rounded down
+                currentPlayer->discardResources(toDiscard);
+            }
+            nextTurn(); // Proceed to next player in a circular manner
+        } while (currentPlayerIndex != currentPlayerPosition); // Go until we reach the starting player again
+
+        cout << "It is now " << players[currentPlayerIndex]->getName() << "'s turn to continue their turn." << endl;
+    }
+
+
+
     void Catan::clearInputBuffer() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }

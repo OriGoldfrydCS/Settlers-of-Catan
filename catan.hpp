@@ -35,9 +35,11 @@ namespace ariel {
         void handleBuildRoad(Player* currentPlayer);
         void handleBuildSettlement(Player* currentPlayer);
         void handleUpgradeToCity(Player* currentPlayer);
-        void handleDevelopmentCardUsage(Player* currentPlayer);
+        void handleBuyDevelopmentCard(Player* currentPlayer);
+        void handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn);
 
         void nextTurn() ;
+        void handleSevenRoll();
 
         // Advances the game to the next player's turn, updating the currentPlayerIndex.
         // void nextTurn();

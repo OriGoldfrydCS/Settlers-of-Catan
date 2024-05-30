@@ -75,21 +75,29 @@ namespace ariel {
             void useRoadBuilding(Board& board);
             bool isRoadContinuation(int id1, int id2);
             void useYearOfPlenty();
-            ResourceType chooseResource();
+            ResourceType chooseResource(const string& prompt);
+            void additionalActions(Board& board);
+
+            
+            // roll 7
+            void discardResources(int toDiscard);
+            ResourceType stringToResourceType(const string& input);
 
             // Trading method
-            void trade(Player& other, const string& give, const string& receive, int giveAmount, int receiveAmount);
+            void trade(vector<Player*>& allPlayers);
 
             // Rolls a single six-sided die.
             static int rollDice();
             void endTurn();
 
+            // Getters, Setters and 
             int getPoints() const;
             string getName() const;
             int getId() const;
             const set<int>& getCities() const { return cities; }
             void printPoints() const;
             void addPoints(int pointsToAdd);
+            int countTotalResources() const;
 
             // New methods to access player's structures
             const set<int>& getSettlements() const { return settlements; }
