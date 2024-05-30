@@ -9,7 +9,6 @@
 #include "edge.hpp"
 #include "player.hpp"
 
-
 namespace ariel {
     class Player;
     class Board 
@@ -19,6 +18,7 @@ namespace ariel {
             map<int, std::set<int>> settlements;        // Tracks settlements at vertices by player ID
             map<Edge, int> roads;                       // Tracks roads along edges by player ID
             // map<int, Intersection> intersections;       // Map of all valid intersections
+            static map<int, std::set<int>> adjacencyList;      // adjacencyList for all intersection for placing a valid road
 
         public:
 
@@ -26,6 +26,7 @@ namespace ariel {
             Board();
             void setupTiles();
             void linkTilesAndIntersections(); 
+            static void initializeAdjacency();
 
             // Setup methods for GUI
             // void loadResources();
@@ -52,9 +53,11 @@ namespace ariel {
 
 
             vector<ResourceType> getResourceTypesAroundIntersection(int intersectionID);
-                void distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer);
+            bool areIntersectionsAdjacent(int id1, int id2);
+            void distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer);
             bool hasSettlement(int intersectionID);
 
+        
 
            
     };

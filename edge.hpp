@@ -23,6 +23,9 @@ namespace ariel {
             bool operator<(const Edge& other) const;
             bool operator==(const Edge& other) const;
             bool involvesIntersection(int intersectionID, const std::map<int, Intersection>& intersections) const;
+
+            bool involvesIntersection(int intersectionID) const;
+
             int getId1() const { return i1.id; }
             int getId2() const { return i2.id; }
             friend std::ostream& operator<<(std::ostream& os, const Edge& edge);

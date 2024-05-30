@@ -17,7 +17,7 @@ int main() {
     Catan game(player1, player2, player3);
 
     // Print state after initial placements
-    game.printGameState();
+    // game.printGameState();
 
     // Print players structures
     cout << player1.printPlayer() << endl;

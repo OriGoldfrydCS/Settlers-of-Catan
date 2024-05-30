@@ -1,5 +1,4 @@
 #include "board.hpp"
-#include "player.hpp"  
 #include <iostream>
 #include <cmath>
 #include <sstream>
@@ -17,11 +16,15 @@
 using namespace std;
 namespace ariel {
     
+    std::map<int, std::set<int>> Board::adjacencyList;  
+
     Board::Board() 
     { 
         Intersection::initialize();                  // Initiate intersections
         setupTiles();                                // Load tiles
         linkTilesAndIntersections();                 // Combine between each tile knows its intersections
+        initializeAdjacency();                       // Initialize the adjacency list for intersections
+
 
     }
 
@@ -200,6 +203,73 @@ namespace ariel {
         tiles[{0, -2}].addIntersection(53);
         tiles[{0, -2}].addIntersection(54);
     }
+    
+
+    void Board::initializeAdjacency() {
+        adjacencyList[1] = {2, 9};
+        adjacencyList[2] = {1, 3};
+        adjacencyList[3] = {2, 4, 11};
+        adjacencyList[4] = {3, 5};
+        adjacencyList[5] = {4, 6, 13};
+        adjacencyList[6] = {5, 7};
+        adjacencyList[7] = {6, 15};
+        adjacencyList[8] = {9, 18};
+        adjacencyList[9] = {1, 8, 10};
+        adjacencyList[10] = {9, 11, 20};
+        adjacencyList[11] = {3, 10, 12};
+        adjacencyList[12] = {11, 13, 22};
+        adjacencyList[13] = {5, 12, 14};
+        adjacencyList[14] = {13, 15, 24};
+        adjacencyList[15] = {7, 14, 16};
+        adjacencyList[16] = {15, 26};
+        adjacencyList[17] = {18, 28};
+        adjacencyList[18] = {8, 17, 19};
+        adjacencyList[19] = {18, 20, 30};
+        adjacencyList[20] = {10, 19, 21};
+        adjacencyList[21] = {20, 22, 32};
+        adjacencyList[22] = {12, 21, 23};
+        adjacencyList[23] = {22, 24, 34};
+        adjacencyList[24] = {14, 23, 25};
+        adjacencyList[25] = {24, 26, 36};
+        adjacencyList[26] = {16, 25, 27};
+        adjacencyList[27] = {26, 38};
+        adjacencyList[28] = {17, 29};
+        adjacencyList[29] = {28, 30, 39};
+        adjacencyList[30] = {19, 29, 31};
+        adjacencyList[31] = {30, 32, 41};
+        adjacencyList[32] = {21, 31, 33};
+        adjacencyList[33] = {32, 34, 43};
+        adjacencyList[34] = {23, 33, 35};
+        adjacencyList[35] = {34, 36, 45};
+        adjacencyList[36] = {25, 35, 37};
+        adjacencyList[37] = {36, 38, 47};
+        adjacencyList[38] = {27, 37};
+        adjacencyList[39] = {29, 40};
+        adjacencyList[40] = {39, 41, 48};
+        adjacencyList[41] = {31, 40, 42};
+        adjacencyList[42] = {41, 43, 50};
+        adjacencyList[43] = {33, 42, 44};
+        adjacencyList[44] = {43, 45, 52};
+        adjacencyList[45] = {35, 44, 46};
+        adjacencyList[46] = {45, 47, 54};
+        adjacencyList[47] = {37, 46};
+        adjacencyList[48] = {40, 49};
+        adjacencyList[49] = {48, 50};
+        adjacencyList[50] = {42, 49, 51};
+        adjacencyList[51] = {50, 52};
+        adjacencyList[52] = {44, 51, 53};
+        adjacencyList[53] = {52, 54};
+        adjacencyList[54] = {46, 53};
+    }
+
+    bool Board::areIntersectionsAdjacent(int id1, int id2) {
+            // Check if one of the intersections contains the other in its adjacency list
+            auto it = adjacencyList.find(id1);
+            if (it != adjacencyList.end()) {
+                return it->second.find(id2) != it->second.end();
+            }
+            return false;
+    }
 
     const Tile& Board::getTile(const std::pair<int, int>& position) const
     {
@@ -349,12 +419,12 @@ namespace ariel {
             }
         }
 
-        // Debug output to see contributing tiles
-        cout << "Intersection " << intersectionID << " receives resources from tiles at: ";
-        for (const auto& pos : contributingTiles) {
-            cout << "(" << pos.first << ", " << pos.second << ") ";
-        }
-        cout << endl;
+        // Debug output to see contributing tiles//
+        // cout << "Intersection " << intersectionID << " receives resources from tiles at: ";         
+        // for (const auto& pos : contributingTiles) {
+        //     cout << "(" << pos.first << ", " << pos.second << ") ";
+        // }
+        // cout << endl;
 
         // Convert set back to vector for return type compliance or other needs
         vector<ResourceType> resources(uniqueResources.begin(), uniqueResources.end());
@@ -390,7 +460,7 @@ namespace ariel {
     } else {
         // More than one resource type or more than one tile for the same resource
         cout << "Choose which resource to collect:" << endl;
-        int optionIndex = 1;
+        size_t optionIndex = 1;
         vector<ResourceType> choices;
         for (auto& [resourceType, positions] : resourceOptions) {
             for (auto& pos : positions) {
@@ -400,7 +470,7 @@ namespace ariel {
             }
         }
         
-        int selectedOption;
+        size_t selectedOption;
         cout << "Enter option number: ";
         cin >> selectedOption;
         if (selectedOption > 0 && selectedOption <= choices.size()) {
@@ -479,40 +549,37 @@ namespace ariel {
         }
     }
 
-    bool Board::canPlaceRoad(const Edge& edge, int playerID) 
-    {
-        // Check if the edge is already occupied by any road
-        if (roads.find(edge) != roads.end() && roads[edge] == playerID) 
-        {
-            return false;
-        }
+    bool Board::canPlaceRoad(const Edge& newRoad, int playerID) {
+    // Check if the road is already present
+    if (roads.find(newRoad) != roads.end()) {
+        return false;
+    }
 
-        // Check if the edge is connected to a settlement or another road of the same player
-        bool connected = false;
-        for (const auto& intersection : {edge.i1, edge.i2}) {
-            int intersectionID = getIntersectionID(intersection);
-            if (settlements.find(intersectionID) != settlements.end() && settlements[intersectionID].count(playerID)) {
-                connected = true;
-                break;
-            }
-        }
+    bool isConnected = false;
 
-        // Check for adjacent roads of the same player
-        if (!connected) 
-        {
-            for (const auto& [existingEdge, existingPlayerID] : roads) 
-            {
-                if (existingPlayerID == playerID && (existingEdge.i1 == edge.i1 || existingEdge.i1 == edge.i2 || 
-                                                    existingEdge.i2 == edge.i1 || existingEdge.i2 == edge.i2)) 
-                {
-                    connected = true;
+    // Check for connection to the player's settlements
+    if ((settlements.find(newRoad.getId1()) != settlements.end() && settlements[newRoad.getId1()].count(playerID)) ||
+        (settlements.find(newRoad.getId2()) != settlements.end() && settlements[newRoad.getId2()].count(playerID))) {
+        isConnected = true;
+    }
+
+    // Check for continuity with other roads of the same player
+    if (!isConnected) {
+        for (const auto& [existingEdge, existingPlayerID] : roads) {
+            if (existingPlayerID == playerID) {
+                if (existingEdge.involvesIntersection(newRoad.getId1()) || existingEdge.involvesIntersection(newRoad.getId2())) {
+                    isConnected = true;
                     break;
                 }
             }
         }
-
-        return connected;
     }
+
+    return isConnected;
+}
+
+
+
 
 
     void Board::placeRoad(const Edge& edge, int playerID) 

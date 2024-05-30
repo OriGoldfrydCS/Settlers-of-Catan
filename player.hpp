@@ -6,28 +6,33 @@
 #include <set>
 #include <vector>
 #include "board.hpp"
-#include "player.hpp"
+// #include "player.hpp"
 #include "intersection.hpp"
-#include "resource.hpp"
-#include "developmentCard.hpp"
+// #include "resource.hpp"
+#include "DevelopmentCard.hpp"
 #include "edge.hpp"
 #include "card_type.hpp"
-
 
 using namespace std;
 namespace ariel {
     class Board;
+
+    enum class CardPurchaseError { Success, InsufficientResources, CardUnavailable };
+
+    enum class CardUseError { Success, InsufficientCards, InvalidCardType };
+
     class Player
     {
         private:
             static int nextID;
             string name;
             int id;
-            map<ResourceType, int> resources;
-            map<DevCardType, int> developmentCards;
+            std::map<ResourceType, int> resources;
+            std::map<DevCardType, int> developmentCards;
+            std::map<PromotionType, int> promotionCards;
             set<int> settlements;   // Holds the intersection IDs where this player has settlements
             set<Edge> roads;        // Holds the roads this player has built
-            size_t points = 2;
+            size_t points;
         
 
         public:
@@ -37,6 +42,7 @@ namespace ariel {
            
             // Map of all building costs
             static const map<string, map<ResourceType, int>> buildingCosts;
+            static const map<ResourceType, int> devCardCosts;
 
             // Checking methods
             bool canBuild(const string& structureType);
@@ -53,9 +59,16 @@ namespace ariel {
             int getResourceCount(ResourceType type) const;
 
             // Methods to manage development cards
-            void buyDevelopmentCard(DevCardType type);
-            void useDevelopmentCard(DevCardType type);
-            
+            CardPurchaseError buyDevelopmentCard(DevCardType type);
+            CardUseError useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board);
+            void useKnightCard(); 
+            void usePromotionCard(PromotionType type, vector<Player*>& allPlayers, Board& board);
+            void useMonopoly(vector<Player*>& allPlayers);
+            void useRoadBuilding(Board& board);
+            bool isRoadContinuation(int id1, int id2);
+            void useYearOfPlenty();
+            ResourceType chooseResource();
+
             // Trading method
             void trade(Player& other, const string& give, const string& receive, int giveAmount, int receiveAmount);
 
@@ -67,12 +80,15 @@ namespace ariel {
             string getName() const;
             int getId() const;
             void printPoints() const;
+            void addPoints(int pointsToAdd);
 
             // New methods to access player's structures
             const set<int>& getSettlements() const { return settlements; }
             const set<Edge>& getRoads() const { return roads; }
 
             string printPlayer() const;
+            void printCardCounts() const;
+
 
             
     };

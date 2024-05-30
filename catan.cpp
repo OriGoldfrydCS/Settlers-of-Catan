@@ -44,7 +44,8 @@ namespace ariel {
         players[2]->placeRoad(Edge(Intersection::getIntersection(19), Intersection::getIntersection(20)), board);     // Road between Grain(12) and Wood(11)
         players[2]->placeRoad(Edge(Intersection::getIntersection(25), Intersection::getIntersection(36)), board);     // Road between Wood(3) and Ore(8)
         
-        cout << "Settlements and roads are places according to the game's instructions for beginner " << endl;
+        cout << "Initial resources were distributed to the players" << endl;
+        cout << "Settlements & roads places by the game's instructions for beginners" << endl;
 
     }
 
@@ -75,7 +76,7 @@ namespace ariel {
 
     void Catan::ChooseStartingPlayer() 
     {
-        cout << "Now roll the dice to determine the player's order: " << endl;
+        cout << "Roll the dice to determine the player's order: " << endl;
         vector<pair<int, Player*>> diceRolls;
 
         // Each player rolls a die and their result is stored with their reference
@@ -139,7 +140,8 @@ namespace ariel {
                 if (validRoll && total != 7) {
                     board.distributeResourcesBasedOnDiceRoll(total, currentPlayer);
                 }
-
+                
+                // Action selection
                 bool endTurn = false;
                 while (!endTurn) {
                     cout << "\nChoose an action:\n";
@@ -150,10 +152,13 @@ namespace ariel {
                     cout << "4. Build a settlement\n";
                     cout << "5. Upgrade to city\n";
                     cout << "6. Buy development card\n";
-                    cout << "7. End turn\n";
+                    cout << "7. Use development card\n";
+                    cout << "8. End turn\n";
                     cout << "Enter your choice: ";
                     int choice;
                     cin >> choice;
+                    clearInputBuffer(); // Clear the buffer after reading an integer
+
 
                     switch(choice) {
                         case 0:
@@ -174,18 +179,87 @@ namespace ariel {
                         case 5:
                             cout << "Upgrading to a city...\n";
                             break;
-                        case 6:
-                            cout << "Buying a development card...\n";
+                        case 6: 
+                        {
+                            cout << "Select the type of Development Card to buy:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
+                            int cardChoice;
+                            cin >> cardChoice;
+                            DevCardType cardType;
+
+                            switch(cardChoice) {
+                                case 1:
+                                    cardType = DevCardType::KNIGHT;
+                                    break;
+                                case 2:
+                                    cardType = DevCardType::VICTORY_POINT;
+                                    break;
+                                case 3:
+                                    cardType = DevCardType::PROMOTION;
+                                    break;
+                                default:
+                                    cout << "Invalid card type selected.\n";
+                                    continue;
+                            }
+
+                            CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType);
+                            switch(result) {
+                                case CardPurchaseError::Success:
+                                    cout << "Development card purchased successfully.\n";
+                                    break;
+                                case CardPurchaseError::InsufficientResources:
+                                    cout << "Not enough resources to buy a development card.\n";
+                                    break;
+                                case CardPurchaseError::CardUnavailable:
+                                    cout << "The selected card is currently unavailable.\n";
+                                    break;
+                                default:
+                                    cout << "An unexpected error occurred.\n";
+                                    break;
+                            }
                             break;
+                        }
+
                         case 7:
+                        {
+                            cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
+                            int devCardChoice;
+                            cin >> devCardChoice;
+                            DevCardType cardType;
+                            switch(devCardChoice) 
+                            {
+                                case 1:
+                                    cardType = DevCardType::KNIGHT;
+                                    break;
+                                case 2:
+                                    cardType = DevCardType::VICTORY_POINT;
+                                    break;
+                                case 3:
+                                    cardType = DevCardType::PROMOTION;
+                                    break;
+                                default:
+                                    cout << "Invalid card type selected.\n";
+                                    continue;
+                            }
+                            CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board);
+                            if (useResult == CardUseError::Success) {
+                                cout << "Development card used successfully." << endl;
+                            } else if (useResult == CardUseError::InsufficientCards) {
+                                cout << "You do not have enough of this card to use." << endl;
+                            } else {
+                                cout << "Invalid card type or other error." << endl;
+                            }
+                            break;
+                        }
+                        case 8:
                             currentPlayer->endTurn();
                             nextTurn();
                             endTurn = true;
-                            cout << "Turn ended for " << currentPlayer->getName() << "." << endl;
+                            // cout << "Turn ended for " << currentPlayer->getName() << "." << endl;
                             break;
                         default:
                             cout << "Invalid choice, please choose again.\n";
                             break;
+
                     }
                 }
 
@@ -199,6 +273,9 @@ namespace ariel {
     }
 
 
+    void Catan::clearInputBuffer() {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
 
 
 

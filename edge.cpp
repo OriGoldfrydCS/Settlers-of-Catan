@@ -18,6 +18,10 @@ namespace ariel {
         return (i1 == it1->second || i2 == it1->second);
     }
 
+    bool Edge::involvesIntersection(int intersectionID) const {
+        // Compare using the id attribute of the Intersection objects
+        return (i1.id == intersectionID || i2.id == intersectionID);
+    }
     std::ostream& operator<<(std::ostream& os, const Edge& edge) {
         os << edge.i1 << " to " << edge.i2;
         return os;

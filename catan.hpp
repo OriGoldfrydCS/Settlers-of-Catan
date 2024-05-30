@@ -46,6 +46,7 @@ namespace ariel {
 
         // Prints the winner of the game based on current scores.
         void printWinner();
+        void clearInputBuffer();
 
         
     };

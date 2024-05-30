@@ -48,12 +48,10 @@ namespace ariel {
         return intersections;
     }
 
-    Intersection Intersection::getIntersection(int intersectionID) 
-    {
-        const auto& allIntersections = getAllIntersections();
-        auto it = allIntersections.find(intersectionID);
-        if (it == allIntersections.end()) {
-            throw std::out_of_range("Invalid intersection ID");
+    Intersection Intersection::getIntersection(int intersectionID) {
+        auto it = intersections.find(intersectionID);
+        if (it == intersections.end()) {
+            throw std::out_of_range("Invalid intersection ID: " + std::to_string(intersectionID));
         }
         return it->second;
     }
