@@ -11,6 +11,7 @@
 
 namespace ariel {
     class Player;
+    class Tile;
     class Board 
     {
         private:
@@ -54,8 +55,9 @@ namespace ariel {
 
             vector<ResourceType> getResourceTypesAroundIntersection(int intersectionID);
             bool areIntersectionsAdjacent(int id1, int id2);
-            void distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer);
+            void distributeResourcesBasedOnDiceRoll(int diceRoll, const std::vector<Player*>& players);
             bool hasSettlement(int intersectionID);
+            vector<Tile> getTilesAroundIntersection(int intersectionID) const;
 
         
 

@@ -1,4 +1,5 @@
 #include "intersection.hpp"
+#include "tile.hpp"
 
 using namespace std;
 namespace ariel {

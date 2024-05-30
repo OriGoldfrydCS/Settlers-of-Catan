@@ -138,8 +138,15 @@ namespace ariel {
                 }
 
                 if (validRoll && total != 7) {
-                    board.distributeResourcesBasedOnDiceRoll(total, currentPlayer);
+                    cout << "Distributing resources based on dice roll..." << endl;
+                    board.distributeResourcesBasedOnDiceRoll(total, players);
+                    cout << "Resource distribution complete." << endl;
+                } else {
+                    cout << "No resources distributed this turn." << endl;
                 }
+
+                cout << "Proceeding to action selection..." << endl;
+
                 
                 // Action selection
                 bool endTurn = false;

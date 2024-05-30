@@ -434,50 +434,34 @@ namespace ariel {
 
 
 
-    void Board::distributeResourcesBasedOnDiceRoll(int diceRoll, Player* currentPlayer) {
+    void Board::distributeResourcesBasedOnDiceRoll(int diceRoll, const std::vector<Player*>& players) {
     cout << "Distributing resources for dice roll: " << diceRoll << "." << endl;
 
-    // This will collect all resource options available for the dice roll
-    map<ResourceType, vector<pair<int, int>>> resourceOptions;
+    // Mapping from ResourceType to players who should receive that resource this turn
+    map<ResourceType, vector<Player*>> resourcesToDistribute;
 
-    // Gather all tiles that match the dice roll
+    // Find all tiles that match the dice roll number and are not "NONE"
     for (auto& [position, tile] : tiles) {
         if (tile.getNumber() == diceRoll && tile.getResourceType() != ResourceType::NONE) {
-            resourceOptions[tile.getResourceType()].push_back(position);
+            // Get all intersections around this tile
+            const auto& intersectionIDs = tile.getIntersectionIDs();
+            for (int intersectionID : intersectionIDs) {
+                // Check each player if they have a settlement on this intersection
+                for (auto* player : players) {
+                    if (player->getSettlements().find(intersectionID) != player->getSettlements().end()) {
+                        // If the player has a settlement here, they should receive resources from this tile
+                        resourcesToDistribute[tile.getResourceType()].push_back(player);
+                    }
+                }
+            }
         }
     }
 
-    // Present resource options to the player if more than one type is available
-    if (resourceOptions.empty()) {
-        cout << "No resources available for this roll." << endl;
-    } else if (resourceOptions.size() == 1 && resourceOptions.begin()->second.size() == 1) {
-        // If only one type of resource from one tile, directly add it
-        auto& resourceType = resourceOptions.begin()->first;
-        currentPlayer->addResource(resourceType, 1);
-        cout << "You received 1 " << resourceTypeToString(resourceType) << " from tile at (" 
-             << resourceOptions.begin()->second[0].first << ", " 
-             << resourceOptions.begin()->second[0].second << ")." << endl;
-    } else {
-        // More than one resource type or more than one tile for the same resource
-        cout << "Choose which resource to collect:" << endl;
-        size_t optionIndex = 1;
-        vector<ResourceType> choices;
-        for (auto& [resourceType, positions] : resourceOptions) {
-            for (auto& pos : positions) {
-                cout << "Option " << optionIndex++ << ": " << resourceTypeToString(resourceType) 
-                     << " from tile at (" << pos.first << ", " << pos.second << ")" << endl;
-                choices.push_back(resourceType);
-            }
-        }
-        
-        size_t selectedOption;
-        cout << "Enter option number: ";
-        cin >> selectedOption;
-        if (selectedOption > 0 && selectedOption <= choices.size()) {
-            currentPlayer->addResource(choices[selectedOption - 1], 1);
-            cout << "You received 1 " << resourceTypeToString(choices[selectedOption - 1]) << "." << endl;
-        } else {
-            cout << "Invalid option selected." << endl;
+    // Distribute the resources to players
+    for (auto& [resourceType, players] : resourcesToDistribute) {
+        for (auto* player : players) {
+            player->addResource(resourceType, 1);  // Each settlement collects one resource card of the given type
+            cout << "Player " << player->getName() << " received 1 " << resourceTypeToString(resourceType) << "." << endl;
         }
     }
 }
@@ -485,6 +469,16 @@ namespace ariel {
 
 
 
+    vector<Tile> Board::getTilesAroundIntersection(int intersectionID) const {
+        std::vector<Tile> surroundingTiles;
+        // Iterate through all tiles and check if they include the intersection
+        for (const auto& [position, tile] : tiles) {
+            if (std::find(tile.getIntersectionIDs().begin(), tile.getIntersectionIDs().end(), intersectionID) != tile.getIntersectionIDs().end()) {
+                surroundingTiles.push_back(tile);
+            }
+        }
+        return surroundingTiles;
+    }
 
 
 
