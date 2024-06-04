@@ -288,23 +288,75 @@ namespace ariel {
         }
     }
 
+    // void Player::reevaluateLargestArmy(vector<Player*>& allPlayers) {
+    //     Player* newHolder = nullptr;
+    //     int maxKnights = 0;
+    //     // This will require access to all players in the game, assuming you have a way to iterate over all players
+    //     for (auto& player : allPlayers) {
+    //         if (player->knightCards > maxKnights && player->knightCards >= 3) {
+    //             maxKnights = player->knightCards;
+    //             newHolder = player;
+    //         }
+    //     }
+    //     if (newHolder != nullptr) {
+    //         if (largestArmyHolder != nullptr) {
+    //             largestArmyHolder->points -= 2; // Deduct points from the previous holder
+    //         }
+    //         largestArmyHolder = newHolder;
+    //         largestArmyHolder->points += 2;  // Award points to the new holder
+    //         cout << largestArmyHolder->name << " now holds the Largest Army and gains 2 victory points." << endl;
+    //     }
+    // }
+
+    // void Player::reevaluateLargestArmy(vector<Player*>& allPlayers) {
+    //     Player* currentHolder = Player::largestArmyHolder;
+    //     int maxKnights = 0;
+    //     Player* newHolder = nullptr;
+
+    //     // Find the player with the highest number of knight cards who has at least 3
+    //     for (Player* player : allPlayers) {
+    //         if (player->developmentCards[DevCardType::KNIGHT] > maxKnights && player->developmentCards[DevCardType::KNIGHT] >= 3) {
+    //             maxKnights = player->developmentCards[DevCardType::KNIGHT];
+    //             newHolder = player;
+    //         }
+    //     }
+
+    //     // Update the largest army holder if necessary
+    //     if (newHolder != currentHolder) {
+    //         if (currentHolder) {
+    //             currentHolder->points -= 2; // Deduct points from previous holder
+    //         }
+    //         if (newHolder) {
+    //             newHolder->points += 2; // Award points to new holder
+    //         }
+    //         Player::largestArmyHolder = newHolder;
+    //     }
+    // }
+
     void Player::reevaluateLargestArmy(vector<Player*>& allPlayers) {
-        Player* newHolder = nullptr;
+        Player* currentHolder = Player::largestArmyHolder;
         int maxKnights = 0;
-        // This will require access to all players in the game, assuming you have a way to iterate over all players
-        for (auto& player : allPlayers) {
-            if (player->knightCards > maxKnights && player->knightCards >= 3) {
-                maxKnights = player->knightCards;
+        Player* newHolder = nullptr;
+
+        for (Player* player : allPlayers) {
+            if (player->developmentCards[DevCardType::KNIGHT] > maxKnights) {
+                maxKnights = player->developmentCards[DevCardType::KNIGHT];
                 newHolder = player;
             }
         }
-        if (newHolder != nullptr) {
-            if (largestArmyHolder != nullptr) {
-                largestArmyHolder->points -= 2; // Deduct points from the previous holder
+
+        if (newHolder && maxKnights >= 3 && newHolder != currentHolder) {
+            if (currentHolder) {
+                currentHolder->points -= 2;
             }
-            largestArmyHolder = newHolder;
-            largestArmyHolder->points += 2;  // Award points to the new holder
-            cout << largestArmyHolder->name << " now holds the Largest Army and gains 2 victory points." << endl;
+            Player::largestArmyHolder = newHolder;
+            newHolder->points += 2;
+            cout << newHolder->getName() << " now holds the Largest Army." << endl;
+        } else if (!newHolder || maxKnights < 3) {
+            Player::largestArmyHolder = nullptr; // No player qualifies for largest army
+            if (currentHolder) {
+                currentHolder->points -= 2;
+            }
         }
     }
 
@@ -808,7 +860,7 @@ namespace ariel {
         std::string response;
         std::cin >> response;
         if (response == "yes") {
-            executeCardTrade(*this, *recipient, offerCards, requestCards);
+            executeCardTrade(*this, *recipient, offerCards, requestCards, allPlayers);
             std::cout << "Card trade completed successfully." << std::endl;
         } else {
             std::cout << "Card trade rejected." << std::endl;
@@ -838,19 +890,50 @@ namespace ariel {
         return true;
     }
 
-    void Player::executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards) {
+    // void Player::executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards, vector<Player*>& allPlayers) {
+    //     for (const auto& [type, quantity] : offerCards) {
+    //         offerer.developmentCards[type] -= quantity;
+    //         recipient.developmentCards[type] += quantity;
+    //     }
+    //     for (const auto& [type, quantity] : requestCards) {
+    //         recipient.developmentCards[type] -= quantity;
+    //         offerer.developmentCards[type] += quantity;
+    //     }
+
+    //     // After trading cards, reevaluate the largest army status if knight cards were traded
+    //     if (offerCards.count(DevCardType::KNIGHT) > 0 || requestCards.count(DevCardType::KNIGHT) > 0) {
+    //         reevaluateLargestArmy(allPlayers); // Assuming you have access to `allPlayers` here
+    //     }
+
+    //     cout << "Trade executed successfully." << endl;
+    // }
+
+    void Player::executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards, vector<Player*>& allPlayers) {
+        bool knightCardTraded = false;
+
         for (const auto& [type, quantity] : offerCards) {
             offerer.developmentCards[type] -= quantity;
             recipient.developmentCards[type] += quantity;
+            if (type == DevCardType::KNIGHT) {
+                knightCardTraded = true;
+            }
         }
+
         for (const auto& [type, quantity] : requestCards) {
             recipient.developmentCards[type] -= quantity;
             offerer.developmentCards[type] += quantity;
+            if (type == DevCardType::KNIGHT) {
+                knightCardTraded = true;
+            }
         }
+
         cout << "Trade executed successfully." << endl;
+
+        // If knight cards were involved in the trade, reevaluate the largest army
+        if (knightCardTraded) {
+            reevaluateLargestArmy(allPlayers); // Ensure this function is implemented to adjust the largest army correctly
+        }
     }
-
-
 
 
 

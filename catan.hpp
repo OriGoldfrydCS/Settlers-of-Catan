@@ -3,7 +3,6 @@
 
 #include "player.hpp"
 #include "board.hpp"
-#include "game_logic.hpp"
 #include <vector>
 
 using namespace std;
@@ -14,7 +13,6 @@ namespace ariel {
         private:
             vector<Player*> players;
             Board board;
-            GameLogic gameLogic;
             size_t currentPlayerIndex;
 
         public:

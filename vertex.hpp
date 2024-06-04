@@ -1,4 +1,3 @@
-// vertex.hpp
 #ifndef VERTEX_HPP
 #define VERTEX_HPP
 

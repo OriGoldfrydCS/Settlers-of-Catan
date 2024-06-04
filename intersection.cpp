@@ -64,7 +64,7 @@ namespace ariel {
             // Function for single vertex: Tile Vertex (a+-10, b+-10) 
 
             {1, Intersection({Vertex(10, 12)}, 1)},                                 // Single vertex at (0, 2), I
-            {2, Intersection({Vertex(-10, -12), Vertex(1, 2)}, 2)},                 // Single vertex at (0, 2), II
+            {2, Intersection({Vertex(-10, -8), Vertex(1, 2)}, 2)},                 // Single vertex at (0, 2), II
             {3, Intersection({Vertex(0, 2), Vertex(1, 2)}, 3)},                     
             {4, Intersection({Vertex(11, 12)}, 4)},                                 // Single vertex at (1, 2)
             {5, Intersection({Vertex(1, 2), Vertex(2, 2)}, 5)},                    

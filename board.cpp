@@ -292,7 +292,7 @@ namespace ariel {
                 return id;
             }
         }
-        throw std::out_of_range("Intersection not found");
+        throw std::out_of_range("Invalid intersection ID");
     }
 
     void Board::printAllBoardToCheckTileIntersections() const {
@@ -673,7 +673,92 @@ namespace ariel {
         return roads.find(road1) != roads.end() || roads.find(road2) != roads.end();
     }
 
+    
 
+    void Board::printGameBoard() const {
+        std::map<int, std::string> IL;  // To hold player IDs or spaces
+        std::map<std::pair<int, int>, std::string> RL;  // To hold road player IDs or empty
+
+        // Initialize intersection labels with spaces or player IDs if a settlement/city is present
+        for (int i = 1; i <= 54; ++i) {
+            if (settlements.find(i) != settlements.end() && !settlements.at(i).empty()) {
+                IL[i] = "|S" + std::to_string(*settlements.at(i).begin()) + "|";  // Assuming only one player can have a settlement at any intersection
+            } else if (cities.find(i) != cities.end()) {
+                IL[i] = "|C" + std::to_string(cities.at(i)) + "|";  // Cities map holds player ID directly
+            } else {
+                IL[i] = "| |";  // Three spaces for empty intersections
+            }
+        }
+
+        // Initialize all possible road locations with empty braces
+        const std::vector<std::pair<int, int>> roadPositions = {
+            {28, 17}, {28, 39}, {17, 18}, {39, 29}, {18, 8}, {48, 40}, {30, 19}, {9, 1},
+            {48, 49}, {40, 41}, {30, 31}, {19, 20}, {9, 10}, {49, 50}, {41, 42}, {31, 32},
+            {20, 21}, {10, 11}, {50, 42}, {32, 21}, {11, 3}, {50, 51}, {42, 43}, {32, 33},
+            {21, 22}, {11, 12}, {51, 52}, {43, 44}, {33, 34}, {22, 23}, {12, 13}, {52, 44},
+            {34, 23}, {13, 5}, {52, 53}, {44, 45}, {34, 35}, {23, 24}, {13, 14}, {53, 45},
+            {35, 24}, {14, 6}, {53, 54}, {45, 46}, {35, 36}, {24, 25}, {14, 15}, {54, 46},
+            {36, 25}, {15, 7}, {46, 47}, {36, 26}, {25, 16}, {15, 7}, {47, 37}, {26, 16},
+            {37, 27}, {26, 16}, {37, 38}, {27, 38}, {20, 10}, {39, 40}, {29, 30}, {18, 19},
+            {8, 9}, {41, 31}, {2, 1}, {3, 2}, {43, 33}, {12, 22}, {3, 4}, {12, 13}, {4, 5},
+            {5, 6}, {6, 7}, {14, 24}, {36, 37}, {25, 26}, {15, 16}, {26, 27}};
+
+        for (const auto& pos : roadPositions) {
+            RL[{pos.first, pos.second}] = "{ }";
+            RL[{pos.second, pos.first}] = "{ }";  // Ensure both directions are initialized
+        }
+
+        // Update road labels with player IDs if a road is present, for both directions
+        for (const auto& [edge, playerID] : roads) {
+            int startID = getIntersectionID(edge.i1);
+            int endID = getIntersectionID(edge.i2);
+            RL[{startID, endID}] = "{R" + std::to_string(playerID) + "}";
+            RL[{endID, startID}] = "{R" + std::to_string(playerID) + "}";  // Ensure both directions are updated
+        }
+        
+        std::cout << "                                 "<<IL[28]<<"--"<<RL[{17, 28}]<<"--"<<IL[17]<<"                                        " << std::endl;
+        std::cout << "                                /             \\                                        " << std::endl;
+        std::cout << "                               "<<RL[{39, 28}]<<"           "<<RL[{17, 18}]<<"                                      " << std::endl;
+        std::cout << "                              /        9       \\                                        " << std::endl;
+        std::cout << "                   "<<IL[39]<<"--"<<RL[{39, 29}]<<"--"<<IL[29]<<"     Fields     "<<IL[18]<<"--"<<RL[{18, 8}]<<"--"<<IL[8]<<"                           " << std::endl;
+        std::cout << "                  /            \\                /            \\                           " << std::endl;
+        std::cout << "                "<<RL[{39, 40}]<<"            "<<RL[{29, 30}]<<"            "<<RL[{18, 19}]<<"            "<<RL[{8, 9}]<<"                        " << std::endl;
+        std::cout << "                /        8       \\           /        12       \\                      " << std::endl;
+        std::cout << "    "<<IL[48]<<"--"<<RL[{48, 40}]<<"--"<<IL[40]<<"     Forest    "<<IL[30]<<"--"<<RL[{30, 19}]<<"--"<<IL[19]<<"      Fields      "<<IL[9]<<"--"<<RL[{9, 1}]<<"--"<<IL[1]<<"              " << std::endl;
+        std::cout << "    /           \\                /           \\                 /            \\           " << std::endl;
+        std::cout << "  "<<RL[{48, 49}]<<"           "<<RL[{40, 41}]<<"            "<<RL[{30, 31}]<<"           "<<RL[{20, 19}]<<"            "<<RL[{10, 9}]<<"            "<<RL[{2, 1}]<<"           " << std::endl;
+        std::cout << "  /      5        \\           /       11       \\             /      10        \\           " << std::endl;
+        std::cout << ""<<IL[49]<<"   Hills      "<<IL[41]<<"--"<<RL[{41, 31}]<<"--"<<IL[31]<<"     Forest      "<<IL[20]<<"--"<<RL[{20, 10}]<<"--"<<IL[10]<<"    Mountain   "<<IL[2]<<"       " << std::endl;
+        std::cout << " \\               /           \\                 /             \\                /          " << std::endl;
+        std::cout << "  "<<RL[{50, 49}]<<"          "<<RL[{42, 41}]<<"          "<<RL[{32, 31}]<<"             "<<RL[{21, 20}]<<"             "<<RL[{11, 10}]<<"             "<<RL[{3, 2}]<<"          " << std::endl;
+        std::cout << "    \\           /      3       \\            /       6          \\             /          " << std::endl;
+        std::cout << "   "<<IL[50]<<"--"<<RL[{50, 42}]<<"--"<<IL[42]<<"    Mountain    "<<IL[32]<<"--"<<RL[{32, 21}]<<"--"<<IL[21]<<"      Hills        "<<IL[11]<<"--"<<RL[{3, 11}]<<"--"<<IL[3]<<"             " << std::endl;
+        std::cout << "   /            \\               /            \\                 /            \\          " << std::endl;
+        std::cout << " "<<RL[{50, 51}]<<"            "<<RL[{43, 42}]<<"            "<<RL[{32, 33}]<<"            "<<RL[{22, 21}]<<"             "<<RL[{12, 11}]<<"           "<<RL[{3, 4}]<<"           " << std::endl;
+        std::cout << " /       9        \\           /                \\             /      2         \\          " << std::endl;
+        std::cout << ""<<IL[51]<<"   Fields      "<<IL[43]<<"--"<<RL[{43, 33}]<<"--"<<IL[33]<<"    Desert      "<<IL[22]<<"--"<<RL[{12, 22}]<<"--"<<IL[12]<<"     Pasture    "<<IL[4]<<"      " << std::endl;
+        std::cout << " \\                 /          \\                /            \\                /          " << std::endl;
+        std::cout << "  "<<RL[{51, 52}]<<"            "<<RL[{43, 44}]<<"          "<<RL[{33, 34}]<<"           "<<RL[{23, 22}]<<"             "<<RL[{12, 13}]<<"            "<<RL[{4, 5}]<<"          " << std::endl;
+        std::cout << "   \\            /       4       \\            /       4        \\            /          " << std::endl;
+        std::cout << "    "<<IL[52]<<"--"<<RL[{44, 52}]<<"--"<<IL[44]<<"     Fields    "<<IL[34]<<"--"<<RL[{23, 34}]<<"--"<<IL[23]<<"      Pasture     "<<IL[13]<<"--"<<RL[{5, 13}]<<"--"<<IL[5]<<"             " << std::endl;
+        std::cout << "   /            \\               /            \\                 /           \\              " << std::endl;
+        std::cout << " "<<RL[{52, 53}]<<"            "<<RL[{44, 45}]<<"           "<<RL[{34, 35}]<<"             "<<RL[{23, 24}]<<"            "<<RL[{13, 14}]<<"           "<<RL[{5, 6}]<<"           " << std::endl;
+        std::cout << " /      11        \\           /       3         \\            /       9        \\           " << std::endl;
+        std::cout << ""<<IL[53]<<"   Pasture    "<<IL[45]<<"--"<<RL[{35, 45}]<<"--"<<IL[35]<<"   Forest       "<<IL[24]<<"--"<<RL[{14, 24}]<<"--"<<IL[14]<<"      Forest    "<<IL[6]<<"      " << std::endl;
+        std::cout << " \\                /           \\                /            \\                  /          " << std::endl;
+        std::cout << " "<<RL[{53, 54}]<<"            "<<RL[{45, 46}]<<"           "<<RL[{35, 36}]<<"            "<<RL[{24, 25}]<<"            "<<RL[{14, 15}]<<"              "<<RL[{6, 7}]<<"          " << std::endl;
+        std::cout << "  \\            /      5        \\            /        10       \\              /          " << std::endl;
+        std::cout << "   "<<IL[54]<<"--"<<RL[{54, 46}]<<" --"<<IL[46]<<"   Pasture    "<<IL[36]<<"--"<<RL[{25, 36}]<<"--"<<IL[25]<<"      Hills      "<<IL[15]<<"--"<<RL[{7, 15}]<<"--"<<IL[7]<<"             " << std::endl;
+        std::cout << "                \\               /           \\                 /                       " << std::endl;
+        std::cout << "                 "<<RL[{46, 47}]<<"          "<<RL[{36, 37}]<<"            "<<RL[{25, 26}]<<"             "<<RL[{15, 16}]<<"                       " << std::endl;
+        std::cout << "                  \\           /      8        \\             /                           " << std::endl;
+        std::cout << "                   "<<IL[47]<<"--"<<RL[{37, 47}]<<"--"<<IL[37]<<"   Mountain    "<<IL[26]<<"--"<<RL[{16, 26}]<<"--"<<IL[16]<<"                           " << std::endl;
+        std::cout << "                              \\                /                                        " << std::endl;
+        std::cout << "                               "<<RL[{37, 38}]<<"           "<<RL[{26, 27}]<<"                                        " << std::endl;
+        std::cout << "                                \\            /                                        " << std::endl;
+        std::cout << "                                "<<IL[38]<<"--"<<RL[{27, 38}]<<"--"<<IL[27]<<"                                        " << std::endl;
+
+    }
 
 
     // void Board::draw(sf::RenderWindow& window) {

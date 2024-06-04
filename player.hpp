@@ -11,7 +11,7 @@
 // #include "player.hpp"
 #include "intersection.hpp"
 // #include "resource.hpp"
-#include "DevelopmentCard.hpp"
+#include "development_card.hpp"
 #include "edge.hpp"
 #include "card_type.hpp"
 
@@ -95,7 +95,7 @@ namespace ariel {
             void tradeCards(std::vector<Player*>& allPlayers);
             void collectCardTradeDetails(const string& prompt, map<DevCardType, int>& cardDetails);
             bool hasSufficientCards(const map<DevCardType, int>& cardsNeeded);
-            void executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards);
+            void executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards, vector<Player*>& allPlayers);
 
 
             // Rolls a single six-sided die.

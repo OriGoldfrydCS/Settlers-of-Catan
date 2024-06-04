@@ -407,7 +407,9 @@ namespace ariel {
         }
         cout << "*******************************************************" << endl;
         cout << "                     Board Status                      " << endl;
-        board.printBoard();
+        // board.printBoard();
+        board.printGameBoard();
+
         // Implement the logic to display the current state of the game
     }
 
