@@ -15,7 +15,8 @@ int main() {
 
     // Initialize the game with these players
     Catan game(player1, player2, player3);
-
+    game.initializeGame();
+    
     // Print state after initial placements
     // game.printGameState();
 

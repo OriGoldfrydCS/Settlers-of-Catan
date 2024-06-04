@@ -12,10 +12,7 @@ namespace ariel {
 
 
     // Constructor
-    Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0) 
-    {
-        initializeGame();
-    }
+    Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0) {}
 
     void Catan::initializeGame() 
     {
@@ -65,11 +62,14 @@ namespace ariel {
     void Catan::distributeResources(Player* player) 
     {
         set<ResourceType> uniqueResources;
+        cout << "Player " << player->getName() << " has settlements at: ";
         for (int settlement : player->getSettlements()) 
         {
+            cout << settlement << " ";
             auto resources = board.getResourceTypesAroundIntersection(settlement);
             uniqueResources.insert(resources.begin(), resources.end());
         }
+        cout << endl;
 
         for (auto resource : uniqueResources) 
         {
@@ -176,7 +176,6 @@ namespace ariel {
                             break;
                         case 2:
                             currentPlayer->trade(players);
-                            cout << "Trading resources...\n";
                             break;
                         case 3:
                             handleBuildRoad(currentPlayer);
@@ -295,7 +294,7 @@ namespace ariel {
                 return;
         }
 
-        CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType);
+        CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType, players);
         switch(result) {
             case CardPurchaseError::Success:
                 cout << "Development card purchased successfully.\n";
@@ -314,19 +313,19 @@ namespace ariel {
 
     void Catan::handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn) {
         // Assume function that manages the choice and use of a development card
-        cout << "Select the type of Development Card to use:\n1. Knight\n2. Victory Point\n3. Promotion\nEnter your choice: ";
+        cout << "Select the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
         int devCardChoice;
         cin >> devCardChoice;
         DevCardType cardType;
         switch(devCardChoice) 
         {
+            // case 1:
+            //     cardType = DevCardType::KNIGHT;
+            //     break;
             case 1:
-                cardType = DevCardType::KNIGHT;
-                break;
-            case 2:
                 cardType = DevCardType::VICTORY_POINT;
                 break;
-            case 3:
+            case 2:
                 cardType = DevCardType::PROMOTION;
                 break;
             default:
@@ -434,5 +433,14 @@ namespace ariel {
             cout << "Winner: " << winner->getPoints() << " points" << endl;
         }
         // Implement the logic to print the winner of the game
+    }
+
+
+    /// function for tests:
+
+    void Catan::testInitialize() {
+        board.setupTiles();
+        board.linkTilesAndIntersections();
+        // Do not automatically place settlements or distribute resources
     }
 }

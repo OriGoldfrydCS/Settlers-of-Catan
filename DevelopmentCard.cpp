@@ -29,9 +29,9 @@ namespace ariel {
         }
     }
 
-    void KnightCard::activate(Player& player, Board& board) {
-        // Implementation of knight card activation
-    }
+    // void KnightCard::activate(Player& player, Board& board) {
+    //     // Implementation of knight card activation
+    // }
 
     std::string KnightCard::getType() const {
         return "Knight";

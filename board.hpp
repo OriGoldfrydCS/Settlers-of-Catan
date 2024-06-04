@@ -65,6 +65,12 @@ namespace ariel {
             bool hasSettlement(int intersectionID);
             vector<Tile> getTilesAroundIntersection(int intersectionID) const;
 
+            const map<int, int>& getCities() const;
+
+             // fucntion for tests///////////////
+            bool isRoadPresent(int intersectionID1, int intersectionID2) const;
+
+
         
 
            

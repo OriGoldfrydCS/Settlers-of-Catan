@@ -54,6 +54,11 @@ namespace ariel {
         void printWinner();
         void clearInputBuffer();
 
+
+        //FOR TESTS
+        void testInitialize();
+
+
         
     };
 }

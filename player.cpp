@@ -7,6 +7,7 @@ using namespace std;
 namespace ariel {
 
     int Player::nextID = 1;     // Initialize the static member to 1
+    Player* Player::largestArmyHolder = nullptr;
 
     Player::Player(const string& name) : name(name), id(nextID++), resources(), developmentCards(), points(0) { 
         for (auto& resource : {ResourceType::WOOD, ResourceType::BRICK, ResourceType::WOOL, ResourceType::GRAIN, ResourceType::ORE}) {
@@ -65,7 +66,7 @@ namespace ariel {
 
     void Player::placeInitialSettlement(int intersectionID, Board& board) {
         board.placeInitialSettlement(intersectionID, this->id);
-        this->settlements.insert(intersectionID);  // Update the player's record of settlements
+        settlements.insert(intersectionID);  // Update the player's record of settlements
         addPoints(1);  // Each initial settlement should still count towards points
     }
 
@@ -83,7 +84,7 @@ namespace ariel {
         } 
     }
 
-    void Player::addPoints(int pointsToAdd) {
+    void Player::addPoints(size_t pointsToAdd) {
         points = points + pointsToAdd;
     }
 
@@ -151,7 +152,7 @@ namespace ariel {
     void Player::addResource(ResourceType type, int quantity) {
         resources[type] += quantity;
         // cout << "Added " << quantity << " " << resourceTypeToString(type) << " to Player " << id 
-        //     << ", total now: " << resources[type] << endl;
+            // << ", total now: " << resources[type] << endl;
         // printResources(); // Calling to print all resources after updating
 
     }
@@ -174,8 +175,7 @@ namespace ariel {
         return false;
     }
 
-    CardPurchaseError Player::buyDevelopmentCard(DevCardType cardType) {
-        
+    CardPurchaseError Player::buyDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers){
         // Check if the player has enough resources
         if (resources[ResourceType::ORE] < 1 || resources[ResourceType::WOOL] < 1 
            || resources[ResourceType::GRAIN] < 1) 
@@ -206,14 +206,9 @@ namespace ariel {
         if (cardType == DevCardType::KNIGHT) {
             KnightCard::decreaseQuantity();
             developmentCards[DevCardType::KNIGHT]++;
-
-            // Check if this purchase qualifies the player for the Largest Army
-            if (developmentCards[DevCardType::KNIGHT] == 3) 
-            {
-                // Award the "Largest Army" if the player has just purchased their third Knight card
-                points += 2;  // Assume 2 points for the "Largest Army"
-                cout << name << " has earned the 'Largest Army' award and gains 2 victory points!" << endl;
-            }
+            knightCards++; 
+            checkForLargestArmy(allPlayers);  // Check if this player now qualifies for the Largest Army
+            
         } else if (cardType == DevCardType::VICTORY_POINT) {
             VictoryPointCard::decreaseQuantity();
             developmentCards[DevCardType::VICTORY_POINT]++;
@@ -267,6 +262,53 @@ namespace ariel {
 
         return CardPurchaseError::Success;
     }
+
+
+    void Player::checkForLargestArmy(vector<Player*>& allPlayers) {
+        // Check if this player has the Largest Army
+        if (knightCards >= 3) {
+            if (largestArmyHolder == nullptr || largestArmyHolder->knightCards < knightCards) {
+                if (largestArmyHolder != nullptr && largestArmyHolder != this) {
+                    largestArmyHolder->points -= 2; // Subtract points from the previous holder
+                    cout << largestArmyHolder->name << " has lost the Largest Army." << endl;
+                }
+                largestArmyHolder = this;
+                points += 2;  // Award new points to this player
+                cout << name << " now holds the Largest Army and gains 2 victory points." << endl;
+            }
+        } else {
+            // Check if this player is currently holding the Largest Army but no longer qualifies
+            if (largestArmyHolder == this) {
+                largestArmyHolder = nullptr;
+                points -= 2;
+                cout << name << " has lost the Largest Army." << endl;
+                // Re-evaluate the largest army holder among all players
+                reevaluateLargestArmy(allPlayers);
+            }
+        }
+    }
+
+    void Player::reevaluateLargestArmy(vector<Player*>& allPlayers) {
+        Player* newHolder = nullptr;
+        int maxKnights = 0;
+        // This will require access to all players in the game, assuming you have a way to iterate over all players
+        for (auto& player : allPlayers) {
+            if (player->knightCards > maxKnights && player->knightCards >= 3) {
+                maxKnights = player->knightCards;
+                newHolder = player;
+            }
+        }
+        if (newHolder != nullptr) {
+            if (largestArmyHolder != nullptr) {
+                largestArmyHolder->points -= 2; // Deduct points from the previous holder
+            }
+            largestArmyHolder = newHolder;
+            largestArmyHolder->points += 2;  // Award points to the new holder
+            cout << largestArmyHolder->name << " now holds the Largest Army and gains 2 victory points." << endl;
+        }
+    }
+
+
 
 
     CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
@@ -327,9 +369,9 @@ namespace ariel {
         // Handle specific card types
         switch (cardType) 
         {
-            case DevCardType::KNIGHT:
-                useKnightCard();
-                break;
+            // case DevCardType::KNIGHT:
+            //     useKnightCard();
+            //     break;
             case DevCardType::VICTORY_POINT:
                 addPoints(1); // Directly add a victory point
                 cout << name << " gained a victory point from a Victory Point Card." << endl;
@@ -417,12 +459,13 @@ namespace ariel {
     }
 
 
-    void Player::useKnightCard() 
-    {
-        // Implement the logic for using a Knight card
-        cout << name << " uses a Knight card." << endl;
-        // Further actions like moving the robber could be implemented here
-    }
+    // void Player::useKnightCard(Board& board) {
+    //     knightCardsUsed++;
+    //     cout << name << " uses a Knight card, total used: " << knightCardsUsed << "." << endl;
+    //     // Other knight card effects go here
+
+    //     checkLargestArmyAward();
+    // }
 
     void Player::usePromotionCard(PromotionType cardType, vector<Player*>& players, Board& board) {
         switch (cardType) {
@@ -621,20 +664,118 @@ namespace ariel {
     }
     
     void Player::trade(std::vector<Player*>& allPlayers) {
-        std::map<ResourceType, int> offerResources, requestResources;
-        std::map<DevCardType, int> offerCards, requestCards;
+        std::cout << "Do you want to trade resources or cards? (Enter '1' or '2'):\n";
+        std::string tradeType;
+        std::cin >> tradeType;
 
-        // Displaying all players to choose from
-        std::cout << "Choose a player to trade with:" << std::endl;
+        if (tradeType == "1") {
+            // Existing resource trading logic
+            std::cout << "Choose a player to trade with:" << std::endl;
+            for (size_t i = 0; i < allPlayers.size(); ++i) {
+                if (allPlayers[i]->getId() != this->getId()) {
+                    std::cout << i + 1 << ". " << allPlayers[i]->getName() << std::endl;
+                }
+            }
+
+            size_t playerIndex;
+            std::cin >> playerIndex;
+            playerIndex--;  // Adjust for zero-indexing
+
+            if (playerIndex < 0 || playerIndex >= allPlayers.size() || allPlayers[playerIndex]->getId() == this->getId()) {
+                std::cout << "Invalid player selection." << std::endl;
+                return;
+            }
+
+            Player* recipient = allPlayers[playerIndex];
+            std::map<ResourceType, int> offerResources, requestResources;
+
+            std::cout << "Your resources before trade:" << std::endl;
+            this->printResources();
+            std::cout << recipient->getName() << "'s resources before trade:" << std::endl;
+            recipient->printResources();
+
+            collectTradeDetails("Enter the number of each resource you want to offer:", offerResources);
+            collectTradeDetails("Enter the number of each resource you want in return:", requestResources);
+
+            if (!hasSufficientResources(offerResources)) {
+                std::cout << "You do not have enough resources to make this offer." << std::endl;
+                return;
+            }
+
+            if (!recipient->hasSufficientResources(requestResources)) {
+                std::cout << "The requested player does not have enough resources to fulfill your request." << std::endl;
+                return;
+            }
+
+            std::cout << "Do you accept this trade? (yes/no): ";
+            std::string response;
+            std::cin >> response;
+            if (response == "yes") {
+                executeTrade(*this, *recipient, offerResources, requestResources);
+                std::cout << "Trade completed successfully." << std::endl;
+            } else {
+                std::cout << "Trade rejected." << std::endl;
+            }
+        } else if (tradeType == "2") {
+            tradeCards(allPlayers);  // Call the new function for card trading
+        } else {
+            std::cout << "Invalid input. Please enter 'resources' or 'cards'." << std::endl;
+        }
+    }
+
+
+    void Player::collectTradeDetails(const std::string& prompt, std::map<ResourceType, int>& details) {
+        std::cout << prompt << std::endl;
+        for (auto& resource : {ResourceType::WOOD, ResourceType::BRICK, ResourceType::WOOL, ResourceType::GRAIN, ResourceType::ORE}) {
+            std::cout << resourceTypeToString(resource) << ": ";
+            int count;
+            std::cin >> count;
+            details[resource] = count;
+        }
+    }
+
+    void Player::printTradeDetails(const std::map<ResourceType, int>& offer, const std::map<ResourceType, int>& request) {
+        std::cout << "Offers:" << std::endl;
+        for (const auto& item : offer) {
+            std::cout << "  " << resourceTypeToString(item.first) << ": " << item.second << std::endl;
+        }
+        std::cout << "Requests:" << std::endl;
+        for (const auto& item : request) {
+            std::cout << "  " << resourceTypeToString(item.first) << ": " << item.second << std::endl;
+        }
+    }
+
+    void Player::executeTrade(Player& offerer, Player& recipient, const std::map<ResourceType, int>& offerResources, const std::map<ResourceType, int>& requestResources) {
+        for (const auto& item : offerResources) {
+            offerer.resources[item.first] -= item.second;
+            recipient.resources[item.first] += item.second;
+        }
+        for (const auto& item : requestResources) {
+            recipient.resources[item.first] -= item.second;
+            offerer.resources[item.first] += item.second;
+        }
+    }
+
+    bool Player::hasSufficientResources(const std::map<ResourceType, int>& resourcesNeeded) {
+        for (const auto& item : resourcesNeeded) {
+            if (resources[item.first] < item.second) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void Player::tradeCards(std::vector<Player*>& allPlayers) {
+        std::cout << "Choose a player to trade cards with:" << std::endl;
         for (size_t i = 0; i < allPlayers.size(); ++i) {
-            if (allPlayers[i]->getId() != this->getId()) {  // Ensure player cannot trade with themselves
+            if (allPlayers[i]->getId() != this->getId()) {
                 std::cout << i + 1 << ". " << allPlayers[i]->getName() << std::endl;
             }
         }
 
         size_t playerIndex;
         std::cin >> playerIndex;
-        playerIndex--;  // Adjust for zero-indexed vector
+        playerIndex--;  // Adjust for zero-indexing
 
         if (playerIndex < 0 || playerIndex >= allPlayers.size() || allPlayers[playerIndex]->getId() == this->getId()) {
             std::cout << "Invalid player selection." << std::endl;
@@ -642,98 +783,79 @@ namespace ariel {
         }
 
         Player* recipient = allPlayers[playerIndex];
+        // Assume a structure to hold card offers and requests
+        std::map<DevCardType, int> offerCards, requestCards;
 
-        // Collect offer details
-        std::cout << "Enter the number of each resource you want to offer:" << std::endl;
-        for (auto& resource : resources) {
-            std::cout << resourceTypeToString(resource.first) << ": ";
-            std::cin >> offerResources[resource.first];
-        }
+        std::cout << "Your cards before trade:" << std::endl;
+        this->printCardCounts();
+        std::cout << recipient->getName() << "'s cards before trade:" << std::endl;
+        recipient->printCardCounts();
 
-        std::cout << "Enter the number of each development card you want to offer:" << std::endl;
-        for (auto& card : developmentCards) {
-            std::cout << devCardTypeToString(card.first) << ": ";
-            std::cin >> offerCards[card.first];
-        }
+        collectCardTradeDetails("Enter the number of each card type you want to offer:", offerCards);
+        collectCardTradeDetails("Enter the number of each card type you want in return:", requestCards);
 
-        // Collect request details
-        std::cout << "Enter the number of each resource you want in return:" << std::endl;
-        for (auto& resource : resources) {
-            std::cout << resourceTypeToString(resource.first) << ": ";
-            std::cin >> requestResources[resource.first];
-        }
-
-        std::cout << "Enter the number of each development card you want in return:" << std::endl;
-        for (auto& card : developmentCards) {
-            std::cout << devCardTypeToString(card.first) << ": ";
-            std::cin >> requestCards[card.first];
-        }
-
-        // Check if the player has enough resources and cards to offer
-        bool hasEnoughOffer = true;
-        for (auto& offer : offerResources) {
-            if (resources[offer.first] < offer.second) {
-                hasEnoughOffer = false;
-                break;
-            }
-        }
-        for (auto& offer : offerCards) {
-            if (developmentCards[offer.first] < offer.second) {
-                hasEnoughOffer = false;
-                break;
-            }
-        }
-
-        if (!hasEnoughOffer) {
-            std::cout << "You do not have enough resources or cards to make this offer." << std::endl;
+        if (!hasSufficientCards(offerCards)) {
+            std::cout << "You do not have enough cards to make this offer." << std::endl;
             return;
         }
 
-        // Check if recipient has enough resources and cards to fulfill the request
-        bool recipientCanFulfill = true;
-        for (auto& request : requestResources) {
-            if (recipient->resources[request.first] < request.second) {
-                recipientCanFulfill = false;
-                break;
-            }
-        }
-        for (auto& request : requestCards) {
-            if (recipient->developmentCards[request.first] < request.second) {
-                recipientCanFulfill = false;
-                break;
-            }
-        }
-
-        if (!recipientCanFulfill) {
-            std::cout << recipient->getName() << " does not have enough resources or cards to fulfill the request." << std::endl;
+        if (!recipient->hasSufficientCards(requestCards)) {
+            std::cout << "The requested player does not have enough cards to fulfill your request." << std::endl;
             return;
         }
 
-        // Trade confirmation
+        std::cout << "Do you accept this trade? (yes/no): ";
         std::string response;
-        std::cout << recipient->getName() << ", do you accept this trade? (yes/no): ";
         std::cin >> response;
         if (response == "yes") {
-            for (auto& offer : offerResources) {
-                resources[offer.first] -= offer.second;
-                recipient->resources[offer.first] += offer.second;
-            }
-            for (auto& offer : offerCards) {
-                developmentCards[offer.first] -= offer.second;
-                recipient->developmentCards[offer.first] += offer.second;
-            }
-            for (auto& request : requestResources) {
-                recipient->resources[request.first] -= request.second;
-                resources[request.first] += request.second;
-            }
-            for (auto& request : requestCards) {
-                recipient->developmentCards[request.first] -= request.second;
-                developmentCards[request.first] += request.second;
-            }
-            std::cout << "Trade accepted and completed." << std::endl;
+            executeCardTrade(*this, *recipient, offerCards, requestCards);
+            std::cout << "Card trade completed successfully." << std::endl;
         } else {
-            std::cout << recipient->getName() << " rejected the trade." << std::endl;
+            std::cout << "Card trade rejected." << std::endl;
         }
+    }
+
+    void Player::collectCardTradeDetails(const string& prompt, map<DevCardType, int>& cardDetails) {
+        cout << prompt << endl;
+        cout << "1. Knight Cards\n2. Victory Point Cards\n3. Monopoly Cards\n4. Road Building Cards\n5. Year of Plenty Cards\nEnter the number of each card type you want in return:" << endl;
+        int knights, victoryPoints, monopolies, roadBuildings, yearsOfPlenty;
+        cout << "Knight Cards: "; cin >> knights;
+        cout << "Victory Point Cards: "; cin >> victoryPoints;
+        cout << "Monopoly Cards: "; cin >> monopolies;
+        cout << "Road Building Cards: "; cin >> roadBuildings;
+        cout << "Year of Plenty Cards: "; cin >> yearsOfPlenty;
+
+        cardDetails[DevCardType::KNIGHT] = knights;
+        cardDetails[DevCardType::VICTORY_POINT] = victoryPoints;
+        cardDetails[DevCardType::PROMOTION] = monopolies + roadBuildings + yearsOfPlenty;  // Aggregate promotion cards for simplicity unless differentiated in map
+    }
+
+    bool Player::hasSufficientCards(const map<DevCardType, int>& cardsNeeded) {
+        for (const auto& [type, required] : cardsNeeded) {
+            if (developmentCards[type] < required)
+                return false;
+        }
+        return true;
+    }
+
+    void Player::executeCardTrade(Player& offerer, Player& recipient, const map<DevCardType, int>& offerCards, const map<DevCardType, int>& requestCards) {
+        for (const auto& [type, quantity] : offerCards) {
+            offerer.developmentCards[type] -= quantity;
+            recipient.developmentCards[type] += quantity;
+        }
+        for (const auto& [type, quantity] : requestCards) {
+            recipient.developmentCards[type] -= quantity;
+            offerer.developmentCards[type] += quantity;
+        }
+        cout << "Trade executed successfully." << endl;
+    }
+
+
+
+
+
+    const map<DevCardType, int>& Player::getDevelopmentCards() const {
+        return developmentCards;
     }
 
     int Player::getResourceCount(ResourceType type) const {
@@ -780,7 +902,10 @@ namespace ariel {
         stringstream ss;
         ss << "Player " << name << " (Id " << id << "):\n";
         ss << "Points: " << points << "\n";
-        
+        // Print if the player has the Largest Army
+        if (largestArmyHolder == this) {
+            ss << "Largest Army Card: V\n";
+        }
         // Print settlements
         ss << "Settlements at: ";
         for (int settlement : settlements) {
@@ -829,14 +954,41 @@ namespace ariel {
     }
 
     void Player::printCardCounts() const {
-    cout << "Card counts for " << name << " (Id " << id << "):" << endl;
-    cout << "  Knight Cards: " << developmentCards.at(DevCardType::KNIGHT) << endl;
-    cout << "  Victory Point Cards: " << developmentCards.at(DevCardType::VICTORY_POINT) << endl;
-    cout << "  Promotion Cards:" << endl;
-    cout << "    Monopoly: " << promotionCards.at(PromotionType::MONOPOLY) << endl;
-    cout << "    Road Building: " << promotionCards.at(PromotionType::ROAD_BUILDING) << endl;
-    cout << "    Year of Plenty: " << promotionCards.at(PromotionType::YEAR_OF_PLENTY) << endl;
-}
+        cout << "Card counts for " << name << " (Id " << id << "):" << endl;
+        cout << "  Knight Cards: " << developmentCards.at(DevCardType::KNIGHT) << endl;
+        cout << "  Victory Point Cards: " << developmentCards.at(DevCardType::VICTORY_POINT) << endl;
+        cout << "  Promotion Cards:" << endl;
+        cout << "    Monopoly: " << promotionCards.at(PromotionType::MONOPOLY) << endl;
+        cout << "    Road Building: " << promotionCards.at(PromotionType::ROAD_BUILDING) << endl;
+        cout << "    Year of Plenty: " << promotionCards.at(PromotionType::YEAR_OF_PLENTY) << endl;
+    }
+
+
+    // modified functions for tests////
+
+    void Player::buildSettlementForTesting(int intersectionID, Board& board) {
+        cout << "Trying to build settlement at intersection (Testing) " << intersectionID << endl;
+        cout << "Resource check (can build 'settlement'): " << canBuild("settlement") << endl;
+
+        // This function will ignore the road connection requirement
+        if (canBuild("settlement")) {
+            // Deduct resources
+            resources[ResourceType::BRICK] -= 1;
+            resources[ResourceType::WOOD] -= 1;
+            resources[ResourceType::WOOL] -= 1;
+            resources[ResourceType::GRAIN] -= 1;
+            
+            // Add settlement
+            settlements.insert(intersectionID);
+            board.placeSettlement(intersectionID, this->id);
+            addPoints(1);  // Assuming 1 point per settlement
+
+            cout << "Settlement built successfully at intersection (Testing) " << intersectionID << endl;
+        } else {
+            cout << "Failed to build settlement at intersection (Testing) " << intersectionID << endl;
+        }
+    }
+
 
     
 }

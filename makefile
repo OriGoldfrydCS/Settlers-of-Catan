@@ -1,20 +1,50 @@
-CXX=g++
-CXXFLAGS=-std=c++17 -Wall -g
-#SFMLFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
+# Compiler settings
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Werror -Wsign-conversion -g
 
-# List all object files
-OBJS=main.o board.o player.o tile.o catan.o resource_type.o intersection.o edge.o vertex.o card_type.o DevelopmentCard.o
+# Valgrind settings
+VALGRIND_FLAGS = -v --leak-check=full --show-leak-kinds=all --error-exitcode=99
 
-# Target to build the game
-all: Catan
+# Source files and headers
+SOURCES = board.cpp player.cpp tile.cpp catan.cpp resource_type.cpp intersection.cpp edge.cpp vertex.cpp card_type.cpp DevelopmentCard.cpp
+HEADERS = board.hpp player.hpp tile.hpp catan.hpp resource_type.hpp intersection.hpp edge.hpp vertex.hpp card_type.hpp DevelopmentCard.hpp
 
-Catan: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) 
+# Object files
+OBJS = $(SOURCES:.cpp=.o)
 
-# Pattern rule for compiling source files
-%.o: %.cpp
+# Test sources
+TEST_SRC = Test.cpp TestCounter.cpp
+TEST_OBJS = $(TEST_SRC:.cpp=.o)
+
+# Executable names
+GAME_EXEC = Catan
+TEST_EXEC = tests
+
+# Default build target
+all: $(GAME_EXEC)
+
+# Game executable
+$(GAME_EXEC): $(OBJS) main.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+# Test executable
+$(TEST_EXEC): $(TEST_OBJS) $(filter-out main.o, $(OBJS))
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	./$(TEST_EXEC)
+
+# Object compilation
+%.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Target to clean the build
+# Clang-tidy
+tidy:
+	clang-tidy $(SOURCES) $(HEADERS) -checks='*,-cppcoreguidelines-pro-bounds-pointer-arithmetic,-cppcoreguidelines-owning-memory' -- -std=c++17
+
+# Run Valgrind
+valgrind: $(GAME_EXEC) $(TEST_EXEC)
+	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./$(GAME_EXEC) 2>&1 | { egrep "lost| at " || true; }
+	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./$(TEST_EXEC) 2>&1 | { egrep "lost| at " || true; }
+
+# Clean up command to remove all compiled files
 clean:
-	rm -f $(OBJS) *.d Catan
+	rm -f *.o $(GAME_EXEC) $(TEST_EXEC)

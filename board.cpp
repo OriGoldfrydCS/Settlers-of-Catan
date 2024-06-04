@@ -660,6 +660,22 @@ namespace ariel {
     {
         return settlements.find(intersectionID) != settlements.end() && !settlements[intersectionID].empty();
     }
+
+    const map<int, int>& Board::getCities() const {
+        return cities;
+    }
+
+
+    // fucntion for tests///////////////
+    bool Board::isRoadPresent(int intersectionID1, int intersectionID2) const {
+        Edge road1(Intersection::getIntersection(intersectionID1), Intersection::getIntersection(intersectionID2));
+        Edge road2(Intersection::getIntersection(intersectionID2), Intersection::getIntersection(intersectionID1));
+        return roads.find(road1) != roads.end() || roads.find(road2) != roads.end();
+    }
+
+
+
+
     // void Board::draw(sf::RenderWindow& window) {
     //     float radius = 40;  // radius of the hexagon
 
