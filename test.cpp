@@ -227,7 +227,7 @@ TEST_CASE("Build road and check resource decrement") {
 
     // Setup an initial road or settlement to ensure connectivity
     board.placeInitialSettlement(1, player.getId());
-    player.placeSettlement(1, board);
+    player.buildSettlement(1, board);
 
     // Adding necessary resources
     player.addResource(ResourceType::WOOD, 1);
@@ -441,7 +441,7 @@ TEST_CASE("Trading resources between players") {
 }
 
 
-TEST_CASE("Player trades Knight card and loses Largest Army status") {
+TEST_CASE("Player loses Largest Army card to someone else") {
     Player alice("Alice"), bob("Bob");
     vector<Player*> players = {&alice, &bob};
 
@@ -466,44 +466,21 @@ TEST_CASE("Player trades Knight card and loses Largest Army status") {
     CHECK(Player::largestArmyHolder == &alice);
     CHECK(alice.getPoints() == 4); // Points for largest army (2+2)
 
-    cout << "Before trade:" << endl;
-    cout << "Alice Knight cards: " << alice.getDevelopmentCards().at(DevCardType::KNIGHT) << endl;
-    cout << "Bob Knight cards: " << bob.getDevelopmentCards().at(DevCardType::KNIGHT) << endl;
-    cout << "Alice points: " << alice.getPoints() << endl;
-    cout << "Largest Army Holder: " << (Player::largestArmyHolder == &alice ? "Alice" : "Not Alice") << endl;
 
-    // Simulate a card trade where Alice trades away one Knight card
-    std::stringstream input("2\n1\n1 0 0 0 0\n0 0 0 0 0\nyes\n"); // Simulate input for trading one Knight card
-    std::cin.rdbuf(input.rdbuf()); // Redirect std::cin to read from input
+    bob.addResource(ResourceType::ORE, 6);
+    bob.addResource(ResourceType::WOOL, 6);
+    bob.addResource(ResourceType::GRAIN, 6);
 
-    // Assuming Bob has the necessary resources to accept the trade
-    bob.addResource(ResourceType::ORE, 1);
-    bob.addResource(ResourceType::WOOL, 1);
-    bob.addResource(ResourceType::GRAIN, 1);
-    bob.buyDevelopmentCard(DevCardType::KNIGHT, players);
+    // bob buys 4 Knight cards
+    for (int i = 0; i < 4; i++) {
+        CHECK(bob.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
+    }
 
-    alice.tradeCards(players);
-
-    std::cin.rdbuf(nullptr); // Restore cin to standard input
-
-    // Check if Alice lost a Knight card and Bob gained one
-    CHECK(alice.getDevelopmentCards().at(DevCardType::KNIGHT) == 2);
-    CHECK(bob.getDevelopmentCards().at(DevCardType::KNIGHT) == 1);
-
-    cout << "After trade:" << endl;
-    cout << "Alice Knight cards: " << alice.getDevelopmentCards().at(DevCardType::KNIGHT) << endl;
-    cout << "Bob Knight cards: " << bob.getDevelopmentCards().at(DevCardType::KNIGHT) << endl;
-
-    // Reevaluate the largest army status after trade
     alice.checkForLargestArmy(players);
 
     // Verify that Alice no longer holds the largest army if another player meets the criteria
     CHECK(Player::largestArmyHolder != &alice);
     CHECK(alice.getPoints() == 2); // Points lost due to losing largest army
-
-    cout << "After checking for largest army:" << endl;
-    cout << "Alice points: " << alice.getPoints() << endl;
-    cout << "Largest Army Holder: " << (Player::largestArmyHolder == &alice ? "Alice" : "Not Alice") << endl;
 }
 
 

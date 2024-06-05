@@ -11,16 +11,24 @@ using namespace std;
 namespace ariel {
 
 
-    // Constructor
+     /**
+     * @brief Constructor that initializes the game with three players.
+     * @param p1 Reference to the first player.
+     * @param p2 Reference to the second player.
+     * @param p3 Reference to the third player.
+     */
     Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0) {}
 
+
+    /**
+     * @brief Sets up the game by configuring tiles, linking them with intersections, and distributing initial resources.
+     */
     void Catan::initializeGame() 
     {
         board.setupTiles();  
         board.linkTilesAndIntersections();
 
-        
-         // Setup each player's initial resources and settlements
+        // Setup each player's initial resources and settlements
         players[0]->placeInitialSettlement(41, board);     // Intersection 41 touches Wood(8), Ore(3), Brick(5)
         players[0]->placeInitialSettlement(45, board);     // Intersection 45 touches Grain(4), Wool(5), Wool(11)
         players[1]->placeInitialSettlement(14, board);     // Road between Wool(4) and Wood(9)
@@ -28,7 +36,7 @@ namespace ariel {
         players[2]->placeInitialSettlement(20, board);     // Road between Grain(12) and Wood(11)
         players[2]->placeInitialSettlement(36, board);     // Road between Wood(3) and Ore(8)
 
-        // Now distribute resources after all settlements are placed
+        // Distribute resources after all settlements are placed
         for (auto* player : players) 
         {
             distributeResources(player);
@@ -48,17 +56,10 @@ namespace ariel {
     }
 
 
-   
-    // void Catan::placeInitialSettlementAndResources(int intersectionID, Player* player) {
-    //     player->placeSettlement(intersectionID, board);
-
-    //     // Check if settlement was successfully placed
-    //     if (board.hasSettlement(intersectionID)) 
-    //     {  
-    //         distributeInitialResources(intersectionID, player);
-    //     }
-    // }
-
+    /**
+     * @brief Distributes resources to a player based on the locations of their settlements.
+     * @param player Pointer to the player receiving resources.
+     */
     void Catan::distributeResources(Player* player) 
     {
         set<ResourceType> uniqueResources;
@@ -71,18 +72,23 @@ namespace ariel {
         }
         cout << endl;
 
+        // Add one resource card of each type gathered from around the settlements.
         for (auto resource : uniqueResources) 
         {
             player->addResource(resource, 1);       // Add one resource card of each type
         }
     }
 
+
+    /**
+     * @brief Determines the starting player based on dice rolls.
+     */
     void Catan::ChooseStartingPlayer() 
     {
         cout << "Roll the dice to determine the player's order: " << endl;
         vector<pair<int, Player*>> diceRolls;
 
-        // Each player rolls a die and their result is stored with their reference
+        // Each player rolls a die and their result is stored
         for (auto* player : players) 
         {
             int roll = player->rollDice();
@@ -93,28 +99,30 @@ namespace ariel {
         // Sort players based on their dice rolls in descending order
         sort(diceRolls.begin(), diceRolls.end(), [](const pair<int, Player*>& a, const pair<int, Player*>& b) 
         {
-            return a.first > b.first;  // Sort by the first element of the pair (dice roll) in descending order
+            return a.first > b.first;  
         });
 
-        // Update the players vector to reflect the new order
+        // Update the players vector to privde the new order
         for (size_t i = 0; i < diceRolls.size(); ++i) 
         {
             players[i] = diceRolls[i].second;
         }
 
-        // Set the current player index to 0 since the first player in the vector is the one who rolled the highest
-        currentPlayerIndex = 0;
-
+        currentPlayerIndex = 0;     // The first player in the sorted list starts
         cout << "Player " << players[currentPlayerIndex]->getName() << " starts the game!" << endl;
         cout << "Let's start..." << endl;
 
     }
 
+    /**
+     * @brief Main game loop that controls the flow of the game until a player wins.
+     */
     void Catan::playGame() 
     {
         bool gameRunning = true;
         while (gameRunning) 
-        {
+        {   
+            // Iterate through each player for their turn.
             for (Player* currentPlayer : players) 
             {
                 cout << "\nIt's " << currentPlayer->getName() << "'s turn." << endl;
@@ -126,22 +134,27 @@ namespace ariel {
                 {
                     bool shouldEndTurn = false;
                     handleDevelopmentCardUsage(currentPlayer, shouldEndTurn);
-                    if (shouldEndTurn) {
+                    if (shouldEndTurn) 
+                    {
                         currentPlayer->endTurn();
                         nextTurn();
-                        continue; // Skip to next player immediately
+                        continue;       // Skip to next player immediately
                     }
                 }
-                else {
+                else 
+                {
                     // Proceed with dice roll
                     int dice1 = Player::rollDice();
                     int dice2 = Player::rollDice();
                     int total = dice1 + dice2;
                     cout << "Player " << currentPlayer->getName() << " rolls " << dice1 << " + " << dice2 << " = " << total << "." << endl;
 
-                    if (total == 7) {
+                    if (total == 7) 
+                    {
                         handleSevenRoll();
-                    } else {
+                    } 
+                    else 
+                    {
                         board.distributeResourcesBasedOnDiceRoll(total, players);
                         cout << "Resources distributed based on dice roll." << endl;
                     }
@@ -151,7 +164,8 @@ namespace ariel {
 
                 // Action selection
                 bool endTurn = false;
-                while (!endTurn) {
+                while (!endTurn) 
+                {
                     cout << "\nChoose an action:\n";
                     cout << "0. View game state\n";
                     cout << "1. View your full player details\n";
@@ -165,9 +179,10 @@ namespace ariel {
                     cout << "Enter your choice: ";
                     int choice;
                     cin >> choice;
-                    clearInputBuffer(); // Clear the buffer after reading an integer
+                    clearInputBuffer();         // Clear the buffer after reading an integer
 
-                    switch(choice) {
+                    switch(choice) 
+                    {
                         case 0:
                             printGameState();
                             break;
@@ -200,7 +215,8 @@ namespace ariel {
                         {
                             bool shouldEndTurn = false;
                             handleDevelopmentCardUsage(currentPlayer, shouldEndTurn);
-                            if (shouldEndTurn) {
+                            if (shouldEndTurn) 
+                            {
                                 cout << "Proceeding to additional actions after using the card..." << endl;
                                 endTurn = true; // End turn if the card used should end the turn
                             }
@@ -219,7 +235,10 @@ namespace ariel {
                     }
                 }
 
-                if (currentPlayer->getPoints() >= 10) {
+
+                // Check victory conditions
+                if (currentPlayer->getPoints() >= 10) 
+                {
                     cout << "Player " << currentPlayer->getName() << " wins with " << currentPlayer->getPoints() << " points!" << endl;
                     gameRunning = false;
                     break;
@@ -228,48 +247,80 @@ namespace ariel {
         }
     }
 
-    void Catan::handleBuildRoad(Player* currentPlayer) {
+    /**
+     * @brief Handles the construction of a road between two intersections.
+     * @param currentPlayer Pointer to the current player attempting to build a road.
+     */
+    void Catan::handleBuildRoad(Player* currentPlayer) 
+    {
         cout << "Enter the intersection IDs to place a road (e.g., 4 5): ";
         int id1, id2;
         cin >> id1 >> id2;
         try {
             Edge edge(Intersection::getIntersection(id1), Intersection::getIntersection(id2));
-            if (currentPlayer->canBuild("road") && board.canPlaceRoad(edge, currentPlayer->getId())) {
+            if (currentPlayer->canBuild("road") && board.canPlaceRoad(edge, currentPlayer->getId())) 
+            {
                 currentPlayer->buildRoad(edge, board);
                 cout << "Road successfully built between " << id1 << " and " << id2 << "." << endl;
-            } else {
+            } 
+            else 
+            {
                 cout << "Failed to build road. Check if the road is valid or if you have enough resources." << endl;
             }
-        } catch (const std::exception& e) {
+        } catch (const exception& e) {
             cout << "Invalid intersection IDs provided. Please try again." << endl;
         }
     }
 
-    void Catan::handleBuildSettlement(Player* currentPlayer) {
+
+    /**
+     * @brief Handles the construction of a settlement at a specified intersection.
+     * @param currentPlayer Pointer to the current player attempting to build a settlement.
+     */
+    void Catan::handleBuildSettlement(Player* currentPlayer) 
+    {
         cout << "Enter the intersection ID to place a settlement: ";
         int intersectionID;
         cin >> intersectionID;
-        if (currentPlayer->canBuild("settlement") && board.canPlaceSettlement(intersectionID, currentPlayer->getId())) {
+        if (currentPlayer->canBuild("settlement") && board.canPlaceSettlement(intersectionID, currentPlayer->getId())) 
+        {
             currentPlayer->buildSettlement(intersectionID, board);
             cout << "Settlement successfully built at intersection " << intersectionID << "." << endl;
-        } else {
+        } 
+        else 
+        {
             cout << "Failed to build settlement. Check if the location is valid or if you have enough resources." << endl;
         }
     }
 
-    void Catan::handleUpgradeToCity(Player* currentPlayer) {
+
+    /**
+     * @brief Handles the upgrade of a settlement to a city at a specified intersection.
+     * @param currentPlayer Pointer to the current player attempting to upgrade a settlement to a city.
+     */
+    void Catan::handleUpgradeToCity(Player* currentPlayer) 
+    {
         cout << "Enter the intersection ID to upgrade to a city: ";
         int intersectionID;
         cin >> intersectionID;
-        if (currentPlayer->canBuild("city") && board.canUpgradeSettlementToCity(intersectionID, currentPlayer->getId())) {
+        if (currentPlayer->canBuild("city") && board.canUpgradeSettlementToCity(intersectionID, currentPlayer->getId())) 
+        {
             currentPlayer->upgradeToCity(intersectionID, board);
             cout << "Settlement at intersection " << intersectionID << " has been upgraded to a city." << endl;
-        } else {
+        } 
+        else 
+        {
             cout << "Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
         }
     }
 
-    void Catan::handleBuyDevelopmentCard(Player* currentPlayer) {
+
+    /**
+     * @brief Manages the purchase of a development card by the current player.
+     * @param currentPlayer Pointer to the player attempting to buy a development card.
+     */
+    void Catan::handleBuyDevelopmentCard(Player* currentPlayer)
+    {
         cout << "Select the type of Development Card to buy:\n";
         cout << "1. Knight\n";
         cout << "2. Victory Point\n";
@@ -279,7 +330,8 @@ namespace ariel {
         cin >> cardChoice;
         DevCardType cardType;
 
-        switch(cardChoice) {
+        switch(cardChoice)
+        {
             case 1:
                 cardType = DevCardType::KNIGHT;
                 break;
@@ -295,7 +347,8 @@ namespace ariel {
         }
 
         CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType, players);
-        switch(result) {
+        switch(result) 
+        {
             case CardPurchaseError::Success:
                 cout << "Development card purchased successfully.\n";
                 break;
@@ -311,7 +364,14 @@ namespace ariel {
         }
     }
 
-    void Catan::handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn) {
+
+    /**
+     * @brief Manages the usage of a development card by the current player.
+     * @param currentPlayer Pointer to the player using the development card.
+     * @param shouldEndTurn Reference to a boolean indicating if the turn should end after using the card.
+     */
+    void Catan::handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn) 
+    {
         // Assume function that manages the choice and use of a development card
         cout << "Select the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
         int devCardChoice;
@@ -332,24 +392,37 @@ namespace ariel {
                 cout << "Invalid card type selected.\n";
                 break;
         }
+        
         CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
-        if (useResult == CardUseError::Success) {
+        
+        if (useResult == CardUseError::Success) 
+        {
             cout << "Development card used successfully." << endl;
             shouldEndTurn = true;
-            } else if (useResult == CardUseError::InsufficientCards) {
-                cout << "You do not have enough of this card to use." << endl;
-            } else {
-                cout << "Invalid card type or other error." << endl;
+        } 
+        else if (useResult == CardUseError::InsufficientCards) 
+        {
+            cout << "You do not have enough of this card to use." << endl;
+        } 
+        else 
+        {
+            cout << "Invalid card type or other error." << endl;
         }
     }
 
-    void Catan::handleSevenRoll() {
+
+    /**
+     * @brief Handles the event when a player rolls a seven, enforcing the discarding of resources.
+     */
+    void Catan::handleSevenRoll() 
+    {
         cout << "A 7 was rolled. Players with more than 7 resources must discard half of them." << endl;
         size_t currentPlayerPosition = currentPlayerIndex; // Remember the current player index
         do {
             Player* currentPlayer = players[currentPlayerIndex];
             int totalResources = currentPlayer->countTotalResources();
-            if (totalResources > 7) {
+            if (totalResources > 7) 
+            {
                 int toDiscard = totalResources / 2; // Calculate half to discard, rounded down
                 currentPlayer->discardResources(toDiscard);
             }
@@ -360,46 +433,34 @@ namespace ariel {
     }
 
 
-
+    /**
+     * @brief Clears the input buffer to handle potential input errors.
+     */
     void Catan::clearInputBuffer() {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
 
-
+    /**
+     * @brief Advances the game to the next player's turn.
+     */
     void Catan::nextTurn() 
     {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         cout << "It is now " << players[currentPlayerIndex]->getName() << "'s turn." << endl;
     }
 
-    // void Catan::playGame() 
-    // {
-    //     while (true) 
-    //     {
-    //         Player* currentPlayer = players[currentPlayerIndex];
-    //         GameLogic::performTurn(currentPlayer, board);
-    //         if (GameLogic::checkVictoryConditions(currentPlayer)) 
-    //         {
-    //             cout << "Player " << currentPlayer->getPoints() << " wins!" << endl;
-    //             break;
-    //         }
-    //         nextTurn();
-    //     }
-    //     // Implement the main game loop, controlling the flow of turns and checking for the game end condition
-    // }
 
-    // void Catan::nextTurn() 
-    // {
-    //     currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-    //     // Implement the logic to advance the game to the next player's turn
-    // }
-
+    /**
+     * @brief Prints the current state of the game, including player points and board status.
+     */
     void Catan::printGameState() const 
     {
-        cout << "-------------------------------------------------------" << endl;
-        cout << "|                     GAME STATE                      |" << endl;
-        cout << "-------------------------------------------------------" << endl;
+        cout << "*******************************************************" << endl;
+        cout << "*******************************************************" << endl;
+        cout << "***                     GAME STATE                  ***" << endl;
+        cout << "*******************************************************" << endl;
+        cout << "*******************************************************" << endl;
 
         for (const auto& player : players) 
         {
@@ -407,17 +468,25 @@ namespace ariel {
         }
         cout << "*******************************************************" << endl;
         cout << "                     Board Status                      " << endl;
-        // board.printBoard();
+        // board.printBoard();      // printing for debuging
         board.printGameBoard();
-
-        // Implement the logic to display the current state of the game
     }
 
+
+    /**
+     * @brief Returns a reference to the game board.
+     * @return Reference to the board used in the game.
+     */
     Board& Catan::getBoard() 
     {
         return this->board;
     }
 
+
+    /**
+     * @brief Determines and prints the winner of the game based on the points accumulated.
+     * This function iterates through all players to find the one with the highest points and declares them as the winner.
+     */
     void Catan::printWinner() 
     {
         Player* winner = nullptr;
@@ -434,15 +503,17 @@ namespace ariel {
         {
             cout << "Winner: " << winner->getPoints() << " points" << endl;
         }
-        // Implement the logic to print the winner of the game
     }
 
 
-    /// function for tests:
-
-    void Catan::testInitialize() {
+    /**
+     * @brief Initializes the game board for testing purposes without placing any settlements or distributing resources.
+     * 
+     * This method is intended for testing configurations where you need to verify board setup independent of game logic.
+     */
+    void Catan::testInitialize() 
+    {
         board.setupTiles();
         board.linkTilesAndIntersections();
-        // Do not automatically place settlements or distribute resources
     }
 }

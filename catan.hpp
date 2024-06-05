@@ -11,24 +11,22 @@ namespace ariel {
     class Catan 
     {
         private:
-            vector<Player*> players;
-            Board board;
-            size_t currentPlayerIndex;
+        
+            vector<Player*> players;    // Stores pointers to the players participating in the game
+            Board board;                // Represents the game board containing all game elements
+            size_t currentPlayerIndex;  // Index to track the current player's turn
 
         public:
 
-        // Constructor that initializes the game with three player references.
+        // Constructor that initializes the game with three player references
         Catan(Player& p1, Player& p2, Player& p3);
 
-        // Initializes the game, setting up the board and choosing the starting player.
+        // Initializes the game, setting up the board, distribute resources and choosing the starting player
         void initializeGame();
         void distributeResources(Player* player);
-        void placeInitialSettlementAndResources(int intersectionID, Player* player);
-
-        // Chooses the starting player index randomly from the number of players.
         void ChooseStartingPlayer();
 
-        // Manages the main game loop, controlling the flow of turns and checking for the game end condition.
+        // Manages the main game loop, controlling the flow of turns and checking for the game end condition
         void playGame();        
         void handleBuildRoad(Player* currentPlayer);
         void handleBuildSettlement(Player* currentPlayer);
@@ -36,28 +34,26 @@ namespace ariel {
         void handleBuyDevelopmentCard(Player* currentPlayer);
         void handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn);
 
+        // Advances the game to the next player's turn
         void nextTurn() ;
+
+        // Handles the game logic when a player rolls a 7
         void handleSevenRoll();
 
-        // Advances the game to the next player's turn, updating the currentPlayerIndex.
-        // void nextTurn();
-
-        // Displays the current state of the game, including players' statuses and the board state.
+        // Displays the current state of the game, including players' statuses and the board state
         void printGameState() const;
 
-        // Provides access to the game board, allowing other components of the program to interact with it.
+        // Provides access to the game board
         Board& getBoard();
 
-        // Prints the winner of the game based on current scores.
+        // Prints the winner of the game
         void printWinner();
+
+        // Clears the input buffer to prevent input errors during user interaction
         void clearInputBuffer();
 
-
-        //FOR TESTS
+        // Initializes the board for testing purposes, without placing any settlements or distributing resources
         void testInitialize();
-
-
-        
     };
 }
 

@@ -6,8 +6,8 @@ CXXFLAGS = -std=c++17 -Wall -Werror -Wsign-conversion -g
 VALGRIND_FLAGS = -v --leak-check=full --show-leak-kinds=all --error-exitcode=99
 
 # Source files and headers
-SOURCES = board.cpp player.cpp tile.cpp catan.cpp resource_type.cpp intersection.cpp edge.cpp vertex.cpp card_type.cpp development_card.cpp
-HEADERS = board.hpp player.hpp tile.hpp catan.hpp resource_type.hpp intersection.hpp edge.hpp vertex.hpp card_type.hpp development_card.hpp
+SOURCES = board.cpp player.cpp tile.cpp catan.cpp resources.cpp intersection.cpp edge.cpp vertex.cpp cards.cpp 
+HEADERS = board.hpp player.hpp tile.hpp catan.hpp resources.hpp intersection.hpp edge.hpp vertex.hpp cards.hpp  
 
 # Object files
 OBJS = $(SOURCES:.cpp=.o)

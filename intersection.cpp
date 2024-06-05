@@ -4,8 +4,16 @@
 using namespace std;
 namespace ariel {
 
-    std::map<int, Intersection> Intersection::intersections;
 
+    /**
+     * @brief Static map to store all intersections.
+     */
+    map<int, Intersection> Intersection::intersections;
+
+
+    /**
+     * @brief Initializes the intersections map if it is empty.
+     */
     void Intersection::initialize() 
     {
         if (intersections.empty()) 
@@ -14,23 +22,46 @@ namespace ariel {
         }
     }
 
+
+     /**
+     * @brief Checks if the intersection contains a specific vertex.
+     * @param vertex The vertex to check.
+     * @return bool True if the vertex is part of the intersection, false otherwise.
+     */
     bool Intersection::contains(const Vertex& vertex) const 
     {
         return vertices.find(vertex) != vertices.end();
     }
 
+
+    /**
+     * @brief Compares two intersections for ordering based on their vertices.
+     * @param other The other intersection to compare with.
+     * @return bool True if this intersection's vertices are lexicographically less than the other's.
+     */
     bool Intersection::operator<(const Intersection& other) const 
     {
-        return std::lexicographical_compare(vertices.begin(), vertices.end(),
-                                            other.vertices.begin(), other.vertices.end());
+        return lexicographical_compare(vertices.begin(), vertices.end(), other.vertices.begin(), other.vertices.end());
     }
 
+
+    /**
+     * @brief Compares two intersections for equality based on their vertices.
+     * @param other The other intersection to compare with.
+     * @return bool True if the intersections have the same vertices, false otherwise.
+     */
     bool Intersection::operator==(const Intersection& other) const 
     {
         return vertices == other.vertices;
     }
 
-    ostream& operator<<(std::ostream& os, const Intersection& intersection) 
+    /**
+     * @brief Outputs the intersection details to an output stream.
+     * @param os The output stream to write to.
+     * @param intersection The intersection to print.
+     * @return ostream& The output stream with the intersection details.
+     */
+    ostream& operator<<(ostream& os, const Intersection& intersection) 
     {
         os << "{ ";
         for (const auto& vertex : intersection.vertices) {
@@ -40,7 +71,12 @@ namespace ariel {
         return os;
     }
 
-    const std::map<int, Intersection>& Intersection::getAllIntersections() 
+
+    /**
+     * @brief Returns all intersections. 
+     * @return A reference to the map of all intersections.
+     */
+    const map<int, Intersection>& Intersection::getAllIntersections() 
     {
         if (intersections.empty()) 
         {
@@ -49,14 +85,29 @@ namespace ariel {
         return intersections;
     }
 
-    Intersection Intersection::getIntersection(int intersectionID) {
+
+    /**
+     * @brief Returns a specific intersection by its ID.
+     * @param intersectionID The ID of the intersection to retrieve.
+     * @return Intersection The intersection with the specified ID.
+     * @throws out_of_range if the intersection ID is not found.
+     */
+    Intersection Intersection::getIntersection(int intersectionID) 
+    {
         auto it = intersections.find(intersectionID);
-        if (it == intersections.end()) {
-            throw std::out_of_range("Invalid intersection ID: " + std::to_string(intersectionID));
+        if (it == intersections.end()) 
+        {
+            throw out_of_range("Invalid intersection ID: " + to_string(intersectionID));
         }
         return it->second;
     }
 
+
+    /**
+     * @brief Initializes the intersections map with predefined intersections.
+     * This function populates the intersections map with predefined intersections,
+     * each defined by a set of vertices and a unique ID.
+     */
     void Intersection::initializeIntersections() 
     {
         intersections = {
