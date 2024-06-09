@@ -66,7 +66,7 @@ The first player to reach 10 victory points wins the game.
 
 The card management system is designed around an abstract base class, `DevelopmentCard`, from which all specific card types derive. The hierarchy is structured to encapsulate common functionalities and extend unique behaviors for different card types.
 
-## ResourceType Class
+## Resources Class
 - **Responsibility**: Defines the types of resources available in the game.
 - **Resource Types**: *WOOD*, *BRICK*, *WOOL*, *GRAIN*, *ORE* and *NONE (DESERT)*. 
 
