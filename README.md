@@ -165,4 +165,6 @@ These classes collectively form the structural backbone of the game board, defin
 
 ## Usage
 
-To run the game, compile the C++ files and execute the resulting program. The game is played in the console where players will enter commands to perform actions on their turn.
+To run the game, compile the C++ files and execute the resulting program by `./Catan`. The game is played in the console where players will enter commands to perform actions on their turn.
+
+ENJOY!
