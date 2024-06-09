@@ -54,6 +54,13 @@ The first player to reach 10 victory points wins the game.
   - `canPlaceSettlement()` and `canPlaceRoad()`:  Determines if a settlement or road can legally be placed on the board by checking adjacency rules and connection to player's structures.
   - `placeSettlement()` and `placeRoad()`:  Places a settlement or road for a player on the board.
   - `upgradeSettlementToCity()`: Upgrades an existing settlement to a city.
+- **Explanation:** Each tile on the board is uniquely identified by its coordinates, which are represented by vertices. The game board is a network of junctions, numbered from 1 to 54, known as intersections. Each intersection acts as a critical point where up to three tiles converge. To facilitate a clear and visually coherent representation of the board using ASCII characters, the original board layout has been rotated to the right. 
+
+  ![](board_image.png)
+
+Below is an example of how the game board is dynamically visualized during play:
+
+
 
 ## Card Class
 
