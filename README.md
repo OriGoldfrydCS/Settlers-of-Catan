@@ -58,9 +58,9 @@ The first player to reach 10 victory points wins the game.
 
   ![](board_image.png)
 
-Below is an example of how the game board is dynamically visualized during play:
+- Below is an example of how the game board is dynamically visualized during play:
 
-
+  ![](gameboard_image.png)
 
 ## Card Class
 
