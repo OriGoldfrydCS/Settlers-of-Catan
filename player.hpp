@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
@@ -6,6 +8,7 @@
 #include <set>
 #include <vector>
 #include <random>
+#include <sstream>
 #include <functional>
 #include <ctime>
 #include "board.hpp"
@@ -17,6 +20,8 @@
 using namespace std;
 namespace ariel {
     class Board;
+    enum class DevCardType;
+    enum class PromotionType;
 
     // Error types for attempting to purchase cards
     enum class CardPurchaseError { Success, InsufficientResources, CardUnavailable };
@@ -82,16 +87,6 @@ namespace ariel {
             // Methods to use development cards
             CardUseError useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn);
             CardUseError handlePromotionCardUsage(vector<Player*>& allPlayers, Board& board, bool& endTurn);
-            CardUseError useMonopoly(vector<Player*>& players);
-            CardUseError useRoadBuilding(Board& board);
-            CardUseError useYearOfPlenty(Board& board);
-            ResourceType chooseResource(const string& prompt);
-            bool additionalActions(Board& board);
-            int promptActionChoice() const;
-            bool executeAction(int choice, Board& board, int& actionCount);
-            bool attemptToBuildRoad(Board& board);
-            bool attemptToBuildSettlement(Board& board);
-            bool attemptToUpgradeToCity(Board& board);
 
             // Additional Methods regaring the Largest Army card
             void checkForLargestArmy(vector<Player*>& allPlayers);
@@ -124,6 +119,9 @@ namespace ariel {
 
             // Getters & Setters 
             const map<DevCardType, int>& getDevelopmentCards() const;
+            int getPromotionCardCount(PromotionType type) const;
+            void setDevelopmentCardCount (DevCardType cardType, int count);
+            void setPromotionCardCount(PromotionType type, int count);
             int getPoints() const;
             string getName() const;
             int getId() const;
@@ -131,6 +129,8 @@ namespace ariel {
             void addPoints(size_t pointsToAdd);
             const set<int>& getSettlements() const;
             const set<Edge>& getRoads() const;
+            void addRoad(const Edge& edge);
+    
 
             // Debugging and information display and other
             string printPlayer() const;

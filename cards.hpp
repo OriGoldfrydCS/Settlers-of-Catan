@@ -1,13 +1,22 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef CARDS_HPP
 #define CARDS_HPP
 
+#include "player.hpp"
 #include <string>
+#include <vector>
 
 using namespace std;
 namespace ariel {
 
+    class Player;
+    class Board;
+    enum class CardUseError;
+    enum ResourceType;
+
     /**
-     * @brief Enumerations for different types of development cards in the game.
+     * @brief Enum for different types of development cards in the game.
      */    
     enum class DevCardType {
         PROMOTION,              // Promotion Cards
@@ -17,7 +26,7 @@ namespace ariel {
 
 
     /**
-     * @brief Enumerations for different types of promotional cards in the game.
+     * @brief Enum for different types of promotional cards in the game.
      */
     enum class PromotionType {
         MONOPOLY,               // Player chooses a resource, all other players must give all of that resource to him
@@ -25,6 +34,9 @@ namespace ariel {
         YEAR_OF_PLENTY          // Player gets to receive two resource cards from the bank of his choice to use immediately
     };
 
+    //-------------------------------------//
+    //  DevelopmentCard - Abstract Class   //
+    //-------------------------------------//
 
     /**
      * @brief Abstract class for Development Cards.
@@ -36,6 +48,10 @@ namespace ariel {
     };
 
 
+    //-------------------------------------//
+    //             KnightCard              //
+    //-------------------------------------//
+
     /**
      * @brief Represents a Knight Card in the game.
      */
@@ -46,10 +62,15 @@ namespace ariel {
         string getType() const override;
         static int getQuantity();
         static void decreaseQuantity();
+        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
     };
 
 
-     /**
+    //-------------------------------------//
+    //         VictoryPointCard            //
+    //-------------------------------------//
+
+    /**
      * @brief Represents a Victory Point Card in the game.
      */
     class VictoryPointCard : public DevelopmentCard {
@@ -59,17 +80,26 @@ namespace ariel {
         string getType() const override;
         static int getQuantity();
         static void decreaseQuantity();
+        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
+
     };
 
+
+    //-------------------------------------//
+    //    PromotionCard - Abstract Class   //
+    //-------------------------------------//
 
     /**
      * @brief Abstract base class for Promotion Cards.
      */
     class PromotionCard : public DevelopmentCard {
-    public:
-        virtual ~PromotionCard() = default;
+    
     };
 
+
+    //-------------------------------------//
+    //           MonopolyCard              //
+    //-------------------------------------//
 
     /**
      * @brief Represents a Monopoly Card in the game.
@@ -81,8 +111,14 @@ namespace ariel {
         string getType() const override;
         static int getQuantity();
         static void decreaseQuantity();
+        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
+
     };
 
+
+    //-------------------------------------//
+    //         RoadBuildingCard            //
+    //-------------------------------------//
 
     /**
      * @brief Represents a Road Building Card in the game.
@@ -94,8 +130,13 @@ namespace ariel {
         string getType() const override;
         static int getQuantity();
         static void decreaseQuantity();
+        CardUseError activateCard(Player& player, Board& board, bool& endTurn);
     };
 
+
+    //-------------------------------------//
+    //         YearOfPlentyCard            //
+    //-------------------------------------//
 
     /**
      * @brief Represents a Year of Plenty Card in the game.
@@ -107,6 +148,13 @@ namespace ariel {
         string getType() const override;
         static int getQuantity();
         static void decreaseQuantity();
+        CardUseError activateCard(Player& player, Board& board, bool& endTurn);
+        static ResourceType chooseResource(const Player& player, const string& prompt);
+        static int promptActionChoice(const Player& player);
+        static bool executeAction(int choice, Player& player, Board& board, int& actionCount);
+        static bool attemptToBuildRoad(Player& player, Board& board);
+        static bool attemptToBuildSettlement(Player& player, Board& board);
+        static bool attemptToUpgradeToCity(Player& player, Board& board);
     };
 
 

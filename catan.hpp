@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef CATAN_HPP
 #define CATAN_HPP
 
@@ -43,8 +45,9 @@ namespace ariel {
         // Displays the current state of the game, including players' statuses and the board state
         void printGameState() const;
 
-        // Provides access to the game board
+        // Provides access to the game board and players
         Board& getBoard();
+        vector<Player*>& getPlayers();
 
         // Prints the winner of the game
         void printWinner();
@@ -54,6 +57,10 @@ namespace ariel {
 
         // Initializes the board for testing purposes, without placing any settlements or distributing resources
         void testInitialize();
+
+        // Checks if there is a winner in the game 
+        void hasWinner();
+
     };
 }
 

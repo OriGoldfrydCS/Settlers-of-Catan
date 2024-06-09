@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef TILE_HPP
 #define TILE_HPP
 

@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "catan.hpp"
 #include "intersection.hpp"
 #include "edge.hpp"
@@ -217,7 +219,7 @@ namespace ariel {
                             handleDevelopmentCardUsage(currentPlayer, shouldEndTurn);
                             if (shouldEndTurn) 
                             {
-                                cout << "Proceeding to additional actions after using the card..." << endl;
+                                // cout << "Proceeding to additional actions after using the card..." << endl;
                                 endTurn = true; // End turn if the card used should end the turn
                             }
                             break;
@@ -261,7 +263,7 @@ namespace ariel {
             if (currentPlayer->canBuild("road") && board.canPlaceRoad(edge, currentPlayer->getId())) 
             {
                 currentPlayer->buildRoad(edge, board);
-                cout << "Road successfully built between " << id1 << " and " << id2 << "." << endl;
+                cout << "\nRoad successfully built for "  << currentPlayer->getName() << " between " << id1 << " and " << id2 << "." << endl;
             } 
             else 
             {
@@ -505,6 +507,13 @@ namespace ariel {
         }
     }
 
+    /**
+     * @brief Returns a vector of pointers to all the players in the game.
+     * @return A vector of pointers to the players.
+     */
+    vector<Player*>& Catan::getPlayers() {
+        return players;
+    }
 
     /**
      * @brief Initializes the game board for testing purposes without placing any settlements or distributing resources.
@@ -515,5 +524,41 @@ namespace ariel {
     {
         board.setupTiles();
         board.linkTilesAndIntersections();
+    }
+
+    /**
+     * @brief Checks if there is a winner in the game. If there is a winner, it prints the winner's details. 
+     * If no player has reached 10 points yet, it prints the leading player and the points needed to win.
+     */
+    void Catan::hasWinner() 
+    {
+        Player* leader = nullptr;
+        int maxPoints = 0;
+
+        // Determine the player with the highest points
+        for (auto* player : players) {
+            if (player->getPoints() > maxPoints) {
+                maxPoints = player->getPoints();
+                leader = player;
+            }
+        }
+
+        // Check if the leading player has 10 or more points to declare a winner
+        if (leader && maxPoints >= 10) 
+        {
+            cout << "We have a winner! " << leader->getName() << " wins the game with " << maxPoints << " points!" << endl;
+        } 
+        else 
+        {
+            cout << "No winner yet. Reach 10 points to win the game. ";
+            if (leader) 
+            {
+                cout << leader->getName() << " is leading with " << maxPoints << " points." << endl;
+            } 
+            else 
+            {
+                cout << "No players have points yet." << endl;
+            }
+        }
     }
 }

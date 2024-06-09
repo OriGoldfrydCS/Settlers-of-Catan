@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "doctest.h"
 #include "board.hpp"
 #include "player.hpp"
@@ -107,9 +109,11 @@ TEST_CASE("Test canUpgradeSettlementToCity function") {
     CHECK(!board.canUpgradeSettlementToCity(2, 0));
 }
 
+
 /*********************************************/
 ///             TESTS FOR BOARD             ///
 /*********************************************/
+
 TEST_CASE("Tests for devCardTypeToString function") {
     CHECK(ariel::devCardTypeToString(ariel::DevCardType::PROMOTION) == "Promotion");
     CHECK(ariel::devCardTypeToString(ariel::DevCardType::KNIGHT) == "Knight");
@@ -209,20 +213,20 @@ TEST_CASE("Upgrading a settlement to city is successful") {
 }
 
 TEST_CASE("Add and retrieve resources") {
-    Player player("Alice");
+    Player player("Avi");
     player.addResource(ResourceType::WOOD, 5);
     CHECK(player.getResourceCount(ResourceType::WOOD) == 5);
 }
 
 TEST_CASE("Check resource sufficiency for building a road") {
-    Player player("Alice");
+    Player player("Avi");
     player.addResource(ResourceType::WOOD, 1);
     player.addResource(ResourceType::BRICK, 1);
     CHECK(player.canBuild("road"));
 }
 
 TEST_CASE("Build road and check resource decrement") {
-    Player player("Alice");
+    Player player("Avi");
     Board board;
 
     // Setup an initial road or settlement to ensure connectivity
@@ -241,13 +245,13 @@ TEST_CASE("Build road and check resource decrement") {
     CHECK(player.getResourceCount(ResourceType::BRICK) == 0);
 }
 
-TEST_CASE("Alice cannot build an isolated road") {
-    Player alice("Alice");
+TEST_CASE("Ami cannot build an isolated road") {
+    Player ami("Ami");
     Board board;
 
-    // Alice has resources to build a road
-    alice.addResource(ResourceType::WOOD, 1);
-    alice.addResource(ResourceType::BRICK, 1);
+    // Avi has resources to build a road
+    ami.addResource(ResourceType::WOOD, 1);
+    ami.addResource(ResourceType::BRICK, 1);
 
     // Coordinates for isolated road that does not connect to any settlements or roads
     int isolatedStart = 15;
@@ -257,11 +261,11 @@ TEST_CASE("Alice cannot build an isolated road") {
     CHECK_FALSE(board.isRoadPresent(isolatedStart, isolatedEnd));
 
     // Attempt to build road without any connecting settlements or roads
-    alice.buildRoad(Edge{Intersection::getIntersection(isolatedStart), Intersection::getIntersection(isolatedEnd)}, board);
+    ami.buildRoad(Edge{Intersection::getIntersection(isolatedStart), Intersection::getIntersection(isolatedEnd)}, board);
 
     // Check that resources are not deducted because the road should not be built
-    CHECK(alice.getResourceCount(ResourceType::WOOD) == 1);
-    CHECK(alice.getResourceCount(ResourceType::BRICK) == 1);
+    CHECK(ami.getResourceCount(ResourceType::WOOD) == 1);
+    CHECK(ami.getResourceCount(ResourceType::BRICK) == 1);
 
     // Check again with the expectation that there should still be no road if the rules were applied correctly:
     CHECK_FALSE(board.isRoadPresent(isolatedStart, isolatedEnd));
@@ -269,7 +273,7 @@ TEST_CASE("Alice cannot build an isolated road") {
 
 
 TEST_CASE("Build settlement and check resource decrement without road connection (by using modified function)") {
-    Player player("Alice");
+    Player player("Ami");
     Board board;
 
     // Add resources necessary for building a settlement
@@ -289,7 +293,7 @@ TEST_CASE("Build settlement and check resource decrement without road connection
 }
 
 TEST_CASE("Build settlement fails without road connection in real game") {
-    Player player("Alice");
+    Player player("Ani");
     Board board;
 
     // Add resources necessary for building a settlement
@@ -314,7 +318,7 @@ TEST_CASE("Build settlement fails without road connection in real game") {
 
 
 TEST_CASE("Upgrade settlement to city and verify point increase") {
-    Player player("Alice");
+    Player player("Ami");
     Board board;
 
     // Place initial settlement
@@ -354,52 +358,39 @@ TEST_CASE("Upgrade settlement to city and verify point increase") {
 
 
 TEST_CASE("Player initialization assigns unique ID") {
-    Player player1("Alice");
-    Player player2("Bob");
+    Player player1("Eli");
+    Player player2("Dean");
     CHECK(player1.getId() != player2.getId());
 }
-
-// TEST_CASE("Trade resources between players") {
-//     Player alice("Alice");
-//     Player bob("Bob");
-//     Board board;
-//     vector<Player*> players = {&alice, &bob};
-//     alice.addResource(ResourceType::WOOD, 5);
-//     bob.addResource(ResourceType::BRICK, 5);
-//     alice.trade(players);
-//     bob.trade(players);
-//     CHECK(alice.getResourceCount(ResourceType::BRICK) > 0);
-//     CHECK(bob.getResourceCount(ResourceType::WOOD) > 0);
-// }
 
 
 // TESTS FOR PLAYER
 TEST_CASE("Buy and use a development card") {
-    Player alice("Alice");
-    alice.addResource(ResourceType::ORE, 1);
-    alice.addResource(ResourceType::WOOL, 1);
-    alice.addResource(ResourceType::GRAIN, 1);
-    std::vector<Player*> allPlayers{&alice};
-    CardPurchaseError result = alice.buyDevelopmentCard(DevCardType::KNIGHT, allPlayers);
+    Player ami("Ami");
+    ami.addResource(ResourceType::ORE, 1);
+    ami.addResource(ResourceType::WOOL, 1);
+    ami.addResource(ResourceType::GRAIN, 1);
+    std::vector<Player*> allPlayers{&ami};
+    CardPurchaseError result = ami.buyDevelopmentCard(DevCardType::KNIGHT, allPlayers);
     CHECK(result == CardPurchaseError::Success);
-    const auto& developmentCards = alice.getDevelopmentCards();
+    const auto& developmentCards = ami.getDevelopmentCards();
     auto it = developmentCards.find(DevCardType::KNIGHT);
     CHECK(it != developmentCards.end());
     CHECK(it->second == 1);
 }
 
 TEST_CASE("Using a Victory Point card increases points and decreases the count") {
-    Player alice("Alice");
+    Player adi("Adi");
 
     // Adding sufficient resources to purchase a victory point card
-    alice.addResource(ResourceType::ORE, 1);
-    alice.addResource(ResourceType::WOOL, 1);
-    alice.addResource(ResourceType::GRAIN, 1);
+    adi.addResource(ResourceType::ORE, 1);
+    adi.addResource(ResourceType::WOOL, 1);
+    adi.addResource(ResourceType::GRAIN, 1);
 
-    std::vector<Player*> allPlayers{&alice};
+    std::vector<Player*> allPlayers{&adi};
 
     // Buy a victory point card
-    CHECK(alice.buyDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers) == CardPurchaseError::Success);
+    CHECK(adi.buyDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers) == CardPurchaseError::Success);
 
     Board board;
 
@@ -407,34 +398,34 @@ TEST_CASE("Using a Victory Point card increases points and decreases the count")
     bool endTurn = false;
 
     // Use the victory point card
-    auto result = alice.useDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers, board, endTurn);
+    auto result = adi.useDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers, board, endTurn);
 
     // Checks
     CHECK(result == CardUseError::Success);
-    CHECK(alice.getDevelopmentCards().at(DevCardType::VICTORY_POINT) == 0); // Check that the card count has decreased
+    CHECK(adi.getDevelopmentCards().at(DevCardType::VICTORY_POINT) == 0); // Check that the card count has decreased
     CHECK(endTurn == true);  // Check if using a victory point card should end the turn
-    CHECK(alice.getPoints() == 1);  // Check if points increased by 1
+    CHECK(adi.getPoints() == 1);  // Check if points increased by 1
 }
 
 
 TEST_CASE("Trading resources between players") {
-    Player alice("Alice"), bob("Bob");
-    vector<Player*> players = {&alice, &bob};
-    alice.addResource(ResourceType::WOOD, 5);
-    bob.addResource(ResourceType::ORE, 5);
+    Player adi("Adi"), bil("Bil");
+    vector<Player*> players = {&adi, &bil};
+    adi.addResource(ResourceType::WOOD, 5);
+    bil.addResource(ResourceType::ORE, 5);
 
-    // Simulate input for selecting Bob, trading 3 wood for 3 ore, and Bob accepting the trade
+    // Simulate input for selecting Bil, trading 3 wood for 3 ore, and Bil accepting the trade
     std::stringstream input("1\n2\n3 0 0 0 0\n0 0 0 0 3\nyes\n");
     std::cin.rdbuf(input.rdbuf()); // Redirect std::cin to read from input
 
     // Call the trade function
-    alice.trade(players);
+    adi.trade(players);
 
     // Check the results of the trade
-    CHECK(alice.getResourceCount(ResourceType::WOOD) == 2); // Alice should have 2 wood left
-    CHECK(alice.getResourceCount(ResourceType::ORE) == 3);  // Alice should have 3 ore
-    CHECK(bob.getResourceCount(ResourceType::WOOD) == 3);   // Bob should have 3 wood
-    CHECK(bob.getResourceCount(ResourceType::ORE) == 2);    // Bob should have 2 ore
+    CHECK(adi.getResourceCount(ResourceType::WOOD) == 2); // Adi should have 2 wood left
+    CHECK(adi.getResourceCount(ResourceType::ORE) == 3);  // Adi should have 3 ore
+    CHECK(bil.getResourceCount(ResourceType::WOOD) == 3);   // Bil should have 3 wood
+    CHECK(bil.getResourceCount(ResourceType::ORE) == 2);    // Bil should have 2 ore
 
     // Restore cin to standard input before finishing
     std::cin.rdbuf(nullptr);
@@ -442,53 +433,50 @@ TEST_CASE("Trading resources between players") {
 
 
 TEST_CASE("Player loses Largest Army card to someone else") {
-    Player alice("Alice"), bob("Bob");
-    vector<Player*> players = {&alice, &bob};
+    Player adi("Adi"), bil("Bil");
+    vector<Player*> players = {&adi, &bil};
 
-    // Alice buys 3 Knight cards
-    alice.addResource(ResourceType::ORE, 3);
-    alice.addResource(ResourceType::WOOL, 3);
-    alice.addResource(ResourceType::GRAIN, 3);
+    // Adi buys 3 Knight cards
+    adi.addResource(ResourceType::ORE, 3);
+    adi.addResource(ResourceType::WOOL, 3);
+    adi.addResource(ResourceType::GRAIN, 3);
 
     cout << "Initial Resources:" << endl;
-    alice.printResources();
-    bob.printResources();
+    adi.printResources();
+    bil.printResources();
 
     for (int i = 0; i < 3; i++) {
-        CHECK(alice.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
+        CHECK(adi.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
     }
 
-    Player::largestArmyHolder = &alice;  // Assume Alice initially has the largest army
-    alice.addPoints(2);  // Assume she has 2 points for holding the largest army
+    Player::largestArmyHolder = &adi;  // Assume Adi initially has the largest army
+    adi.addPoints(2);  // Assume she has 2 points for holding the largest army
 
-    // Ensure Alice now has the Largest Army
-    CHECK(alice.getDevelopmentCards().at(DevCardType::KNIGHT) == 3);
-    CHECK(Player::largestArmyHolder == &alice);
-    CHECK(alice.getPoints() == 4); // Points for largest army (2+2)
+    // Ensure Adi now has the Largest Army
+    CHECK(adi.getDevelopmentCards().at(DevCardType::KNIGHT) == 3);
+    CHECK(Player::largestArmyHolder == &adi);
+    CHECK(adi.getPoints() == 4); // Points for largest army (2+2)
 
 
-    bob.addResource(ResourceType::ORE, 6);
-    bob.addResource(ResourceType::WOOL, 6);
-    bob.addResource(ResourceType::GRAIN, 6);
+    bil.addResource(ResourceType::ORE, 6);
+    bil.addResource(ResourceType::WOOL, 6);
+    bil.addResource(ResourceType::GRAIN, 6);
 
-    // bob buys 4 Knight cards
+    // Bil buys 4 Knight cards
     for (int i = 0; i < 4; i++) {
-        CHECK(bob.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
+        CHECK(bil.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
     }
 
-    alice.checkForLargestArmy(players);
+    adi.checkForLargestArmy(players);
 
-    // Verify that Alice no longer holds the largest army if another player meets the criteria
-    CHECK(Player::largestArmyHolder != &alice);
-    CHECK(alice.getPoints() == 2); // Points lost due to losing largest army
+    // Verify that Adi no longer holds the largest army if another player meets the criteria
+    CHECK(Player::largestArmyHolder != &adi);
+    CHECK(adi.getPoints() == 2); // Points lost due to losing largest army
 }
 
 
-
-
-
 TEST_CASE("Resource usage for building structures") {
-    Player player("Alice");
+    Player player("Ami");
     Board board;
 
     // Add resources and build a road
@@ -518,7 +506,7 @@ TEST_CASE("Resource usage for building structures") {
 }
 
 TEST_CASE("Points calculation for building settlements and cities") {
-    Player player("Alice");
+    Player player("Ami");
     Board board;
 
     // Place initial settlement
@@ -533,3 +521,11 @@ TEST_CASE("Points calculation for building settlements and cities") {
     player.upgradeToCity(1, board);
     CHECK(player.getPoints() == 2);
 }
+
+
+/*********************************************/
+///             TESTS FOR CATAN             ///
+/*********************************************/
+
+
+

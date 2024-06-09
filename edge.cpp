@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "edge.hpp"
 
 using namespace std;

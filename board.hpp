@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef BOARD_HPP
 #define BOARD_HPP
 

@@ -1,5 +1,8 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef RESOURCE_TYPE_HPP
 #define RESOURCE_TYPE_HPP
+
 #include <string>
 
 using namespace std;

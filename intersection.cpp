@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "intersection.hpp"
 #include "tile.hpp"
 

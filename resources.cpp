@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "resources.hpp"
 
 /**

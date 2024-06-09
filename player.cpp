@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #include "player.hpp"
 #include <iostream>
 #include <sstream>
@@ -442,7 +444,8 @@ namespace ariel {
      * @param endTurn Reference to a boolean indicating whether the turn should end after card use.
      * @return Returns an error status indicating the outcome of the card use attempt.
      */
-    CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) {
+    CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
+    {
         cout << "Attempting to use card type: " << devCardTypeToString(cardType) << endl;
         endTurn = false;  // Default to not ending the turn
 
@@ -454,10 +457,10 @@ namespace ariel {
                 // Additional handling if it's a Knight card (not in the game's rule)
                 break;
             case DevCardType::VICTORY_POINT:
-                addPoints(1);
-                cout << name << " gained a victory point from a Victory Point Card." << endl;
-                endTurn = true;
-                break;
+            {
+                VictoryPointCard vpCard;
+                return vpCard.activateCard(*this, allPlayers, board, endTurn); 
+            }           
             default:
                 cout << "Invalid card type or other error." << endl;
                 return CardUseError::InvalidCardType;
@@ -485,312 +488,28 @@ namespace ariel {
         int promoChoice;
         cin >> promoChoice;
 
-        switch (promoChoice) {
+        switch (promoChoice) 
+        {
             case 1:
-                return useMonopoly(allPlayers);
+            {
+                MonopolyCard mc;
+                return mc.activateCard(*this, allPlayers, board, endTurn);
+            }
             case 2:
-                return useRoadBuilding(board);
+            {
+                RoadBuildingCard rb;
+                return rb.activateCard(*this, board, endTurn);
+            }
             case 3:
-                return useYearOfPlenty(board); 
+            {
+                YearOfPlentyCard yop;
+                return yop.activateCard(*this, board, endTurn);
+            }
             default:
                 cout << "Invalid promotion type selected.\n";
                 return CardUseError::InvalidCardType;
         }
     }
-
-    
-    /**
-     * @brief Executes the Monopoly card's effect by allowing the current player to monopolize a chosen resource.
-     * This function first checks if the player has a Monopoly card available. If so, it guide the player to
-     * choose a resource type to monopolize. All other players must then give all their resources of that type
-     * to the current player.
-     * @param players A reference to the vector containing all players in the game.
-     * @return CardUseError Indicates whether the Monopoly card was used successfully or not.
-     */
-    CardUseError Player::useMonopoly(vector<Player*>& players) 
-    {
-        if (promotionCards[PromotionType::MONOPOLY] < 1) 
-        {
-            cout << "You do not have a Monopoly card to use." << endl;
-            return CardUseError::InsufficientCards;
-        }
-
-        cout << "Select the resource type to monopolize:\n1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
-        int choice;
-        cin >> choice;
-        ResourceType chosenResource = static_cast<ResourceType>(choice - 1);
-
-        int totalCollected = 0;
-        for (auto& player : players) 
-        {
-            if (player->getId() != this->id)            // Ensure the current player is not taking resources from themselves
-            {
-                int resourceAmount = player->getResourceCount(chosenResource);
-                if (resourceAmount > 0) 
-                {
-                    resources[chosenResource] += resourceAmount;                // Add the resources to the current player
-                    player->useResources(chosenResource, resourceAmount);       // Subtract the resources from other players
-                    cout << player->getName() << " gives " << resourceAmount << " " << resourceTypeToString(chosenResource) << " to " << name << "." << endl;
-                    totalCollected += resourceAmount;
-                }
-            }
-        }
-
-        cout << name << " now has " << totalCollected << " more " << resourceTypeToString(chosenResource) << "." << endl;
-        promotionCards[PromotionType::MONOPOLY]--;     // Decrement the count of Monopoly cards
-        return CardUseError::Success;
-    }
-
-
-
-    /**
-     * @brief Preforms the Road Building card's effect, allowing the player to place two roads without resource cost.
-     * This function lets the player place two roads on the game board at no resource cost.
-     * @param board Reference to the Board object.
-     * @return CardUseError Returns `Success` if both roads are successfully placed, or `Failure`.
-     */
-    CardUseError Player::useRoadBuilding(Board& board) 
-    {
-        cout << name << " uses Road Building to place two roads at no resource cost." << endl;
-        int roadsToBuild = 2;       // Initialize the number of roads to build
-        while (roadsToBuild > 0) 
-        {
-            cout << "Enter the IDs of two intersections to place a road (1-54), separated by a space: ";
-            int intersection1, intersection2;
-            cin >> intersection1 >> intersection2;
-
-            try {
-                const Intersection& inter1 = Intersection::getIntersection(intersection1);
-                const Intersection& inter2 = Intersection::getIntersection(intersection2);
-
-                // Validate the placement for adjacency and connection to existing roads or settlements
-                if (!board.areIntersectionsAdjacent(intersection1, intersection2) || 
-                (!settlements.count(intersection1) && !settlements.count(intersection2) && !isRoadContinuation(intersection1, intersection2))) 
-                {
-                    cout << "Invalid road placement: intersections are not adjacent or not connected to your settlements or existing roads." << endl;
-                    continue;       // Skip to the next iteration if the placement is invalid
-                }
-
-                // Create an edge and try to place the road
-                Edge newRoad(inter1, inter2);
-
-                if (!board.canPlaceRoad(newRoad, this->id)) 
-                {
-                    cout << "Road cannot be placed between intersections " << intersection1 << " and " << intersection2 
-                         << ". It may already be occupied." << endl;
-                    continue;       // Skip to the next iteration if the placement is invalid
-                }
-
-                // Place the road on the board and record the placement
-                board.placeRoad(newRoad, this->id);
-                roads.insert(newRoad);  
-                cout << "Road successfully built between intersections " << intersection1 << " and " << intersection2 << "." << endl;
-                roadsToBuild--;          // Decrement the count of roads left to build
-            } 
-            catch (const out_of_range& e) 
-            {
-                cout << "Invalid intersection IDs provided. " << e.what() << endl;
-                continue;
-            }
-        }
-        return roadsToBuild == 0 ? CardUseError::Success : CardUseError::Failure;
-    }
-
-
-    /**
-     * @brief Uses the 'Year of Plenty' card to allow the player to choose two resources from the bank and then perform additional actions.
-     * @param board Reference to the game board where the actions will be applied.
-     * @return CardUseError indicating whether the actions were successfully completed.
-     */
-    CardUseError Player::useYearOfPlenty(Board& board) 
-    {
-        cout << name << " is using a 'Year of Plenty' card." << endl;
-
-        // Allow the player to select two resources from the bank
-        ResourceType firstResource = chooseResource("Choose the first resource to receive:");
-        ResourceType secondResource = chooseResource("Choose the second resource to receive:");
-        addResource(firstResource, 1);  // Add one unit of the first selected resource
-        addResource(secondResource, 1);  // Add one unit of the second selected resource
-
-        // Display the resources received and update inventory
-        cout << name << " received one unit each of " << resourceTypeToString(firstResource) 
-            << " and " << resourceTypeToString(secondResource) << " from the bank." << endl;
-        printResources();  // Optionally print updated resources
-
-        // Use additional actions function per the Year of Plenty card
-        if (additionalActions(board)) 
-        {
-            return CardUseError::Success;
-        } 
-        else 
-        {
-            return CardUseError::Failure;
-        }
-    }
-
-
-    /**
-     * @brief Guide the player to choose a type of resource from a list of available options.
-     * @param prompt A string containing the message to display to the player.
-     * @return ResourceType The type of resource chosen by the player or the default resource if an invalid choice is made.
-     */
-    ResourceType Player::chooseResource(const string& prompt) 
-    {
-        cout << prompt << endl;
-        cout << "1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
-        int choice;
-        cin >> choice;
-        switch (choice) 
-        {
-            case 1: return ResourceType::WOOD;
-            case 2: return ResourceType::BRICK;
-            case 3: return ResourceType::WOOL;
-            case 4: return ResourceType::GRAIN;
-            case 5: return ResourceType::ORE;
-            default:
-                cout << "Invalid choice, defaulting to Wood." << endl;
-                return ResourceType::WOOD;
-        }
-    }
-
-
-    /**
-     * @brief Allows the player to make additional actions granted by the 'Year of Plenty' card.
-     * @param board A reference to the Board object representing the game board.
-     * @return bool True if all actions are successfully executed, false otherwise.
-     */
-    bool Player::additionalActions(Board& board) 
-    {
-        cout << "You may now take additional actions with your new resources." << endl;
-        int actionCount = 2;  // Allowing two actions as per the card's benefit
-        bool allActionsSuccess = true;
-
-        while (actionCount > 0) 
-        {
-            cout << "You have " << actionCount << " actions remaining." << endl;
-            int choice = promptActionChoice();  // Ask the user for their choice of action
-
-            if (executeAction(choice, board, actionCount)) 
-            {
-                actionCount--;  // Decrease the count only if an action was successfully executed
-            } 
-            else 
-            {
-                allActionsSuccess = false;  // If an action fails, note the failure
-            }
-        }
-        cout << "All actions completed or skipped." << endl;
-        return allActionsSuccess;
-    }
-
-
-    /**
-     * @brief Guide the player to choose an action from a predefined list of options.
-     * @return int The numerical choice corresponding to the action the player wishes to make.
-     */
-    int Player::promptActionChoice() const 
-    {
-        cout << "Choose an action:\n";
-        cout << "1. Build a road\n";
-        cout << "2. Build a settlement\n";
-        cout << "3. Upgrade to a city\n";
-        cout << "4. Pass (skip action)\n";
-        cout << "Enter your choice: ";
-        int choice;
-        cin >> choice;
-        return choice;
-    }
-
-
-    /**
-     * @brief Executes an action based on the player's choice during their turn of Year of Plenty card use.
-     * @param choice The player's choice.
-     * @param board Reference to the game board where the actions are to be applied.
-     * @param actionCount Reference to the count of remaining actions.
-     * @return bool True if the action is executed successfully, false otherwise.
-     */
-    bool Player::executeAction(int choice, Board& board, int& actionCount) 
-    {
-        switch (choice) {
-            case 1:  // Build a road
-                return attemptToBuildRoad(board);
-            case 2:  // Build a settlement
-                return attemptToBuildSettlement(board);
-            case 3:  // Upgrade to a city
-                return attemptToUpgradeToCity(board);
-            case 4:  // Pass
-                cout << "Skipping action." << endl;
-                actionCount--;
-                return true;        // Always" succeed" at skipping
-            default:
-                cout << "Invalid choice. Please choose a valid action." << endl;
-                return false;
-        }
-    }
-
-    /**
-     * @brief Attempts to build a road on the game board based on player input for intersections.
-     * @param board Reference to the game board.
-     * @return bool True if the road is built successfully, false if the placement is invalid or if resources are insufficient.
-     */
-    bool Player::attemptToBuildRoad(Board& board) 
-    {
-        cout << "Enter the intersection IDs to place a road (e.g., 4 5): ";
-        int intersectionID1, intersectionID2;
-        cin >> intersectionID1 >> intersectionID2;
-        Edge edge(Intersection::getIntersection(intersectionID1), Intersection::getIntersection(intersectionID2));
-        if (canBuild("road") && board.canPlaceRoad(edge, this->id)) 
-        {
-            buildRoad(edge, board);
-            cout << "Road built successfully." << endl;
-            return true;
-        }
-        cout << "Failed to build road. Check if the road is valid or if you have enough resources." << endl;
-        return false;
-    }
-
-
-    /**
-     * @brief Attempts to place a settlement at a specified location on the board.
-     * @param board Reference to the game board.
-     * @return bool True if the settlement is built successfully, false if the location is invalid or resources are insufficient.
-     */
-    bool Player::attemptToBuildSettlement(Board& board) 
-    {
-        cout << "Enter the intersection ID to place a settlement: ";
-        int intersectionID;
-        cin >> intersectionID;
-        if (canBuild("settlement") && board.canPlaceSettlement(intersectionID, this->id)) 
-        {
-            buildSettlement(intersectionID, board);
-            cout << "Settlement built successfully." << endl;
-            return true;
-        }
-        cout << "Failed to build settlement. Ensure you have enough resources and a valid location." << endl;
-        return false;
-    }
-
-
-    /**
-     * @brief Attempts to upgrade an existing settlement to a city at a specified location on the board.
-     * @param board Reference to the game board.
-     * @return bool True if the city is upgraded successfully, false if the conditions are not met or resources are insufficient.
-     */
-    bool Player::attemptToUpgradeToCity(Board& board) 
-    {
-        cout << "Enter the intersection ID to upgrade to a city: ";
-        int intersectionID;
-        cin >> intersectionID;
-        if (canBuild("city") && board.canUpgradeSettlementToCity(intersectionID, this->id)) 
-        {
-            upgradeToCity(intersectionID, board);
-            cout << "City upgraded successfully." << endl;
-            return true;
-        }
-        cout << "Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
-        return false;
-    }
-
 
 
     /**
@@ -1305,6 +1024,31 @@ namespace ariel {
         return developmentCards;
     }
 
+    void Player::setDevelopmentCardCount (DevCardType cardType, int count) 
+    {
+        developmentCards[cardType] = count;
+    }
+
+
+    /**
+     * @brief Returns the current count of a specified promotion card type.
+     * @param type The type of promotion card.
+     * @return The count of the specified promotion card type.
+     */
+    int Player::getPromotionCardCount(PromotionType type) const 
+    {
+                return promotionCards.at(type);
+    }
+
+    /**
+     * @brief Sets the count of a specified promotion card type.
+     * @param type The type of promotion card.
+     * @param count The new count for the specified promotion card type.
+     */
+    void Player::setPromotionCardCount(PromotionType type, int count) 
+    {
+        promotionCards[type] = count;
+    }
 
     /**
      * @brief Returns the player's current score in terms of victory points.
@@ -1390,6 +1134,14 @@ namespace ariel {
         return roads; 
     }
     
+    /**
+     * @brief Adds a new road between two intersections to the player's roads.
+     * @param edge The Edge object representing the new road.
+     */
+    void Player::addRoad(const Edge& edge) 
+    {
+        roads.insert(edge);
+    }
 
    /**
      * @brief Generates a string representation of the player's game state.
@@ -1397,16 +1149,19 @@ namespace ariel {
      */
     string Player::printPlayer() const {
         stringstream ss;
-        ss << "==========================\n";
-        ss << " Player: " << name << " (ID: " << id << ")\n";
+        ss << "\n";
+        ss << "++++++++++++++++++++++++++\n";
+        ss << "++     PLAYER CARD      ++\n";
+        ss << "++++++++++++++++++++++++++\n";
+        ss << name << " (ID: " << id << ")\n";
         ss << "==========================\n";
         ss << "Points: " << points << "\n";
         ss << "--------------------------\n";
         if (largestArmyHolder == this) 
         {
             ss << "Largest Army Card: V\n";
+            ss << "--------------------------\n";
         }
-        ss << "--------------------------\n";
         ss << "Settlements at:\n  ";
         for (int settlement : settlements) 
         {
@@ -1446,7 +1201,9 @@ namespace ariel {
         {
             ss << "  Error accessing card data.\n";
         }
-        ss << "==========================\n";
+        ss << "++++++++++++++++++++++++++\n";
+        ss << "++++++++++++++++++++++++++\n";
+
         return ss.str();
     }
 

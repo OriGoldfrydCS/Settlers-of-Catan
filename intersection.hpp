@@ -1,3 +1,5 @@
+// Email: origoldbsc@gmail.com
+
 #ifndef INTERSECTION_HPP
 #define INTERSECTION_HPP
 
