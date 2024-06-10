@@ -19,7 +19,7 @@ namespace ariel {
      * @param p2 Reference to the second player.
      * @param p3 Reference to the third player.
      */
-    Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0) {}
+    Catan::Catan(Player& p1, Player& p2, Player& p3) : players({&p1, &p2, &p3}), currentPlayerIndex(0){}
 
 
     /**
@@ -27,6 +27,7 @@ namespace ariel {
      */
     void Catan::initializeGame() 
     {
+        Board& board = Board::getInstance();
         board.setupTiles();  
         board.linkTilesAndIntersections();
 
@@ -64,6 +65,7 @@ namespace ariel {
      */
     void Catan::distributeResources(Player* player) 
     {
+        Board& board = Board::getInstance();
         set<ResourceType> uniqueResources;
         cout << "Player " << player->getName() << " has settlements at: ";
         for (int settlement : player->getSettlements()) 
@@ -121,6 +123,7 @@ namespace ariel {
      */
     void Catan::playGame() 
     {
+        Board& board = Board::getInstance();
         bool gameRunning = true;
         while (gameRunning) 
         {   
@@ -255,6 +258,8 @@ namespace ariel {
      */
     void Catan::handleBuildRoad(Player* currentPlayer) 
     {
+        Board& board = Board::getInstance();
+
         cout << "Enter the intersection IDs to place a road (e.g., 4 5): ";
         int id1, id2;
         cin >> id1 >> id2;
@@ -281,6 +286,8 @@ namespace ariel {
      */
     void Catan::handleBuildSettlement(Player* currentPlayer) 
     {
+        Board& board = Board::getInstance();
+
         cout << "Enter the intersection ID to place a settlement: ";
         int intersectionID;
         cin >> intersectionID;
@@ -302,6 +309,8 @@ namespace ariel {
      */
     void Catan::handleUpgradeToCity(Player* currentPlayer) 
     {
+        Board& board = Board::getInstance();
+
         cout << "Enter the intersection ID to upgrade to a city: ";
         int intersectionID;
         cin >> intersectionID;
@@ -374,6 +383,8 @@ namespace ariel {
      */
     void Catan::handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn) 
     {
+        Board& board = Board::getInstance();
+
         // Assume function that manages the choice and use of a development card
         cout << "Select the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
         int devCardChoice;
@@ -458,6 +469,8 @@ namespace ariel {
      */
     void Catan::printGameState() const 
     {
+        Board& board = Board::getInstance();
+
         cout << "*******************************************************" << endl;
         cout << "*******************************************************" << endl;
         cout << "***                     GAME STATE                  ***" << endl;
@@ -481,7 +494,8 @@ namespace ariel {
      */
     Board& Catan::getBoard() 
     {
-        return this->board;
+        Board& board = Board::getInstance();
+        return board;
     }
 
 
@@ -522,6 +536,7 @@ namespace ariel {
      */
     void Catan::testInitialize() 
     {
+        Board& board = Board::getInstance();
         board.setupTiles();
         board.linkTilesAndIntersections();
     }

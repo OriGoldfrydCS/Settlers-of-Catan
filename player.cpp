@@ -1267,4 +1267,20 @@ namespace ariel {
             cout << "Failed to build settlement at intersection (Testing) " << intersectionID << endl;
         }
     }
+
+    /**
+     * @brief Method to check if the player has built any roads.
+     */
+    bool Player::hasBuiltRoad() const 
+    {
+        return !roads.empty();  // Check if the set of roads is not empty
+    }
+
+    /**
+     * @brief Method to check if the player has built any settlements.
+     */
+    bool Player::hasBuiltSettlement() const 
+    {
+        return !settlements.empty();  // Check if the set of settlements is not empty
+    }
 }

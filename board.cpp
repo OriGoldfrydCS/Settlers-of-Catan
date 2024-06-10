@@ -26,6 +26,17 @@ namespace ariel {
      */
     map<int, set<int>> Board::adjacencyList;  
 
+
+    /**
+     * @brief Returns the singleton instance of the Board.
+     * @return Reference to the singleton instance of the Board.
+     */
+    Board& Board::getInstance() 
+    {
+        static Board instance;
+        return instance;
+    }
+    
     /**
      * @brief Constructs a new game board by initializing intersections, setting up tiles, and linking tiles with their respective intersections.
      */

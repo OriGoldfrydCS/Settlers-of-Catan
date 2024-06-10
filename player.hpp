@@ -141,8 +141,8 @@ namespace ariel {
 
             // Methods modified for testing purposes
             void buildSettlementForTesting(int intersectionID, Board& board);
-           
-            
+            bool hasBuiltRoad() const;
+            bool hasBuiltSettlement() const;
     };
 }
 

@@ -22,6 +22,9 @@ namespace ariel {
     {
         private:
 
+            // Private constructors since board is singelton
+            Board();
+
             map<pair<int, int>, Tile> tiles;                // Maps tiles by their grid coordinates
             map<int, std::set<int>> settlements;            // Tracks which player has settlements at each vertex
             std::map<int, int> cities;                      // Maps intersection IDs to player IDs for cities
@@ -30,8 +33,10 @@ namespace ariel {
 
         public:
 
-            // Constructors and game board setup methods
-            Board();
+            // Static method to access the singleton instance
+            static Board& getInstance();
+
+            // Game board setup methods
             void setupTiles();
             void linkTilesAndIntersections(); 
             static void initializeAdjacency();
