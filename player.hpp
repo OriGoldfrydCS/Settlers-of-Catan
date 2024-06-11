@@ -19,6 +19,7 @@
 
 using namespace std;
 namespace ariel {
+
     class Board;
     enum class DevCardType;
     enum class PromotionType;
@@ -92,7 +93,6 @@ namespace ariel {
             void checkForLargestArmy(vector<Player*>& allPlayers);
             void reevaluateLargestArmy(vector<Player*>& allPlayers);
 
-            
             // Handling resource discard after a dice roll of 7
             void discardResources(int toDiscard);
 

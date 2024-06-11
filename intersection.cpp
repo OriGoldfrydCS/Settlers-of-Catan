@@ -172,4 +172,5 @@ namespace ariel {
             {54, Intersection({Vertex(-10, -12)}, 54)},                              // Single vertex at (0, -2), II
         };
     }
+    
 }

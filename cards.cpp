@@ -6,6 +6,7 @@
 using namespace std;
 namespace ariel {
 
+
     // Initialize static quantities for each card type
     int KnightCard::quantity = 14;
     int VictoryPointCard::quantity = 4;

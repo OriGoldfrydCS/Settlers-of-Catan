@@ -8,7 +8,6 @@
 using namespace std;
 namespace ariel {
     
-
     /**
      * This class represents a 2D point with integer coordinates.
      * A vertex is used to identify a certain tiles on the game board.

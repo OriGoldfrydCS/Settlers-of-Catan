@@ -7,6 +7,7 @@
 using namespace std;
 namespace ariel {
 
+
     int Player::nextID = 1;                             // Initialize the static member to 1
     Player* Player::largestArmyHolder = nullptr;        // Initialize the static member to nulll pointer
 
@@ -446,8 +447,14 @@ namespace ariel {
      */
     CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
     {
-        cout << "Attempting to use card type: " << devCardTypeToString(cardType) << endl;
+        cout << "\nAttempting to use card type: " << devCardTypeToString(cardType) << "..." << endl;
         endTurn = false;  // Default to not ending the turn
+
+        // Check if the player has the card
+        if (developmentCards[cardType] <= 0) 
+        {
+            return CardUseError::InsufficientCards;
+        }
 
         // Check card type and handle accordingly
         switch (cardType) {
@@ -462,13 +469,13 @@ namespace ariel {
                 return vpCard.activateCard(*this, allPlayers, board, endTurn); 
             }           
             default:
-                cout << "Invalid card type or other error." << endl;
+                cout << "\nSTATUS: Invalid card type or other error!" << endl;
                 return CardUseError::InvalidCardType;
         }
 
         // General handling for all cards
         developmentCards[cardType]--;
-        cout << "Used " << devCardTypeToString(cardType) << " card. Remaining count: " << developmentCards[cardType] << endl;
+        cout << "\nSTATUS: Used " << devCardTypeToString(cardType) << " card. Remaining count: " << developmentCards[cardType] << endl;
         return CardUseError::Success;
     }
 
@@ -1150,62 +1157,64 @@ namespace ariel {
     string Player::printPlayer() const {
         stringstream ss;
         ss << "\n";
-        ss << "++++++++++++++++++++++++++\n";
-        ss << "++     PLAYER CARD      ++\n";
-        ss << "++++++++++++++++++++++++++\n";
-        ss << name << " (ID: " << id << ")\n";
-        ss << "==========================\n";
-        ss << "Points: " << points << "\n";
-        ss << "--------------------------\n";
+        ss << "+++++++++++++++++++++++++++++++++++++++++++\n";
+        ss << "++              PLAYER CARD              ++\n";
+        ss << "+++++++++++++++++++++++++++++++++++++++++++\n";
+        ss << "++                                       ++\n";
+        ss << "++  Name: " << name << " (ID " << id << ") \n";
+        ss << "++                                       ++\n";
+        ss << "===========================================\n";
+        ss << "++  Points: " << points << "\n";
+        ss << "===========================================\n";
         if (largestArmyHolder == this) 
         {
-            ss << "Largest Army Card: V\n";
-            ss << "--------------------------\n";
+            ss << "++  Largest Army Card: V\n";
+            ss << "-------------------------------------------\n";
         }
-        ss << "Settlements at:\n  ";
+        ss << "++  Settlements at:\n++  ";
         for (int settlement : settlements) 
         {
             ss << settlement << " ";
         }
-        ss << "\n--------------------------\n";
-        ss << "Cities at:\n  ";
-        for (int city : cities)
-         {
+        ss << "\n-------------------------------------------\n";  // Add new line here
+        ss << "++  Cities at:\n++  ";
+        for (int city : cities) 
+        {
             ss << city << " ";
         }
-        ss << "\n--------------------------\n";
-        ss << "Roads on:\n  ";
+        ss << "\n-------------------------------------------\n";  // Add new line here
+        ss << "++  Roads on:\n++  ";
         for (const Edge& road : roads) 
         {
             ss << "(" << road.getId1() << ", " << road.getId2() << ") ";
         }
-        ss << "\n==========================\n";
-        ss << "Resources:\n";
+        ss << "\n===========================================\n";  // Add new line here
+        ss << "++  Resources:\n";
         string resources_str;
         for (const auto& [resourceType, amount] : resources) 
         {
-            resources_str += "  " + resourceTypeToString(resourceType) + ": [" + to_string(amount) + "]\n";
+            resources_str += "++    " + resourceTypeToString(resourceType) + ": [" + to_string(amount) + "]\n";
         }
         ss << resources_str;
-        ss << "==========================\n";
-        ss << "Development Cards:\n";
+        ss << "===========================================\n";
+        ss << "++  Development Cards:\n";
         try {
-            ss << "  Knight: [" << developmentCards.at(DevCardType::KNIGHT) << "]\n";
-            ss << "  Victory Point: [" << developmentCards.at(DevCardType::VICTORY_POINT) << "]\n";
-            ss << "  Promotion:\n";
-            ss << "    Monopoly: [" << promotionCards.at(PromotionType::MONOPOLY) << "]\n";
-            ss << "    Road Building: [" << promotionCards.at(PromotionType::ROAD_BUILDING) << "]\n";
-            ss << "    Year of Plenty: [" << promotionCards.at(PromotionType::YEAR_OF_PLENTY) << "]\n";
+            ss << "++    Knight: [" << developmentCards.at(DevCardType::KNIGHT) << "]\n";
+            ss << "++    Victory Point: [" << developmentCards.at(DevCardType::VICTORY_POINT) << "]\n";
+            ss << "++    Promotion:\n";
+            ss << "++      Monopoly: [" << promotionCards.at(PromotionType::MONOPOLY) << "]\n";
+            ss << "++      Road Building: [" << promotionCards.at(PromotionType::ROAD_BUILDING) << "]\n";
+            ss << "++      Year of Plenty: [" << promotionCards.at(PromotionType::YEAR_OF_PLENTY) << "]\n";
         } 
         catch (const out_of_range& e) 
         {
-            ss << "  Error accessing card data.\n";
+            ss << "++    Error accessing card data.\n";
         }
-        ss << "++++++++++++++++++++++++++\n";
-        ss << "++++++++++++++++++++++++++\n";
+        ss << "+++++++++++++++++++++++++++++++++++++++++++\n";
 
         return ss.str();
     }
+
 
 
     /**

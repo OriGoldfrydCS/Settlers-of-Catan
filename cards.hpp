@@ -15,6 +15,7 @@ namespace ariel {
     enum class CardUseError;
     enum ResourceType;
 
+
     /**
      * @brief Enum for different types of development cards in the game.
      */    

@@ -15,6 +15,7 @@ namespace ariel {
     class Player;
     class Tile;
     
+    
     /**
      * @brief This class represents the game board, managing tiles, intersections, and player constructions like roads and settlements.
      */

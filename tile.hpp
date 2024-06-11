@@ -10,6 +10,7 @@
 using namespace std;
 namespace ariel {
 
+
     /**
      * This class represents a tile in Settlers of Catan's board game.
      * A tile generates resources and can have settlements and roads.
@@ -127,7 +128,6 @@ namespace ariel {
             DesertTile(int number);
             ResourceType getResourceType() const override;
     };
-
 }
 
 #endif

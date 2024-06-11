@@ -110,4 +110,5 @@ namespace ariel {
         os << edge.i1 << " to " << edge.i2;
         return os;
     }
+    
 }

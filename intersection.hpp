@@ -12,7 +12,7 @@
 
 using namespace std;
 namespace ariel {
-    
+
 
     /**
      * @brief This class represents an intersection defined by a set of vertices.
@@ -105,6 +105,7 @@ namespace ariel {
              */
             static Intersection getIntersection(int intersectionID);
         };
+        
     }
 
 #endif

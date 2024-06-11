@@ -1,9 +1,9 @@
 # Email: origoldbsc@gmail.com
 
-# To compile the code, run 'make'.
-# To run the game, execute './Catan' in the terminal.
-# To run a simulation of one round, execute './main' after building the test target with 'make main'.
-# To run tests, execute './test' after building the test target with 'make test'.
+# (1) To compile the code, run 'make'.
+# (2) To run the game, execute './Catan' in the terminal.
+# (3) To run a simulation of one round, execute './main' after building the test target with 'make main'.
+# (4) To run tests, execute './test' after building the test target with 'make test'.
 
 # Compiler settings
 CXX = g++

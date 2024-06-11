@@ -12,7 +12,6 @@
 using namespace std;
 namespace ariel {
 
-
      /**
      * @brief Constructor that initializes the game with three players.
      * @param p1 Reference to the first player.
@@ -26,7 +25,9 @@ namespace ariel {
      * @brief Sets up the game by configuring tiles, linking them with intersections, and distributing initial resources.
      */
     void Catan::initializeGame() 
-    {
+    {   
+        cout << "Processing initialization due to Catan beginner setup...\n" << endl;
+
         Board& board = Board::getInstance();
         board.setupTiles();  
         board.linkTilesAndIntersections();
@@ -53,9 +54,10 @@ namespace ariel {
         players[2]->placeInitialRoad(Edge(Intersection::getIntersection(19), Intersection::getIntersection(20)), board);     // Road between Grain(12) and Wood(11)
         players[2]->placeInitialRoad(Edge(Intersection::getIntersection(25), Intersection::getIntersection(36)), board);     // Road between Wood(3) and Ore(8)
         
-        cout << "Initial resources were distributed to the players" << endl;
-        cout << "Settlements & roads places by the game's instructions for beginners" << endl;
+        cout << "\nInitial resources were distributed to the players." << endl;
+        cout << "Settlements & roads places by the game's instructions for beginners.\n" << endl;
 
+        ChooseStartingPlayer();
     }
 
 
@@ -113,8 +115,8 @@ namespace ariel {
         }
 
         currentPlayerIndex = 0;     // The first player in the sorted list starts
-        cout << "Player " << players[currentPlayerIndex]->getName() << " starts the game!" << endl;
-        cout << "Let's start..." << endl;
+        cout << "\nPlayer " << players[currentPlayerIndex]->getName() << " starts the game!" << endl;
+        cout << "\nLet's start..." << endl;
 
     }
 
@@ -152,7 +154,7 @@ namespace ariel {
                     int dice1 = Player::rollDice();
                     int dice2 = Player::rollDice();
                     int total = dice1 + dice2;
-                    cout << "Player " << currentPlayer->getName() << " rolls " << dice1 << " + " << dice2 << " = " << total << "." << endl;
+                    cout << "\nPlayer " << currentPlayer->getName() << " rolls " << dice1 << " + " << dice2 << " = " << total << "." << endl;
 
                     if (total == 7) 
                     {
@@ -161,11 +163,11 @@ namespace ariel {
                     else 
                     {
                         board.distributeResourcesBasedOnDiceRoll(total, players);
-                        cout << "Resources distributed based on dice roll." << endl;
+                        cout << "STATUS: Resources distributed based on dice roll." << endl;
                     }
                 }
 
-                cout << "Proceeding to action selection..." << endl;
+                cout << "\nProceeding to action selection..." << endl;
 
                 // Action selection
                 bool endTurn = false;
@@ -353,7 +355,7 @@ namespace ariel {
                 cardType = DevCardType::PROMOTION;
                 break;
             default:
-                cout << "Invalid card type selected.\n";
+                cout << "\nSTATUS: Invalid card type selected.\n";
                 return;
         }
 
@@ -361,16 +363,16 @@ namespace ariel {
         switch(result) 
         {
             case CardPurchaseError::Success:
-                cout << "Development card purchased successfully.\n";
+                cout << "\nSTATUS: Development card purchased successfully!\n";
                 break;
             case CardPurchaseError::InsufficientResources:
-                cout << "Not enough resources to buy a development card.\n";
+                cout << "\nSTATUS: Not enough resources to buy a development card!\n";
                 break;
             case CardPurchaseError::CardUnavailable:
-                cout << "The selected card is currently unavailable.\n";
+                cout << "\nSTATUS: The selected card is currently unavailable!\n";
                 break;
             default:
-                cout << "An unexpected error occurred.\n";
+                cout << "\nSTATUS: An unexpected error occurred...\n";
                 break;
         }
     }
@@ -402,7 +404,7 @@ namespace ariel {
                 cardType = DevCardType::PROMOTION;
                 break;
             default:
-                cout << "Invalid card type selected.\n";
+                cout << "\nSTATUS:Invalid card type selected!\n";
                 break;
         }
         
@@ -410,12 +412,12 @@ namespace ariel {
         
         if (useResult == CardUseError::Success) 
         {
-            cout << "Development card used successfully." << endl;
+            cout << "\nSTATUS: Development card used successfully!" << endl;
             shouldEndTurn = true;
         } 
         else if (useResult == CardUseError::InsufficientCards) 
         {
-            cout << "You do not have enough of this card to use." << endl;
+            cout << "\nSTATUS: You do not have enough of this card to use!" << endl;
         } 
         else 
         {
@@ -471,19 +473,26 @@ namespace ariel {
     {
         Board& board = Board::getInstance();
 
-        cout << "*******************************************************" << endl;
-        cout << "*******************************************************" << endl;
-        cout << "***                     GAME STATE                  ***" << endl;
-        cout << "*******************************************************" << endl;
-        cout << "*******************************************************" << endl;
+        cout << "\n";
+        cout << "**********************************************************************\n";
+        cout << "*                                                                    *\n";
+        cout << "*                         🌟 GAME STATE 🌟                           *\n";
+        cout << "*                                                                    *\n";
+        cout << "**********************************************************************\n";
 
         for (const auto& player : players) 
         {
-            player->printPoints();
+            player->printPoints();  
         }
-        cout << "*******************************************************" << endl;
-        cout << "                     Board Status                      " << endl;
-        // board.printBoard();      // printing for debuging
+
+        cout << "**********************************************************************\n";
+        cout << "*                                                                    *\n";
+        cout << "*                       🌍  BOARD STATUS  🌍                         *\n";
+        cout << "*                                                                    *\n";
+        cout << "**********************************************************************\n";
+
+        cout << "\n";
+
         board.printGameBoard();
     }
 

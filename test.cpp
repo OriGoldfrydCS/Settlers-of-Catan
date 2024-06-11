@@ -9,7 +9,6 @@
 using namespace ariel;
 using namespace std;
 
-
 /*********************************************/
 ///             TESTS FOR BOARD             ///
 /*********************************************/
@@ -127,6 +126,7 @@ TEST_CASE("Tests for promotionTypeToString function") {
     CHECK(promotionTypeToString(PromotionType::YEAR_OF_PLENTY) == "Year of Plenty");
     CHECK(promotionTypeToString(static_cast<PromotionType>(100)) == "Unknown");
 }
+
 
 /*********************************************/
 ///             TESTS FOR PLAYER            ///

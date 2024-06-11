@@ -109,6 +109,7 @@ namespace ariel {
              */
             friend ostream& operator<<(ostream& os, const Edge& edge);
         };
+        
 }
 
 #endif

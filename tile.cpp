@@ -6,6 +6,7 @@
 using namespace std;
 namespace ariel {
 
+
     /**
      * @brief Constructs a new tile with a specified resource type and number.
      * @param resourceType The type of resource the tile will produce (default is NONE).

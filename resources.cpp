@@ -2,6 +2,7 @@
 
 #include "resources.hpp"
 
+
 /**
  * @brief Converts a ResourceType enum value to its corresponding string representation. 
  * @param resource The resource type enum to convert.

@@ -1,7 +1,8 @@
-// Email:  origoldbsc@gmail.com
+// Email: origoldbsc@gmail.com
 
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+
 using namespace doctest;
 
 const int MIN_TESTS = 20;

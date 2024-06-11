@@ -17,12 +17,15 @@ namespace ariel {
             vector<Player*> players;    // Stores pointers to the players participating in the game
             size_t currentPlayerIndex;  // Index to track the current player's turn
 
-            // Related to the the main game loop which controlling the flow of turns
-            void handleBuildRoad(Player* currentPlayer);
+            // Related to the the main game loop which controlling the flow of turns (void playGame())
             void handleBuildSettlement(Player* currentPlayer);
             void handleUpgradeToCity(Player* currentPlayer);
-            void handleBuyDevelopmentCard(Player* currentPlayer);
-            void handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn);
+
+            // Related to initializing the game (void initializeGame())
+            void ChooseStartingPlayer();
+
+            // Handles the game logic when a player rolls a 7
+            void handleSevenRoll();
 
         public:
 
@@ -31,18 +34,16 @@ namespace ariel {
 
             // Initializes the game, setting up the board, distribute resources and choosing the starting player
             void initializeGame();
-            void distributeResources(Player* player);
-            void ChooseStartingPlayer();
 
             // Manages the main game loop, controlling the flow of turns and checking for the game end condition
             void playGame();        
-            
+            void distributeResources(Player* player);   // TO-DO: change to private method after presentions (should be public for testing purpose)
+            void handleBuyDevelopmentCard(Player* currentPlayer);
+            void handleBuildRoad(Player* currentPlayer);
+            void handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn);
 
             // Advances the game to the next player's turn
-            void nextTurn() ;
-
-            // Handles the game logic when a player rolls a 7
-            void handleSevenRoll();
+            void nextTurn();                            // TO-DO: change to private method after presentions
 
             // Displays the current state of the game, including players' statuses and the board state
             void printGameState() const;
@@ -60,9 +61,8 @@ namespace ariel {
             // Initializes the board for testing purposes, without placing any settlements or distributing resources
             void testInitialize();
 
-            // Checks if there is a winner in the game 
+            // Checks if there is a winner in the game for testing purposes
             void hasWinner();
-
     };
 }
 
