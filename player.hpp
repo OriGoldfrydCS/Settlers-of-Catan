@@ -79,11 +79,13 @@ namespace ariel {
             void printResources() const;
 
             // Methods to buy development cards
-            CardPurchaseError buyDevelopmentCard(DevCardType type, vector<Player*>& allPlayers);
+            CardPurchaseError buyDevelopmentCard(vector<Player*>& allPlayers);
+            void purchaseSelectedCard(DevCardType cardType, vector<Player*>& allPlayers);
             bool hasEnoughResourcesForCard() const;
-            CardPurchaseError handleCardPurchase(DevCardType cardType, vector<Player*>& allPlayers);
-            CardPurchaseError handlePromotionCardPurchase();
-            CardPurchaseError buySpecificPromotionCard(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type);
+            // CardPurchaseError buyDevelopmentCard(DevCardType type, vector<Player*>& allPlayers);
+            // CardPurchaseError handleCardPurchase(DevCardType cardType, vector<Player*>& allPlayers);
+            // CardPurchaseError handlePromotionCardPurchase();
+            // CardPurchaseError buySpecificPromotionCard(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type);
 
             // Methods to use development cards
             CardUseError useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn);

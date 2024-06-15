@@ -12,8 +12,8 @@ int main() {
     
     // Create player instances
     Player player1("Blue");
-    Player player2("Yellow");
-    Player player3("White");
+    Player player2("Red");
+    Player player3("Green");
 
     // Initialize the game with these players
     Catan game(player1, player2, player3);

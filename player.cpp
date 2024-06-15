@@ -309,35 +309,130 @@ namespace ariel {
         cout << endl;
     }
 
-
-   /**
-     * @brief Tries to buy a development card and handles all necessary checks and adjustments.
-     * @param cardType The type of development card to purchase.
-     * @param allPlayers A list of all players in the game for necessary checks.
-     * @return The result of the card purchase attempt.
+    /**
+     * @brief Tries to buy a random development card while handling resource checks and adjustments.
+     * @param allPlayers A list of all players in the game, needed for certain card effects.
+     * @return The result of the attempt to purchase a development card.
      */
-    CardPurchaseError Player::buyDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers)
+    CardPurchaseError Player::buyDevelopmentCard(vector<Player*>& allPlayers) 
     {
-        // First, check if the player has enough resources for buying the card
+
+        // Check if the player has enough resources to purchase a development card
         if (!hasEnoughResourcesForCard()) 
         {
             return CardPurchaseError::InsufficientResources;
         }
 
-        // Second, check if cards left in catch
-        if (DevelopmentCard::getCardQuantity(cardType) <= 0) 
+        vector<DevCardType> availableCards;         // List to hold the types of cards that are currently available for purchase
+
+        // Check and add available knight cards
+        if (KnightCard::getQuantity() > 0) 
+        {
+            availableCards.push_back(DevCardType::KNIGHT);
+        }
+
+        // Check and add available victory point cards
+        if (VictoryPointCard::getQuantity() > 0) 
+        {
+            availableCards.push_back(DevCardType::VICTORY_POINT);
+        }
+
+        // Check and add available promotion cards, depending on specific types available
+        if (MonopolyCard::getQuantity() > 0) 
+        {
+            availableCards.push_back(DevCardType::PROMOTION);
+        }
+        if (RoadBuildingCard::getQuantity() > 0) 
+        {
+            availableCards.push_back(DevCardType::PROMOTION);
+        }
+        if (YearOfPlentyCard::getQuantity() > 0) 
+        {
+            availableCards.push_back(DevCardType::PROMOTION);
+        }
+
+        // If no cards are available, return an error
+        if (availableCards.empty()) 
         {
             return CardPurchaseError::CardUnavailable;
         }
-        
-        // Deduct resources
-        resources[ResourceType::ORE] -= 1;
-        resources[ResourceType::WOOL] -= 1;
-        resources[ResourceType::GRAIN] -= 1;
 
-        return handleCardPurchase(cardType, allPlayers);
+        // Randomly select a card to purchase
+        mt19937 gen(random_device{}());
+        uniform_int_distribution<size_t> dis(0, availableCards.size() - 1);
+        DevCardType selectedType = availableCards[dis(gen)];
+
+        // Execute the purchase for the selected card type
+        purchaseSelectedCard(selectedType, allPlayers);
+
+        // Deduct resources used to buy the card
+        for (const auto& cost : devCardCosts) 
+        {
+            useResources(cost.first, cost.second);
+        }
+
+        return CardPurchaseError::Success;
     }
 
+
+    /**
+     * @brief Handles the logic of purchasing the selected card and updating player stats.
+     * @param cardType The type of development card being purchased.
+     * @param allPlayers List of all players, used for updating game stats where necessary.
+     */
+    void Player::purchaseSelectedCard(DevCardType cardType, vector<Player*>& allPlayers) 
+    {
+
+        // Switch based on the type of development card    
+        switch (cardType) {
+            case DevCardType::KNIGHT:
+            {
+                KnightCard::decreaseQuantity();                 // Decrease the stock of knight cards 
+                developmentCards[DevCardType::KNIGHT]++;        // Increment player's count
+                knightCards++;                                  // Add to knightCards' variable
+                checkForLargestArmy(allPlayers);                // Check if the largest army should move to this player
+                cout << "\nSTATUS: Knight card purchased successfully!\n";
+                break;
+            }
+
+            case DevCardType::VICTORY_POINT:
+            {
+                VictoryPointCard::decreaseQuantity();                   // Decrease the stock of victory point cards
+                developmentCards[DevCardType::VICTORY_POINT]++;         // Increment player's count
+                cout << "\nSTATUS: Victory Point card purchased successfully!\n";
+                break;
+            }
+            case DevCardType::PROMOTION:
+            {
+                // Handle promotion card purchase by checking each specific type
+                if (MonopolyCard::getQuantity() > 0)
+                {
+                    MonopolyCard::decreaseQuantity();                   // Decrease the stock of that card
+                    promotionCards[PromotionType::MONOPOLY]++;          // Increment player's count
+                    cout << "\nSTATUS: Monopoly card purchased successfully!\n";
+                } 
+                else if (RoadBuildingCard::getQuantity() > 0) 
+                {
+                    RoadBuildingCard::decreaseQuantity();               // Decrease the stock of that card
+                    promotionCards[PromotionType::ROAD_BUILDING]++;     // Increment player's count
+                    cout << "\nSTATUS: Road Building card purchased successfully!\n";
+                } 
+                else if (YearOfPlentyCard::getQuantity() > 0) 
+                {
+                    YearOfPlentyCard::decreaseQuantity();               // Decrease the stock of that card
+                    promotionCards[PromotionType::YEAR_OF_PLENTY]++;    // Increment player's count
+                    cout << "\nSTATUS: Year of Plenty card purchased successfully!\n";
+                }
+
+                developmentCards[DevCardType::PROMOTION]++;             // Increment player's count of all Promotion cards 
+                break;
+            }
+            default:
+            {
+                cout << "\nERROR: Invalid card type selected.\n";
+            }
+        }
+    }
 
     /**
      * @brief Checks if the player has enough resources to buy the development card.
@@ -355,86 +450,115 @@ namespace ariel {
         }
     }
 
-    /**
-     * @brief Handles the specific logic related to purchasing different types of development cards.
-     * @param cardType The type of development card being purchased.
-     * @param allPlayers A reference to all players in the game, used for certain card effects.
-     * @return The result of the card purchase attempt.
-     */
-    CardPurchaseError Player::handleCardPurchase(DevCardType cardType, vector<Player*>& allPlayers) 
-    {
-        if (cardType == DevCardType::KNIGHT) 
-        {
-            KnightCard::decreaseQuantity();
-            developmentCards[DevCardType::KNIGHT]++;
-            knightCards++;
-            checkForLargestArmy(allPlayers);
-        } 
-        else if (cardType == DevCardType::VICTORY_POINT) 
-        {
-            VictoryPointCard::decreaseQuantity();
-            developmentCards[DevCardType::VICTORY_POINT]++;
-        } 
-        else if (cardType == DevCardType::PROMOTION) 
-        {
-            return handlePromotionCardPurchase();
-        } 
-        else 
-        {
-            cout << "Invalid card type." << endl;
-            return CardPurchaseError::CardUnavailable;
-        }
+    // /**
+    //  * @brief Tries to buy a development card and handles all necessary checks and adjustments.
+    //  * @param cardType The type of development card to purchase.
+    //  * @param allPlayers A list of all players in the game for necessary checks.
+    //  * @return The result of the card purchase attempt.
+    //  */
+    // CardPurchaseError Player::buyDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers)
+    // {
+    //     // First, check if the player has enough resources for buying the card
+    //     if (!hasEnoughResourcesForCard()) 
+    //     {
+    //         return CardPurchaseError::InsufficientResources;
+    //     }
 
-        // cout << "Card purchased: " << devCardTypeToString(cardType) << ". New count: " << developmentCards[cardType] << endl;    // print for debuging
-        return CardPurchaseError::Success;
-    }
+    //     // Second, check if cards left in catch
+    //     if (DevelopmentCard::getCardQuantity(cardType) <= 0) 
+    //     {
+    //         return CardPurchaseError::CardUnavailable;
+    //     }
+        
+    //     // Deduct resources
+    //     resources[ResourceType::ORE] -= 1;
+    //     resources[ResourceType::WOOL] -= 1;
+    //     resources[ResourceType::GRAIN] -= 1;
 
-    /**
-     * @brief Manages the process of buying a promotion card.
-     * @return The result of the promotion card purchase attempt.
-     */
-    CardPurchaseError Player::handlePromotionCardPurchase() 
-    {
-        cout << "Enter 1 for Monopoly, 2 for Road Building, 3 for Year of Plenty: ";
-        int choice;
-        cin >> choice;
+    //     return handleCardPurchase(cardType, allPlayers);
+    // }
 
-        switch (choice) 
-        {
-            case 1:
-                return buySpecificPromotionCard(MonopolyCard::getQuantity, MonopolyCard::decreaseQuantity, PromotionType::MONOPOLY);
-            case 2:
-                return buySpecificPromotionCard(RoadBuildingCard::getQuantity, RoadBuildingCard::decreaseQuantity, PromotionType::ROAD_BUILDING);
-            case 3:
-                return buySpecificPromotionCard(YearOfPlentyCard::getQuantity, YearOfPlentyCard::decreaseQuantity, PromotionType::YEAR_OF_PLENTY);
-            default:
-                cout << "Invalid choice, no card added." << endl;
-                return CardPurchaseError::CardUnavailable;
-        }
-    }
 
-    /**
-     * @brief A helper function to manage the buying of a specific type of promotion card.
-     * @param getQuantity A function that returns the current quantity of the card.
-     * @param decreaseQuantity A function that decreases the quantity of the card.
-     * @param type The type of promotion card.
-     * @return The result of the promotion card purchase attempt.
-     */
-    CardPurchaseError Player::buySpecificPromotionCard(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type) 
-    {
-        if (getQuantity() > 0) 
-        {
-            decreaseQuantity();
-            promotionCards[type]++;
-            developmentCards[DevCardType::PROMOTION]++;
-            return CardPurchaseError::Success;
-        } 
-        else 
-        {
-            return CardPurchaseError::CardUnavailable;
-        }
-    }
 
+    // /**
+    //  * @brief Handles the specific logic related to purchasing different types of development cards.
+    //  * @param cardType The type of development card being purchased.
+    //  * @param allPlayers A reference to all players in the game, used for certain card effects.
+    //  * @return The result of the card purchase attempt.
+    //  */
+    // CardPurchaseError Player::handleCardPurchase(DevCardType cardType, vector<Player*>& allPlayers) 
+    // {
+    //     if (cardType == DevCardType::KNIGHT) 
+    //     {
+    //         KnightCard::decreaseQuantity();
+    //         developmentCards[DevCardType::KNIGHT]++;
+    //         knightCards++;
+    //         checkForLargestArmy(allPlayers);
+    //     } 
+    //     else if (cardType == DevCardType::VICTORY_POINT) 
+    //     {
+    //         VictoryPointCard::decreaseQuantity();
+    //         developmentCards[DevCardType::VICTORY_POINT]++;
+    //     } 
+    //     else if (cardType == DevCardType::PROMOTION) 
+    //     {
+    //         return handlePromotionCardPurchase();
+    //     } 
+    //     else 
+    //     {
+    //         cout << "Invalid card type." << endl;
+    //         return CardPurchaseError::CardUnavailable;
+    //     }
+
+    //     // cout << "Card purchased: " << devCardTypeToString(cardType) << ". New count: " << developmentCards[cardType] << endl;    // print for debuging
+    //     return CardPurchaseError::Success;
+    // }
+
+    // /**
+    //  * @brief Manages the process of buying a promotion card.
+    //  * @return The result of the promotion card purchase attempt.
+    //  */
+    // CardPurchaseError Player::handlePromotionCardPurchase() 
+    // {
+    //     cout << "Enter 1 for Monopoly, 2 for Road Building, 3 for Year of Plenty: ";
+    //     int choice;
+    //     cin >> choice;
+
+    //     switch (choice) 
+    //     {
+    //         case 1:
+    //             return buySpecificPromotionCard(MonopolyCard::getQuantity, MonopolyCard::decreaseQuantity, PromotionType::MONOPOLY);
+    //         case 2:
+    //             return buySpecificPromotionCard(RoadBuildingCard::getQuantity, RoadBuildingCard::decreaseQuantity, PromotionType::ROAD_BUILDING);
+    //         case 3:
+    //             return buySpecificPromotionCard(YearOfPlentyCard::getQuantity, YearOfPlentyCard::decreaseQuantity, PromotionType::YEAR_OF_PLENTY);
+    //         default:
+    //             cout << "Invalid choice, no card added." << endl;
+    //             return CardPurchaseError::CardUnavailable;
+    //     }
+    // }
+
+    // /**
+    //  * @brief A helper function to manage the buying of a specific type of promotion card.
+    //  * @param getQuantity A function that returns the current quantity of the card.
+    //  * @param decreaseQuantity A function that decreases the quantity of the card.
+    //  * @param type The type of promotion card.
+    //  * @return The result of the promotion card purchase attempt.
+    //  */
+    // CardPurchaseError Player::buySpecificPromotionCard(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type) 
+    // {
+    //     if (getQuantity() > 0) 
+    //     {
+    //         decreaseQuantity();
+    //         promotionCards[type]++;
+    //         developmentCards[DevCardType::PROMOTION]++;
+    //         return CardPurchaseError::Success;
+    //     } 
+    //     else 
+    //     {
+    //         return CardPurchaseError::CardUnavailable;
+    //     }
+    // }
 
 
     /**
@@ -1154,8 +1278,10 @@ namespace ariel {
      * @brief Generates a string representation of the player's game state.
      * @return string A formatted string representing the player's current state in the game.
      */
-    string Player::printPlayer() const {
+    string Player::printPlayer() const 
+    {
         stringstream ss;
+        
         ss << "\n";
         ss << "+++++++++++++++++++++++++++++++++++++++++++\n";
         ss << "++              PLAYER CARD              ++\n";
@@ -1176,19 +1302,19 @@ namespace ariel {
         {
             ss << settlement << " ";
         }
-        ss << "\n-------------------------------------------\n";  // Add new line here
+        ss << "\n-------------------------------------------\n";  
         ss << "++  Cities at:\n++  ";
         for (int city : cities) 
         {
             ss << city << " ";
         }
-        ss << "\n-------------------------------------------\n";  // Add new line here
+        ss << "\n-------------------------------------------\n";  
         ss << "++  Roads on:\n++  ";
         for (const Edge& road : roads) 
         {
             ss << "(" << road.getId1() << ", " << road.getId2() << ") ";
         }
-        ss << "\n===========================================\n";  // Add new line here
+        ss << "\n===========================================\n";  
         ss << "++  Resources:\n";
         string resources_str;
         for (const auto& [resourceType, amount] : resources) 

@@ -133,10 +133,20 @@ namespace ariel {
             for (Player* currentPlayer : players) 
             {
                 cout << "\nIt's " << currentPlayer->getName() << "'s turn." << endl;
-                cout << "Do you want to (1) Roll Dice or (2) Use Development Card? ";
+                
+                int preChoice = 0;
+                while (preChoice != 1 && preChoice != 2) 
+                {
+                    cout << "Do you want to (1) Roll Dice or (2) Use Development Card? ";
+                    cin >> preChoice;
+                    if (cin.fail() || (preChoice != 1 && preChoice != 2)) 
+                    {
+                        cout << "\nERROR: Invalid input. Please enter '1' for Roll Dice or '2' for Use Development Card!\n\n";
+                        cin.clear();                                            // Clear error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');    // Ignore incorrect input
+                    }
+                }
 
-                int preChoice;
-                cin >> preChoice;
                 if (preChoice == 2) 
                 {
                     bool shouldEndTurn = false;
@@ -148,6 +158,7 @@ namespace ariel {
                         continue;       // Skip to next player immediately
                     }
                 }
+             
                 else 
                 {
                     // Proceed with dice roll
@@ -163,7 +174,7 @@ namespace ariel {
                     else 
                     {
                         board.distributeResourcesBasedOnDiceRoll(total, players);
-                        cout << "STATUS: Resources distributed based on dice roll." << endl;
+                        cout << "\nSTATUS: Resources distributed based on dice roll." << endl;
                     }
                 }
 
@@ -173,20 +184,28 @@ namespace ariel {
                 bool endTurn = false;
                 while (!endTurn) 
                 {
-                    cout << "\nChoose an action:\n";
-                    cout << "0. View game state\n";
-                    cout << "1. View your full player details\n";
-                    cout << "2. Trade resources\n";
-                    cout << "3. Build a road\n";
-                    cout << "4. Build a settlement\n";
-                    cout << "5. Upgrade to city\n";
-                    cout << "6. Buy development card\n";
-                    cout << "7. Use development card\n";
-                    cout << "8. End turn\n";
-                    cout << "Enter your choice: ";
-                    int choice;
-                    cin >> choice;
-                    clearInputBuffer();         // Clear the buffer after reading an integer
+                    int choice = -1; // Initialize outside valid range
+                    while (choice < 0 || choice > 8) 
+                    {
+                        cout << "\nChoose an action:\n";
+                        cout << "0. View game state\n";
+                        cout << "1. View your full player details\n";
+                        cout << "2. Trade resources or cards\n";
+                        cout << "3. Build a road\n";
+                        cout << "4. Build a settlement\n";
+                        cout << "5. Upgrade to city\n";
+                        cout << "6. Buy development card\n";
+                        cout << "7. Use development card\n";
+                        cout << "8. End turn\n";
+                        cout << "Enter your choice: ";
+                        cin >> choice;
+                        clearInputBuffer();  // Clear buffer after reading
+
+                        if (choice < 0 || choice > 8) 
+                        {
+                            cout << "\nERROR: Invalid choice, please choose a number between 0 and 8!\n";
+                        }
+                    }
 
                     switch(choice) 
                     {
@@ -327,55 +346,79 @@ namespace ariel {
         }
     }
 
-
     /**
      * @brief Manages the purchase of a development card by the current player.
+     * This version selects a random card type to be purchased.
      * @param currentPlayer Pointer to the player attempting to buy a development card.
      */
     void Catan::handleBuyDevelopmentCard(Player* currentPlayer)
     {
-        cout << "Select the type of Development Card to buy:\n";
-        cout << "1. Knight\n";
-        cout << "2. Victory Point\n";
-        cout << "3. Promotion\n";
-        cout << "Enter your choice: ";
-        int cardChoice;
-        cin >> cardChoice;
-        DevCardType cardType;
-
-        switch(cardChoice)
-        {
-            case 1:
-                cardType = DevCardType::KNIGHT;
-                break;
-            case 2:
-                cardType = DevCardType::VICTORY_POINT;
-                break;
-            case 3:
-                cardType = DevCardType::PROMOTION;
-                break;
-            default:
-                cout << "\nSTATUS: Invalid card type selected.\n";
-                return;
-        }
-
-        CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType, players);
+        CardPurchaseError result = currentPlayer->buyDevelopmentCard(players);
         switch(result) 
         {
             case CardPurchaseError::Success:
-                cout << "\nSTATUS: Development card purchased successfully!\n";
+                // cout << "\nSTATUS: Development card purchased successfully!\n";     // Printing for debugging
                 break;
             case CardPurchaseError::InsufficientResources:
                 cout << "\nSTATUS: Not enough resources to buy a development card!\n";
                 break;
             case CardPurchaseError::CardUnavailable:
-                cout << "\nSTATUS: The selected card is currently unavailable!\n";
+                cout << "\nSTATUS: No development cards available!\n";
                 break;
             default:
-                cout << "\nSTATUS: An unexpected error occurred...\n";
+                cout << "\nSTATUS: An unexpected error occurred during card purchase.\n";
                 break;
         }
     }
+
+    // /**
+    //  * @brief Manages the purchase of a development card by the current player.
+    //  * @param currentPlayer Pointer to the player attempting to buy a development card.
+    //  */
+    // void Catan::handleBuyDevelopmentCard(Player* currentPlayer)
+    // {
+    //     cout << "Select the type of Development Card to buy:\n";
+    //     cout << "1. Knight\n";
+    //     cout << "2. Victory Point\n";
+    //     cout << "3. Promotion\n";
+    //     cout << "Enter your choice: ";
+    //     int cardChoice;
+    //     cin >> cardChoice;
+    //     DevCardType cardType;
+
+    //     switch(cardChoice)
+    //     {
+    //         case 1:
+    //             cardType = DevCardType::KNIGHT;
+    //             break;
+    //         case 2:
+    //             cardType = DevCardType::VICTORY_POINT;
+    //             break;
+    //         case 3:
+    //             cardType = DevCardType::PROMOTION;
+    //             break;
+    //         default:
+    //             cout << "\nSTATUS: Invalid card type selected.\n";
+    //             return;
+    //     }
+
+    //     CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType, players);
+    //     switch(result) 
+    //     {
+    //         case CardPurchaseError::Success:
+    //             cout << "\nSTATUS: Development card purchased successfully!\n";
+    //             break;
+    //         case CardPurchaseError::InsufficientResources:
+    //             cout << "\nSTATUS: Not enough resources to buy a development card!\n";
+    //             break;
+    //         case CardPurchaseError::CardUnavailable:
+    //             cout << "\nSTATUS: The selected card is currently unavailable!\n";
+    //             break;
+    //         default:
+    //             cout << "\nSTATUS: An unexpected error occurred...\n";
+    //             break;
+    //     }
+    // }
 
 
     /**
@@ -388,7 +431,7 @@ namespace ariel {
         Board& board = Board::getInstance();
 
         // Assume function that manages the choice and use of a development card
-        cout << "Select the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
+        cout << "\nSelect the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
         int devCardChoice;
         cin >> devCardChoice;
         DevCardType cardType;
@@ -412,7 +455,7 @@ namespace ariel {
         
         if (useResult == CardUseError::Success) 
         {
-            cout << "\nSTATUS: Development card used successfully!" << endl;
+            cout << "\nSTATUS: Development card used successfully!" << endl;  // Print for debugging
             shouldEndTurn = true;
         } 
         else if (useResult == CardUseError::InsufficientCards) 
@@ -421,7 +464,7 @@ namespace ariel {
         } 
         else 
         {
-            cout << "Invalid card type or other error." << endl;
+            cout << "\nSTATUS: Invalid card type or other error." << endl;
         }
     }
 
@@ -431,7 +474,7 @@ namespace ariel {
      */
     void Catan::handleSevenRoll() 
     {
-        cout << "A 7 was rolled. Players with more than 7 resources must discard half of them." << endl;
+        cout << "\nA 7 was rolled. Players with more than 7 resources must discard half of them." << endl;
         size_t currentPlayerPosition = currentPlayerIndex; // Remember the current player index
         do {
             Player* currentPlayer = players[currentPlayerIndex];
@@ -444,14 +487,15 @@ namespace ariel {
             nextTurn(); // Proceed to next player in a circular manner
         } while (currentPlayerIndex != currentPlayerPosition); // Go until we reach the starting player again
 
-        cout << "It is now " << players[currentPlayerIndex]->getName() << "'s turn to continue their turn." << endl;
+        cout << "\nIt is now " << players[currentPlayerIndex]->getName() << "'s turn to continue their turn." << endl;
     }
 
 
     /**
      * @brief Clears the input buffer to handle potential input errors.
      */
-    void Catan::clearInputBuffer() {
+    void Catan::clearInputBuffer() 
+    {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
@@ -534,7 +578,8 @@ namespace ariel {
      * @brief Returns a vector of pointers to all the players in the game.
      * @return A vector of pointers to the players.
      */
-    vector<Player*>& Catan::getPlayers() {
+    vector<Player*>& Catan::getPlayers() 
+    {
         return players;
     }
 
@@ -570,18 +615,18 @@ namespace ariel {
         // Check if the leading player has 10 or more points to declare a winner
         if (leader && maxPoints >= 10) 
         {
-            cout << "We have a winner! " << leader->getName() << " wins the game with " << maxPoints << " points!" << endl;
+            cout << "\nWe have a winner! " << leader->getName() << " wins the game with " << maxPoints << " points!" << endl;
         } 
         else 
         {
-            cout << "No winner yet. Reach 10 points to win the game. ";
+            cout << "\nNo winner yet. Reach 10 points to win the game. ";
             if (leader) 
             {
                 cout << leader->getName() << " is leading with " << maxPoints << " points." << endl;
             } 
             else 
             {
-                cout << "No players have points yet." << endl;
+                cout << "\nNo players have points yet." << endl;
             }
         }
     }

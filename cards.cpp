@@ -183,7 +183,7 @@ namespace ariel {
             return CardUseError::InsufficientCards;
         }
 
-        cout << "Select the resource type to monopolize:\n1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
+        cout << "\nSelect the resource type to monopolize:\n1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
         int choice;
         cin >> choice;
         ResourceType chosenResource = static_cast<ResourceType>(choice - 1);
