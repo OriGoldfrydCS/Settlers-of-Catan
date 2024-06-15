@@ -8,7 +8,7 @@ The game is designed for three players and features basic mechanics such as reso
 
 ## Game Rules
 
-The game is played on a board consisting of 19 land tiles surrounded by the sea, producing resources necessary for building and advancement. Players gather resources based on their closeness to these tiles, which are forest (produces wood), hills (produces brick), pasture (produces wool), fields (produces grain), mountains (produces ore), and the desert (yields nothing).
+The game is played on a board consisting of 19 tiles surrounded by the sea, producing resources necessary for building, cities and roads. Players gather resources based on their closeness to these tiles, which are forest (produces wood), hills (produces brick), pasture (produces wool), fields (produces grain), mountains (produces ore), and the desert (yields nothing).
 
 ### Gameplay Mechanics
 
