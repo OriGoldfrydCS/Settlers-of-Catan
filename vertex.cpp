@@ -5,7 +5,6 @@
 using namespace std;
 namespace ariel {
     
-
    /**
      * @brief Comparison operator to determine if this vertex is less than another based on its coordinates.
      * @param other The vertex to compare to.
@@ -16,6 +15,24 @@ namespace ariel {
         return xaxis < other.xaxis || (xaxis == other.xaxis && yaxis < other.yaxis);
     }
 
+    /**
+     * @brief Getter for the x-axis coordinate of the vertex.
+     * @return The x-axis coordinate.
+     */
+    int Vertex::getX() const 
+    { 
+        return xaxis; 
+    }
+
+
+    /**
+     * @brief Getter for the y-axis coordinate of the vertex.
+     * @return The y-axis coordinate.
+     */
+    int Vertex::getY() const 
+    { 
+        return yaxis; 
+    }
 
     /**
      * @brief Equality operator to determine if two vertices have the same coordinates.

@@ -6,7 +6,6 @@
 #include <sstream>
 #include <algorithm>
 
-
 //-------------------------------------------------------//
 //   The tiles represented by the coordinates below:     //
 //                                                       //
@@ -34,8 +33,8 @@ namespace ariel {
      */
     Board& Board::getInstance() 
     {
-        static Board instance;
-        return instance;
+        static Board board;
+        return board;
     }
     
     /**
@@ -142,7 +141,7 @@ namespace ariel {
         tiles[{2, 1}].addIntersection(25);
         tiles[{2, 1}].addIntersection(26);
 
-        // Row 3
+        // Row 4
         tiles[{-2, 0}].addIntersection(17);
         tiles[{-2, 0}].addIntersection(18);
         tiles[{-2, 0}].addIntersection(19);
@@ -179,7 +178,7 @@ namespace ariel {
         tiles[{2, 0}].addIntersection(37);
         tiles[{2, 0}].addIntersection(38);
 
-        // Row 3
+        // Row 5
         tiles[{-2, -1}].addIntersection(29);
         tiles[{-2, -1}].addIntersection(30);
         tiles[{-2, -1}].addIntersection(31);
@@ -208,7 +207,7 @@ namespace ariel {
         tiles[{1, -1}].addIntersection(46);
         tiles[{1, -1}].addIntersection(47);
 
-        // Row 5
+        // Row 6
         tiles[{-2, -2}].addIntersection(40);
         tiles[{-2, -2}].addIntersection(41);
         tiles[{-2, -2}].addIntersection(42);
@@ -235,7 +234,8 @@ namespace ariel {
     /**
      * @brief Initializes the adjacency list used to check the connectivity between intersections.
      */
-    void Board::initializeAdjacency() {
+    void Board::initializeAdjacency() 
+    {
         adjacencyList[1] = {2, 9};
         adjacencyList[2] = {1, 3};
         adjacencyList[3] = {2, 4, 11};
@@ -331,7 +331,8 @@ namespace ariel {
     int Board::getIntersectionID(const Intersection& intersection) const 
     {
         const auto& allIntersections = Intersection::getAllIntersections();
-        for (const auto& [id, inter] : allIntersections) {
+        for (const auto& [id, inter] : allIntersections) 
+        {
             if (inter == intersection) 
             {
                 return id;
@@ -365,7 +366,7 @@ namespace ariel {
                     // Print the intersection details
                     const auto& intersection = allIntersections.at(id);         // I use at() to access the intersection directly
                     cout << "  Intersection " << id << " includes vertices: ";
-                    for (const auto& vertex : intersection.vertices) 
+                    for (const auto& vertex : intersection.getVertices()) 
                     {
                         cout << vertex << " ";
                     }
@@ -485,6 +486,7 @@ namespace ariel {
             return "   ";  // Return spaces for non-existent tiles
         }
     }
+
 
     /**
      * @brief Returns a list of unique resource types surrounding a specific intersection.
@@ -985,5 +987,19 @@ namespace ariel {
         std::cout << "                                 \\            /                                        " << std::endl;
         std::cout << "                                 "<<IL[38]<<"--"<<RL[{27, 38}]<<"--"<<IL[27]<<"                                        " << std::endl;
 
+    }
+
+
+    /**
+     * @brief Reset the board for tests purposes.
+     */
+    void Board::resetBoard() 
+    {
+    tiles.clear();
+    settlements.clear();
+    cities.clear();
+    roads.clear();
+    setupTiles();         
+    linkTilesAndIntersections();
     }
 }

@@ -6,7 +6,6 @@
 using namespace std;
 namespace ariel {
 
-
     /**
      * @brief Static map to store all intersections.
      */
@@ -33,6 +32,25 @@ namespace ariel {
     bool Intersection::contains(const Vertex& vertex) const 
     {
         return vertices.find(vertex) != vertices.end();
+    }
+
+    /**
+     * @brief Getter for the intersection ID.
+     * @return The unique identifier of the intersection.
+     */
+    int Intersection::getId() const 
+    { 
+        return id; 
+    }
+
+
+    /**
+     * @brief Getter for the vertices of the intersection.
+     * @return A const reference to the set of vertices defining the intersection.
+     */
+    const set<Vertex>& Intersection::getVertices() const 
+    { 
+        return vertices; 
     }
 
 

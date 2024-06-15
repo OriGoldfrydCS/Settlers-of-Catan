@@ -5,7 +5,6 @@
 using namespace std;
 namespace ariel {
     
-
      /**
      * @brief Compares two edges for ordering.
      * @param other The other edge to compare with.
@@ -53,7 +52,7 @@ namespace ariel {
     bool Edge::involvesIntersection(int intersectionID) const 
     {
         // Compare using the id attribute of the Intersection objects
-        return (i1.id == intersectionID || i2.id == intersectionID);
+        return (i1.getId() == intersectionID || i2.getId() == intersectionID);
     }
 
 
@@ -65,7 +64,6 @@ namespace ariel {
     { 
         return i1; 
     }
-
 
 
     /**
@@ -85,7 +83,7 @@ namespace ariel {
      */
     int Edge::getId1() const 
     {   
-        return i1.id; 
+        return i1.getId(); 
     }
 
 
@@ -95,7 +93,7 @@ namespace ariel {
      */
     int Edge::getId2() const 
     { 
-        return i2.id; 
+        return i2.getId(); 
     }
 
 
@@ -110,5 +108,4 @@ namespace ariel {
         os << edge.i1 << " to " << edge.i2;
         return os;
     }
-    
 }

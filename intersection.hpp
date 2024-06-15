@@ -13,7 +13,6 @@
 using namespace std;
 namespace ariel {
 
-
     /**
      * @brief This class represents an intersection defined by a set of vertices.
      */
@@ -21,10 +20,9 @@ namespace ariel {
         
         private:
             
-            /**
-             * @brief Static map to store all intersections.
-             */
-            static map<int, Intersection> intersections;
+            set<Vertex> vertices;                           // A set of vertices that define this intersection
+            int id;                                         // Intersection ID
+            static map<int, Intersection> intersections;    // Static map to store all intersections
             
             /**
              * @brief Initializes the intersections map with predefined intersections.
@@ -34,14 +32,25 @@ namespace ariel {
             static void initializeIntersections();
         
         public:
-            set<Vertex> vertices;      // A set of vertices that define this intersection
-            int id;                    // Intersection ID
 
             /**
              * @brief Default constructor.
              */
             Intersection() {}
 
+
+            /**
+             * @brief Getter for the intersection ID.
+             * @return The unique identifier of the intersection.
+             */
+            int getId() const;
+
+
+            /**
+             * @brief Getter for the vertices of the intersection.
+             * @return A const reference to the set of vertices defining the intersection.
+             */
+            const set<Vertex>& getVertices() const;
 
             /**
              * @brief Constructs an intersection with a set of vertices and an ID.

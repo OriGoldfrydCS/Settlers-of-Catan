@@ -13,7 +13,7 @@ namespace ariel {
         
         private:
 
-            Intersection i1, i2;      // The two intersections connected by this edge
+            Intersection i1, i2;        // The two intersections connected by this edge
 
         public:
 
@@ -25,7 +25,7 @@ namespace ariel {
              */
             Edge(const Intersection& a, const Intersection& b) 
             {
-                if (a.id < b.id) 
+                if (a.getId() < b.getId()) 
                 {
                     i1 = a;
                     i2 = b;
@@ -108,8 +108,7 @@ namespace ariel {
              * @return std::ostream& The output stream with the edge details.
              */
             friend ostream& operator<<(ostream& os, const Edge& edge);
-        };
-        
+        }; 
 }
 
 #endif

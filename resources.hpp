@@ -8,7 +8,6 @@
 using namespace std;
 namespace ariel {
     
-    
     /**
      * Enumerates the types of resources available in the game.
      * These resources are used to build and progress within the game.

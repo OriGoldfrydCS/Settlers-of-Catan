@@ -18,6 +18,7 @@ namespace ariel {
     class Tile {
 
         private:
+            
             ResourceType resourceType;         // The type of resource this tile produces
             int number;                        // The number of the tile
             vector<Intersection> settlements;  // List of settlements built on this tile
@@ -104,7 +105,6 @@ namespace ariel {
             set<int> getIntersectionIDs() const;
 
             
-
             //---------------------------//
             //          Getters          // 
             //---------------------------//

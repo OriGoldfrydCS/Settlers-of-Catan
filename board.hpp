@@ -11,6 +11,7 @@
 #include "edge.hpp"
 #include "player.hpp"
 
+
 namespace ariel {
     class Player;
     class Tile;
@@ -42,7 +43,6 @@ namespace ariel {
             void linkTilesAndIntersections(); 
             static void initializeAdjacency();
 
-
             // Tile and board display methods
             const Tile& getTile(const pair<int, int>& position) const;
             void printBoard() const;
@@ -53,7 +53,7 @@ namespace ariel {
             void addTile(const pair<int, int>& position, const Tile& tile);
             bool isTileAvailable(const pair<int, int>& position) const;
 
-            // Settlement and road management methods
+            // Settlement and road management methods (DO-TO: move to provate section after presentation)
             void placeInitialSettlement(int intersectionID, int playerID);
             void placeInitialRoad(const Edge& edge, int playerID);
             bool canPlaceSettlement(int intersectionID, int playerID);
@@ -75,6 +75,7 @@ namespace ariel {
 
             // Functions for tests
             bool isRoadPresent(int intersectionID1, int intersectionID2) const;
+            void resetBoard(); 
     };
 }
 

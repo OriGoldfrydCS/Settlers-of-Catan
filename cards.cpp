@@ -6,7 +6,6 @@
 using namespace std;
 namespace ariel {
 
-
     // Initialize static quantities for each card type
     int KnightCard::quantity = 14;
     int VictoryPointCard::quantity = 4;
@@ -82,6 +81,7 @@ namespace ariel {
         return CardUseError::Success;
     }
 
+
     //-------------------------------------//
     //         VictoryPointCard            //
     //-------------------------------------//
@@ -115,7 +115,7 @@ namespace ariel {
         }
     }
 
-    /* @brief Activates the effect of a Victory Point card.
+   /*@brief Activates the effect of a Victory Point card.
     * @param player Reference to the player using the card.
     * @param allPlayers Reference to a vector containing pointers to all players in the game.
     * @param board Reference to the Board object representing the game board.
@@ -130,6 +130,7 @@ namespace ariel {
         endTurn = true;
         return CardUseError::Success;
     }
+
 
     //-------------------------------------//
     //           MonopolyCard              //
@@ -184,8 +185,12 @@ namespace ariel {
         }
 
         cout << "\nSelect the resource type to monopolize:\n1. Wood\n2. Brick\n3. Wool\n4. Grain\n5. Ore\nEnter your choice: ";
+        
         int choice;
         cin >> choice;
+
+        cout << "" << endl;
+        
         ResourceType chosenResource = static_cast<ResourceType>(choice - 1);
 
         int totalCollected = 0;

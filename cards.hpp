@@ -15,7 +15,6 @@ namespace ariel {
     enum class CardUseError;
     enum ResourceType;
 
-
     /**
      * @brief Enum for different types of development cards in the game.
      */    
@@ -35,6 +34,7 @@ namespace ariel {
         YEAR_OF_PLENTY          // Player gets to receive two resource cards from the bank of his choice to use immediately
     };
 
+
     //-------------------------------------//
     //  DevelopmentCard - Abstract Class   //
     //-------------------------------------//
@@ -43,9 +43,9 @@ namespace ariel {
      * @brief Abstract class for Development Cards.
      */
     class DevelopmentCard {
-    public:
-        virtual string getType() const = 0;
-        static int getCardQuantity(DevCardType type);
+        public:
+            virtual string getType() const = 0;
+            static int getCardQuantity(DevCardType type);
     };
 
 
@@ -57,13 +57,13 @@ namespace ariel {
      * @brief Represents a Knight Card in the game.
      */
     class KnightCard : public DevelopmentCard {
-    private:
-        static int quantity;
-    public:
-        string getType() const override;
-        static int getQuantity();
-        static void decreaseQuantity();
-        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
+        private:
+            static int quantity;
+        public:
+            string getType() const override;
+            static int getQuantity();
+            static void decreaseQuantity();
+            CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
     };
 
 
@@ -75,13 +75,13 @@ namespace ariel {
      * @brief Represents a Victory Point Card in the game.
      */
     class VictoryPointCard : public DevelopmentCard {
-    private:
-        static int quantity;
-    public:
-        string getType() const override;
-        static int getQuantity();
-        static void decreaseQuantity();
-        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
+        private:
+            static int quantity;
+        public:
+            string getType() const override;
+            static int getQuantity();
+            static void decreaseQuantity();
+            CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
 
     };
 
@@ -94,7 +94,7 @@ namespace ariel {
      * @brief Abstract base class for Promotion Cards.
      */
     class PromotionCard : public DevelopmentCard {
-    
+        // Empty class since it's meaningless to have that type of card
     };
 
 
@@ -106,14 +106,13 @@ namespace ariel {
      * @brief Represents a Monopoly Card in the game.
      */
     class MonopolyCard : public PromotionCard {
-    private:
-        static int quantity;
-    public:
-        string getType() const override;
-        static int getQuantity();
-        static void decreaseQuantity();
-        CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
-
+        private:
+            static int quantity;
+        public:
+            string getType() const override;
+            static int getQuantity();
+            static void decreaseQuantity();
+            CardUseError activateCard(Player& player, vector<Player*>& allPlayers, Board& board, bool& endTurn);
     };
 
 
@@ -125,13 +124,13 @@ namespace ariel {
      * @brief Represents a Road Building Card in the game.
      */
     class RoadBuildingCard : public PromotionCard {
-    private:
-        static int quantity;
-    public:
-        string getType() const override;
-        static int getQuantity();
-        static void decreaseQuantity();
-        CardUseError activateCard(Player& player, Board& board, bool& endTurn);
+        private:
+            static int quantity;
+        public:
+            string getType() const override;
+            static int getQuantity();
+            static void decreaseQuantity();
+            CardUseError activateCard(Player& player, Board& board, bool& endTurn);
     };
 
 
@@ -143,19 +142,19 @@ namespace ariel {
      * @brief Represents a Year of Plenty Card in the game.
      */
     class YearOfPlentyCard : public PromotionCard {
-    private:
-        static int quantity;
-    public:
-        string getType() const override;
-        static int getQuantity();
-        static void decreaseQuantity();
-        CardUseError activateCard(Player& player, Board& board, bool& endTurn);
-        static ResourceType chooseResource(const Player& player, const string& prompt);
-        static int promptActionChoice(const Player& player);
-        static bool executeAction(int choice, Player& player, Board& board, int& actionCount);
-        static bool attemptToBuildRoad(Player& player, Board& board);
-        static bool attemptToBuildSettlement(Player& player, Board& board);
-        static bool attemptToUpgradeToCity(Player& player, Board& board);
+        private:
+            static int quantity;
+        public:
+            string getType() const override;
+            static int getQuantity();
+            static void decreaseQuantity();
+            CardUseError activateCard(Player& player, Board& board, bool& endTurn);
+            static ResourceType chooseResource(const Player& player, const string& prompt);
+            static int promptActionChoice(const Player& player);
+            static bool executeAction(int choice, Player& player, Board& board, int& actionCount);
+            static bool attemptToBuildRoad(Player& player, Board& board);
+            static bool attemptToBuildSettlement(Player& player, Board& board);
+            static bool attemptToUpgradeToCity(Player& player, Board& board);
     };
 
 

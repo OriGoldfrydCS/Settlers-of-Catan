@@ -12,6 +12,7 @@
 using namespace std;
 namespace ariel {
 
+
      /**
      * @brief Constructor that initializes the game with three players.
      * @param p1 Reference to the first player.
@@ -332,17 +333,17 @@ namespace ariel {
     {
         Board& board = Board::getInstance();
 
-        cout << "Enter the intersection ID to upgrade to a city: ";
+        cout << "\nEnter the intersection ID to upgrade to a city: ";
         int intersectionID;
         cin >> intersectionID;
         if (currentPlayer->canBuild("city") && board.canUpgradeSettlementToCity(intersectionID, currentPlayer->getId())) 
         {
             currentPlayer->upgradeToCity(intersectionID, board);
-            cout << "Settlement at intersection " << intersectionID << " has been upgraded to a city." << endl;
+            cout << "\nSTATUS: Settlement at intersection " << intersectionID << " has been upgraded to a city." << endl;
         } 
         else 
         {
-            cout << "Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
+            cout << "\nERROR: Failed to upgrade to a city. Ensure there is a settlement at the location and you have sufficient resources." << endl;
         }
     }
 
@@ -371,55 +372,6 @@ namespace ariel {
         }
     }
 
-    // /**
-    //  * @brief Manages the purchase of a development card by the current player.
-    //  * @param currentPlayer Pointer to the player attempting to buy a development card.
-    //  */
-    // void Catan::handleBuyDevelopmentCard(Player* currentPlayer)
-    // {
-    //     cout << "Select the type of Development Card to buy:\n";
-    //     cout << "1. Knight\n";
-    //     cout << "2. Victory Point\n";
-    //     cout << "3. Promotion\n";
-    //     cout << "Enter your choice: ";
-    //     int cardChoice;
-    //     cin >> cardChoice;
-    //     DevCardType cardType;
-
-    //     switch(cardChoice)
-    //     {
-    //         case 1:
-    //             cardType = DevCardType::KNIGHT;
-    //             break;
-    //         case 2:
-    //             cardType = DevCardType::VICTORY_POINT;
-    //             break;
-    //         case 3:
-    //             cardType = DevCardType::PROMOTION;
-    //             break;
-    //         default:
-    //             cout << "\nSTATUS: Invalid card type selected.\n";
-    //             return;
-    //     }
-
-    //     CardPurchaseError result = currentPlayer->buyDevelopmentCard(cardType, players);
-    //     switch(result) 
-    //     {
-    //         case CardPurchaseError::Success:
-    //             cout << "\nSTATUS: Development card purchased successfully!\n";
-    //             break;
-    //         case CardPurchaseError::InsufficientResources:
-    //             cout << "\nSTATUS: Not enough resources to buy a development card!\n";
-    //             break;
-    //         case CardPurchaseError::CardUnavailable:
-    //             cout << "\nSTATUS: The selected card is currently unavailable!\n";
-    //             break;
-    //         default:
-    //             cout << "\nSTATUS: An unexpected error occurred...\n";
-    //             break;
-    //     }
-    // }
-
 
     /**
      * @brief Manages the usage of a development card by the current player.
@@ -430,11 +382,11 @@ namespace ariel {
     {
         Board& board = Board::getInstance();
 
-        // Assume function that manages the choice and use of a development card
         cout << "\nSelect the type of Development Card to use:\n1. Victory Point\n2. Promotion\nEnter your choice: ";
         int devCardChoice;
         cin >> devCardChoice;
         DevCardType cardType;
+        
         switch(devCardChoice) 
         {
             // case 1:
@@ -451,7 +403,7 @@ namespace ariel {
                 break;
         }
         
-        CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, players, board, shouldEndTurn);
+        CardUseError useResult = currentPlayer->useDevelopmentCard(cardType, currentPlayer, players, board, shouldEndTurn);
         
         if (useResult == CardUseError::Success) 
         {
@@ -506,7 +458,7 @@ namespace ariel {
     void Catan::nextTurn() 
     {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        cout << "It is now " << players[currentPlayerIndex]->getName() << "'s turn." << endl;
+        // cout << "It is now " << players[currentPlayerIndex]->getName() << "'s turn." << endl;    // Printing for debugging
     }
 
 

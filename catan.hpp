@@ -36,8 +36,9 @@ namespace ariel {
             void initializeGame();
 
             // Manages the main game loop, controlling the flow of turns and checking for the game end condition
+            // TO-DO: change to private method after presentions (should be public for testing purpose)
             void playGame();        
-            void distributeResources(Player* player);   // TO-DO: change to private method after presentions (should be public for testing purpose)
+            void distributeResources(Player* player);   
             void handleBuyDevelopmentCard(Player* currentPlayer);
             void handleBuildRoad(Player* currentPlayer);
             void handleDevelopmentCardUsage(Player* currentPlayer, bool& shouldEndTurn);

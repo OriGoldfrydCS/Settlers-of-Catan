@@ -10,7 +10,7 @@ using namespace std;
 
 int main() {
     
-    // Create player instances
+    // Create player instances for the game
     Player player1("Blue");
     Player player2("Red");
     Player player3("Green");

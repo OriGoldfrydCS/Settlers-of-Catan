@@ -48,12 +48,14 @@ TEST_CASE("Verify no road connection where none exists") {
 
 TEST_CASE("Initial settlement placement is successful") {
     Board& board = Board::getInstance();
+    board.resetBoard(); 
     CHECK_NOTHROW(board.placeInitialSettlement(1, 1));
     CHECK(board.hasSettlement(1));
 }
 
 TEST_CASE("Settlement placement follows rules") {
     Board& board = Board::getInstance();
+    board.resetBoard(); 
     board.placeInitialRoad(Edge{Intersection::getIntersection(1), Intersection::getIntersection(9)}, 1);
     CHECK(board.canPlaceSettlement(9, 1));
     board.placeSettlement(9, 1);
@@ -67,6 +69,7 @@ TEST_CASE("Initial road placement is successful") {
 
 TEST_CASE("Road placement follows rules") {
     Board& board = Board::getInstance();
+    board.resetBoard();
     board.placeInitialSettlement(1, 1);
     CHECK(board.canPlaceRoad(Edge{Intersection::getIntersection(1), Intersection::getIntersection(9)}, 1));
     board.placeRoad(Edge{Intersection::getIntersection(1), Intersection::getIntersection(9)}, 1);
@@ -201,6 +204,7 @@ TEST_CASE("Resource distribution based on dice roll (without distribution of ini
 
 TEST_CASE("Upgrading a settlement to city is successful") {
     Board& board = Board::getInstance();
+    board.resetBoard();
     int playerID = 1;
     board.placeInitialSettlement(1, playerID);
     CHECK(board.canUpgradeSettlementToCity(1, playerID));
@@ -292,6 +296,7 @@ TEST_CASE("Build settlement and check resource decrement without road connection
 TEST_CASE("Build settlement fails without road connection in real game") {
     Player player("Ani");
     Board& board = Board::getInstance();
+    board.resetBoard();
 
     // Add resources necessary for building a settlement
     player.addResource(ResourceType::WOOD, 1);
@@ -371,7 +376,7 @@ TEST_CASE("Buy and use a development card") {
     ami.addResource(ResourceType::WOOL, 1);
     ami.addResource(ResourceType::GRAIN, 1);
     vector<Player*> allPlayers{&ami};
-    CardPurchaseError result = ami.buyDevelopmentCard(DevCardType::KNIGHT, allPlayers);
+    CardPurchaseError result = ami.buyDevelopmentCardTEST(DevCardType::KNIGHT, allPlayers);
     CHECK(result == CardPurchaseError::Success);
     const auto& developmentCards = ami.getDevelopmentCards();
     auto it = developmentCards.find(DevCardType::KNIGHT);
@@ -390,7 +395,7 @@ TEST_CASE("Using a Victory Point card increases points and decreases the count")
     vector<Player*> allPlayers{&adi};
 
     // Buy a victory point card
-    CHECK(adi.buyDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers) == CardPurchaseError::Success);
+    CHECK(adi.buyDevelopmentCardTEST(DevCardType::VICTORY_POINT, allPlayers) == CardPurchaseError::Success);
 
     Board& board = Board::getInstance();
 
@@ -398,7 +403,7 @@ TEST_CASE("Using a Victory Point card increases points and decreases the count")
     bool endTurn = false;
 
     // Use the victory point card
-    auto result = adi.useDevelopmentCard(DevCardType::VICTORY_POINT, allPlayers, board, endTurn);
+    auto result = adi.useDevelopmentCard(DevCardType::VICTORY_POINT, &adi, allPlayers, board, endTurn);
 
     // Checks
     CHECK(result == CardUseError::Success);
@@ -445,7 +450,7 @@ TEST_CASE("Player loses Largest Army card to someone else") {
     bil.printResources();
 
     for (int i = 0; i < 3; i++) {
-        CHECK(adi.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
+        CHECK(adi.buyDevelopmentCardTEST(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
     }
 
     Player::largestArmyHolder = &adi;  // Assume Adi initially has the largest army
@@ -463,7 +468,7 @@ TEST_CASE("Player loses Largest Army card to someone else") {
 
     // Bil buys 4 Knight cards
     for (int i = 0; i < 4; i++) {
-        CHECK(bil.buyDevelopmentCard(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
+        CHECK(bil.buyDevelopmentCardTEST(DevCardType::KNIGHT, players) == CardPurchaseError::Success);
     }
 
     adi.checkForLargestArmy(players);
@@ -477,6 +482,7 @@ TEST_CASE("Player loses Largest Army card to someone else") {
 TEST_CASE("Resource usage for building structures") {
     Player player("Ami");
     Board& board = Board::getInstance();
+    board.resetBoard();
 
     // Add resources and build a road
     player.addResource(ResourceType::WOOD, 2);
@@ -551,9 +557,55 @@ TEST_CASE("distributeResources gives correct resources") {
     game.distributeResources(&p1);
     
     auto expectedResources = game.getBoard().getResourceTypesAroundIntersection(1);
-    for (auto res : expectedResources) {
+    for (auto res : expectedResources) 
+    {
         CHECK(p1.getResourceCount(res) == 1);
     }
+}
+
+TEST_CASE("Player reaches exactly 10 points") {
+    Player p1("Ella"), p2("Omer"), p3("Nir");
+    Catan game(p1, p2, p3);
+
+    // Initialize the game for testing without the full game environment
+    game.testInitialize();
+    p1.addPoints(10);           // Simulate player 1 reaching 10 points
+
+    game.hasWinner();           // Check if the game identifies the winner
+
+    CHECK(p1.getPoints() == 10);
+    CHECK(p2.getPoints() == 0);
+    CHECK(p3.getPoints() == 0);
+}
+
+TEST_CASE("Player exceeds 10 points") {
+    Player p1("Ella"), p2("Omer"), p3("Nir");
+    Catan game(p1, p2, p3);
+
+    game.testInitialize();
+    p3.addPoints(12);       // Simulate player 3 reaching 12 points
+
+    game.hasWinner();       // Check if the game correctly identifies the winner
+
+    CHECK(p1.getPoints() == 0);
+    CHECK(p2.getPoints() == 0);
+    CHECK(p3.getPoints() == 12);
+}
+
+TEST_CASE("No player has reached 10 points yet") {
+    Player p1("Ella"), p2("Omer"), p3("Nir");
+    Catan game(p1, p2, p3);
+
+    game.testInitialize();
+    p1.addPoints(5);
+    p2.addPoints(8);
+    p3.addPoints(7);
+
+    game.hasWinner();   // Check if the game correctly identifies that there is no winner
+
+    CHECK(p1.getPoints() == 5);
+    CHECK(p2.getPoints() == 8);
+    CHECK(p3.getPoints() == 7);
 }
 
 
@@ -670,8 +722,8 @@ TEST_CASE("Edge getters") {
 
     Edge edge(i1, i2);
 
-    CHECK(edge.getIntersection1().id == 1);
-    CHECK(edge.getIntersection2().id == 2);
+    CHECK(edge.getIntersection1().getId() == 1);
+    CHECK(edge.getIntersection2().getId() == 2);
     CHECK(edge.getId1() == 1);
     CHECK(edge.getId2() == 2);
 }
@@ -819,12 +871,12 @@ TEST_CASE("DesertTile Initialization") {
 
 TEST_CASE("Vertex Initialization") {
     Vertex v1(1, 2);
-    CHECK(v1.xaxis == 1);
-    CHECK(v1.yaxis == 2);
+    CHECK(v1.getX() == 1);
+    CHECK(v1.getY() == 2);
 
     Vertex v2(-1, -2);
-    CHECK(v2.xaxis == -1);
-    CHECK(v2.yaxis == -2);
+    CHECK(v2.getX() == -1);
+    CHECK(v2.getY() == -2);
 }
 
 TEST_CASE("Vertex Comparison Operators") {

@@ -8,15 +8,18 @@
 using namespace std;
 namespace ariel {
     
+
     /**
      * This class represents a 2D point with integer coordinates.
      * A vertex is used to identify a certain tiles on the game board.
      */
     class Vertex {
         
-        public:
+        private:
 
             int xaxis, yaxis;      // Coordinates of the vertex
+
+        public:   
 
             /**
              * @brief Constructor that initializes the vertex with given coordinates.
@@ -24,6 +27,20 @@ namespace ariel {
              * @param y The y-coordinate of the vertex.
              */
             Vertex(int x, int y) : xaxis(x), yaxis(y) {}
+
+
+            /**
+             * @brief Getter for the x-axis coordinate of the vertex.
+             * @return The x-axis coordinate.
+             */
+            int getX() const;
+
+
+            /**
+             * @brief Getter for the y-axis coordinate of the vertex.
+             * @return The y-axis coordinate.
+             */
+            int getY() const;
 
             /**
              * @brief Comparison operator to determine if this vertex is less than another based on its coordinates.

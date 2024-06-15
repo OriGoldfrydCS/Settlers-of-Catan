@@ -7,7 +7,6 @@
 using namespace std;
 namespace ariel {
 
-
     int Player::nextID = 1;                             // Initialize the static member to 1
     Player* Player::largestArmyHolder = nullptr;        // Initialize the static member to nulll pointer
 
@@ -304,7 +303,7 @@ namespace ariel {
         // Iterate through each pair in the resources map
         for (const auto& [resourceType, amount] : resources) 
         {
-            cout << resourceTypeToString(resourceType) << ": " << amount << ", ";
+            cout << resourceTypeToString(resourceType) << ": " << amount << "  ";
         }
         cout << endl;
     }
@@ -366,10 +365,9 @@ namespace ariel {
         purchaseSelectedCard(selectedType, allPlayers);
 
         // Deduct resources used to buy the card
-        for (const auto& cost : devCardCosts) 
-        {
-            useResources(cost.first, cost.second);
-        }
+        resources[ResourceType::ORE] -= 1;
+        resources[ResourceType::WOOL] -= 1;
+        resources[ResourceType::GRAIN] -= 1;
 
         return CardPurchaseError::Success;
     }
@@ -450,116 +448,6 @@ namespace ariel {
         }
     }
 
-    // /**
-    //  * @brief Tries to buy a development card and handles all necessary checks and adjustments.
-    //  * @param cardType The type of development card to purchase.
-    //  * @param allPlayers A list of all players in the game for necessary checks.
-    //  * @return The result of the card purchase attempt.
-    //  */
-    // CardPurchaseError Player::buyDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers)
-    // {
-    //     // First, check if the player has enough resources for buying the card
-    //     if (!hasEnoughResourcesForCard()) 
-    //     {
-    //         return CardPurchaseError::InsufficientResources;
-    //     }
-
-    //     // Second, check if cards left in catch
-    //     if (DevelopmentCard::getCardQuantity(cardType) <= 0) 
-    //     {
-    //         return CardPurchaseError::CardUnavailable;
-    //     }
-        
-    //     // Deduct resources
-    //     resources[ResourceType::ORE] -= 1;
-    //     resources[ResourceType::WOOL] -= 1;
-    //     resources[ResourceType::GRAIN] -= 1;
-
-    //     return handleCardPurchase(cardType, allPlayers);
-    // }
-
-
-
-    // /**
-    //  * @brief Handles the specific logic related to purchasing different types of development cards.
-    //  * @param cardType The type of development card being purchased.
-    //  * @param allPlayers A reference to all players in the game, used for certain card effects.
-    //  * @return The result of the card purchase attempt.
-    //  */
-    // CardPurchaseError Player::handleCardPurchase(DevCardType cardType, vector<Player*>& allPlayers) 
-    // {
-    //     if (cardType == DevCardType::KNIGHT) 
-    //     {
-    //         KnightCard::decreaseQuantity();
-    //         developmentCards[DevCardType::KNIGHT]++;
-    //         knightCards++;
-    //         checkForLargestArmy(allPlayers);
-    //     } 
-    //     else if (cardType == DevCardType::VICTORY_POINT) 
-    //     {
-    //         VictoryPointCard::decreaseQuantity();
-    //         developmentCards[DevCardType::VICTORY_POINT]++;
-    //     } 
-    //     else if (cardType == DevCardType::PROMOTION) 
-    //     {
-    //         return handlePromotionCardPurchase();
-    //     } 
-    //     else 
-    //     {
-    //         cout << "Invalid card type." << endl;
-    //         return CardPurchaseError::CardUnavailable;
-    //     }
-
-    //     // cout << "Card purchased: " << devCardTypeToString(cardType) << ". New count: " << developmentCards[cardType] << endl;    // print for debuging
-    //     return CardPurchaseError::Success;
-    // }
-
-    // /**
-    //  * @brief Manages the process of buying a promotion card.
-    //  * @return The result of the promotion card purchase attempt.
-    //  */
-    // CardPurchaseError Player::handlePromotionCardPurchase() 
-    // {
-    //     cout << "Enter 1 for Monopoly, 2 for Road Building, 3 for Year of Plenty: ";
-    //     int choice;
-    //     cin >> choice;
-
-    //     switch (choice) 
-    //     {
-    //         case 1:
-    //             return buySpecificPromotionCard(MonopolyCard::getQuantity, MonopolyCard::decreaseQuantity, PromotionType::MONOPOLY);
-    //         case 2:
-    //             return buySpecificPromotionCard(RoadBuildingCard::getQuantity, RoadBuildingCard::decreaseQuantity, PromotionType::ROAD_BUILDING);
-    //         case 3:
-    //             return buySpecificPromotionCard(YearOfPlentyCard::getQuantity, YearOfPlentyCard::decreaseQuantity, PromotionType::YEAR_OF_PLENTY);
-    //         default:
-    //             cout << "Invalid choice, no card added." << endl;
-    //             return CardPurchaseError::CardUnavailable;
-    //     }
-    // }
-
-    // /**
-    //  * @brief A helper function to manage the buying of a specific type of promotion card.
-    //  * @param getQuantity A function that returns the current quantity of the card.
-    //  * @param decreaseQuantity A function that decreases the quantity of the card.
-    //  * @param type The type of promotion card.
-    //  * @return The result of the promotion card purchase attempt.
-    //  */
-    // CardPurchaseError Player::buySpecificPromotionCard(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type) 
-    // {
-    //     if (getQuantity() > 0) 
-    //     {
-    //         decreaseQuantity();
-    //         promotionCards[type]++;
-    //         developmentCards[DevCardType::PROMOTION]++;
-    //         return CardPurchaseError::Success;
-    //     } 
-    //     else 
-    //     {
-    //         return CardPurchaseError::CardUnavailable;
-    //     }
-    // }
-
 
     /**
      * @brief Handles the use of development cards during gameplay, applying effects based on card type.
@@ -569,7 +457,7 @@ namespace ariel {
      * @param endTurn Reference to a boolean indicating whether the turn should end after card use.
      * @return Returns an error status indicating the outcome of the card use attempt.
      */
-    CardUseError Player::useDevelopmentCard(DevCardType cardType, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
+    CardUseError Player::useDevelopmentCard(DevCardType cardType, Player* currentPlayer, vector<Player*>& allPlayers, Board& board, bool& endTurn) 
     {
         cout << "\nAttempting to use card type: " << devCardTypeToString(cardType) << "..." << endl;
         endTurn = false;  // Default to not ending the turn
@@ -583,7 +471,7 @@ namespace ariel {
         // Check card type and handle accordingly
         switch (cardType) {
             case DevCardType::PROMOTION:
-                return handlePromotionCardUsage(allPlayers, board, endTurn);
+                return handlePromotionCardUsage(currentPlayer, allPlayers, board, endTurn);
             case DevCardType::KNIGHT:
                 // Additional handling if it's a Knight card (not in the game's rule)
                 break;
@@ -613,12 +501,37 @@ namespace ariel {
      * @param endTurn Reference to a boolean that indicates whether the turn should end after using the card. 
      * @return CardUseError An enum value that indicates the success or failure of the operation. 
      */
-    CardUseError Player::handlePromotionCardUsage(vector<Player*>& allPlayers, Board& board, bool& endTurn) {
+    CardUseError Player::handlePromotionCardUsage(Player* currentPlayer, vector<Player*>& allPlayers, Board& board, bool& endTurn) {
         cout << "Promotion card type selected. Choose specific promotion card to use:" << endl;
         cout << "1. Monopoly\n2. Road Building\n3. Year of Plenty\nEnter your choice: ";
         int promoChoice;
         cin >> promoChoice;
 
+        PromotionType promoType;
+        switch (promoChoice) 
+        {
+            case 1:
+                promoType = PromotionType::MONOPOLY;
+                break;
+            case 2:
+                promoType = PromotionType::ROAD_BUILDING;
+                break;
+            case 3:
+                promoType = PromotionType::YEAR_OF_PLENTY;
+                break;
+            default:
+                cout << "Invalid promotion type selected.\n";
+                return CardUseError::InvalidCardType;
+        }
+
+        // Check if the player actually has the chosen promotion card
+        if (getPromotionCardCount(promoType) <= 0) 
+        {
+            return CardUseError::InsufficientCards;     // Return that the player do not have this promotion card to use
+        }
+        
+
+        // Active card
         switch (promoChoice) 
         {
             case 1:
@@ -776,7 +689,7 @@ namespace ariel {
      */
     void Player::trade(vector<Player*>& allPlayers) 
     {
-    cout << "Do you want to trade resources or cards? (Enter '1' for resources, '2' for cards):\n";
+    cout << "\nDo you want to trade resources or cards? (Enter '1' for resources, '2' for cards): ";
         string tradeType;
         cin >> tradeType;
 
@@ -790,7 +703,7 @@ namespace ariel {
         } 
         else 
         {
-            cout << "Invalid input. Please enter '1' for resources or '2' for cards." << endl;
+            cout << "\nERROR: Invalid input. You should enter '1' for resources or '2' for cards! Try again..." << endl;
         }
     }
     
@@ -807,19 +720,36 @@ namespace ariel {
         map<ResourceType, int> offerResources, requestResources;
         if (!prepareTradeDetails(*recipient, offerResources, requestResources)) return;
 
-
         // Display trade details for confirmation
-        cout << "Trade details are as follows:\n";
-        printTradeDetails(offerResources, requestResources);
-
-        cout << "Do you accept this trade? (yes/no): ";
+        cout << "\nResources trade details are as follows:\n";
+        printTradeResourcesDetails(offerResources, requestResources);
+        
         string response;
-        cin >> response;
-        if (response == "yes") {
+        bool validResponse = false;
+        while (!validResponse) 
+        {
+            cout << "\nDo you accept this trade? (yes/no): ";
+            cin >> response;
+
+            if (response == "yes" || response == "no" || response == "YES" || response == "NO") 
+            {
+                validResponse = true;
+            } 
+            
+            else 
+            {
+                cout << "\nERROR: Invalid input. Please type 'yes' or 'no'!";
+            }
+        }
+
+        if (response == "yes" || response == "YES") 
+        {
             executeTrade(*this, *recipient, offerResources, requestResources);
-            cout << "Trade completed successfully." << endl;
-        } else {
-            cout << "Trade rejected." << endl;
+            cout << "\nSTATUS: Trade completed successfully!" << endl;
+        } 
+        else 
+        {
+            cout << "\nSTATUS: Trade rejected! Try again..." << endl;
         }
     }
     
@@ -832,7 +762,7 @@ namespace ariel {
      */
     Player* Player::selectTradePartner(vector<Player*>& allPlayers) 
     {
-        cout << "Choose a player to trade with: " << endl;
+        cout << "\nChoose a player to trade with: " << endl;
         for (size_t i = 0; i < allPlayers.size(); ++i) {
             if (allPlayers[i]->getId() != this->getId()) {
                 cout << i + 1 << ". " << allPlayers[i]->getName() << endl;
@@ -843,7 +773,7 @@ namespace ariel {
         cin >> playerIndex;
         playerIndex--;  // Adjust for zero-indexing
         if (playerIndex < 0 || playerIndex >= allPlayers.size() || allPlayers[playerIndex]->getId() == this->getId()) {
-            cout << "Invalid player selection." << endl;
+            cout << "\nERROR: Invalid player selection! Try again..." << endl;
             return nullptr;
         }
 
@@ -860,22 +790,22 @@ namespace ariel {
      */
     bool Player::prepareTradeDetails(Player& recipient, map<ResourceType, int>& offerResources, map<ResourceType, int>& requestResources) 
     {
-        cout << "Your resources before trade:" << endl;
-        this->printResources();
-        cout << recipient.getName() << "'s resources before trade:" << endl;
-        recipient.printResources();
+        cout << "" << endl;
+        this->printResources();         // Print the resources of this player
+        recipient.printResources();     // Print the resources of other player 
 
-        collectTradeDetails("Enter the number of each resource you want to offer: ", offerResources);
-        collectTradeDetails("Enter the number of each resource you want in return: ", requestResources);
+        collectTradeDetails("\nEnter the number of each resource you want to offer: ", offerResources);
+        collectTradeDetails("\nEnter the number of each resource you want in return: ", requestResources);
 
         if (!hasSufficientResources(offerResources)) 
         {
-            cout << "You do not have enough resources to make this offer." << endl;
+            cout << "\nERROR: You do not have enough resources to make this offer!" << endl;
             return false;
         }
+        
         if (!recipient.hasSufficientResources(requestResources)) 
         {
-            cout << "The requested player does not have enough resources to fulfill your request." << endl;
+            cout << "\nERROR: The other player does not have enough resources to fulfill your request!" << endl;
             return false;
         }
         return true;
@@ -905,7 +835,7 @@ namespace ariel {
      * @param offer A map containing the offered resources and their quantities.
      * @param request A map containing the requested resources and their quantities.
      */
-    void Player::printTradeDetails(const map<ResourceType, int>& offer, const map<ResourceType, int>& request) 
+    void Player::printTradeResourcesDetails(const map<ResourceType, int>& offer, const map<ResourceType, int>& request) 
     {
         cout << "Offers:" << endl;
         for (const auto& item : offer) {
@@ -972,10 +902,10 @@ namespace ariel {
         map<DevCardType, int> offerCards, requestCards;
         if (!prepareCardTradeDetails(*recipient, offerCards, requestCards)) return;
 
-        cout << "Card trade details are as follows:" << endl;
-        printTradeDetails(offerCards, requestCards);  
+        cout << "\nCard trade details are as follows:" << endl;
+        printTradeCardsDetails(offerCards, requestCards);  
 
-        cout << "Do you accept this trade? (yes/no): ";
+        cout << "\nDo you accept this trade? (yes/no): ";
         string response;
         cin >> response;
         if (response == "yes") 
@@ -1065,7 +995,7 @@ namespace ariel {
      * @param offer A map containing the offered cards and their quantities.
      * @param request A map containing the requested cards and their quantities.
      */
-    void Player::printTradeDetails(const map<DevCardType, int>& offer, const map<DevCardType, int>& request) 
+    void Player::printTradeCardsDetails(const map<DevCardType, int>& offer, const map<DevCardType, int>& request) 
     {
         cout << "Card Offers:" << endl;
         for (const auto& item : offer)
@@ -1155,6 +1085,10 @@ namespace ariel {
         return developmentCards;
     }
 
+
+    /**
+     * @brief Update the amount of Dev. cards for this player.
+     */
     void Player::setDevelopmentCardCount (DevCardType cardType, int count) 
     {
         developmentCards[cardType] = count;
@@ -1342,7 +1276,6 @@ namespace ariel {
     }
 
 
-
     /**
      * @brief Displays the counts of each type of development and promotion card the player possesses.
      */
@@ -1366,8 +1299,9 @@ namespace ariel {
         cout << name << " has " << points << " points." << endl;
     }
 
-
     
+    // FOR TESTS //
+
     /**
      * @brief Builds a settlement for testing purposes, bypassing certain game rules.
      * This function attempts to build a settlement at the specified intersection for testing. It bypasses the usual
@@ -1418,4 +1352,132 @@ namespace ariel {
     {
         return !settlements.empty();  // Check if the set of settlements is not empty
     }
+
+
+    /**
+     * @brief Tries to buy a development card and handles all necessary checks and adjustments.
+     * @param cardType The type of development card to purchase.
+     * @param allPlayers A list of all players in the game for necessary checks.
+     * @return The result of the card purchase attempt.
+     */
+    CardPurchaseError Player::buyDevelopmentCardTEST(DevCardType cardType, vector<Player*>& allPlayers)
+    {
+        // First, check if the player has enough resources for buying the card
+        if (!hasEnoughResourcesForCard()) 
+        {
+            return CardPurchaseError::InsufficientResources;
+        }
+
+        // Second, check if cards left in catch
+        if (DevelopmentCard::getCardQuantity(cardType) <= 0) 
+        {
+            return CardPurchaseError::CardUnavailable;
+        }
+        
+        // Deduct resources
+        resources[ResourceType::ORE] -= 1;
+        resources[ResourceType::WOOL] -= 1;
+        resources[ResourceType::GRAIN] -= 1;
+
+        return handleCardPurchaseTEST(cardType, allPlayers);
+    }
+
+
+    /**
+     * @brief Checks if the player has enough resources to buy the development card.
+     * @return True if sufficient resources are available, otherwise false.
+     */
+    bool Player::hasEnoughResourcesForCardTEST() const 
+    {
+        try {
+            // Check if there are enough of each resource type 
+            return resources.at(ResourceType::ORE) >= 1 && resources.at(ResourceType::WOOL) >= 1 && resources.at(ResourceType::GRAIN) >= 1;
+        } 
+        catch (const out_of_range& e) 
+        {
+            return false;
+        }
+    }
+
+    /**
+     * @brief Handles the specific logic related to purchasing different types of development cards.
+     * @param cardType The type of development card being purchased.
+     * @param allPlayers A reference to all players in the game, used for certain card effects.
+     * @return The result of the card purchase attempt.
+     */
+    CardPurchaseError Player::handleCardPurchaseTEST(DevCardType cardType, vector<Player*>& allPlayers) 
+    {
+        if (cardType == DevCardType::KNIGHT) 
+        {
+            KnightCard::decreaseQuantity();
+            developmentCards[DevCardType::KNIGHT]++;
+            knightCards++;
+            checkForLargestArmy(allPlayers);
+        } 
+        else if (cardType == DevCardType::VICTORY_POINT) 
+        {
+            VictoryPointCard::decreaseQuantity();
+            developmentCards[DevCardType::VICTORY_POINT]++;
+        } 
+        else if (cardType == DevCardType::PROMOTION) 
+        {
+            return handlePromotionCardPurchaseTEST();
+        } 
+        else 
+        {
+            cout << "Invalid card type." << endl;
+            return CardPurchaseError::CardUnavailable;
+        }
+
+        // cout << "Card purchased: " << devCardTypeToString(cardType) << ". New count: " << developmentCards[cardType] << endl;    // print for debuging
+        return CardPurchaseError::Success;
+    }
+
+    /**
+     * @brief Manages the process of buying a promotion card.
+     * @return The result of the promotion card purchase attempt.
+     */
+    CardPurchaseError Player::handlePromotionCardPurchaseTEST() 
+    {
+        cout << "Enter 1 for Monopoly, 2 for Road Building, 3 for Year of Plenty: ";
+        int choice;
+        cin >> choice;
+
+        switch (choice) 
+        {
+            case 1:
+                return buySpecificPromotionCardTEST(MonopolyCard::getQuantity, MonopolyCard::decreaseQuantity, PromotionType::MONOPOLY);
+            case 2:
+                return buySpecificPromotionCardTEST(RoadBuildingCard::getQuantity, RoadBuildingCard::decreaseQuantity, PromotionType::ROAD_BUILDING);
+            case 3:
+                return buySpecificPromotionCardTEST(YearOfPlentyCard::getQuantity, YearOfPlentyCard::decreaseQuantity, PromotionType::YEAR_OF_PLENTY);
+            default:
+                cout << "Invalid choice, no card added." << endl;
+                return CardPurchaseError::CardUnavailable;
+        }
+    }
+
+    /**
+     * @brief A helper function to manage the buying of a specific type of promotion card.
+     * @param getQuantity A function that returns the current quantity of the card.
+     * @param decreaseQuantity A function that decreases the quantity of the card.
+     * @param type The type of promotion card.
+     * @return The result of the promotion card purchase attempt.
+     */
+    CardPurchaseError Player::buySpecificPromotionCardTEST(function<int()> getQuantity, function<void()> decreaseQuantity, PromotionType type) 
+    {
+        if (getQuantity() > 0) 
+        {
+            decreaseQuantity();
+            promotionCards[type]++;
+            developmentCards[DevCardType::PROMOTION]++;
+            return CardPurchaseError::Success;
+        } 
+        else 
+        {
+            return CardPurchaseError::CardUnavailable;
+        }
+    }
+
 }
+

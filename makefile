@@ -1,5 +1,6 @@
 # Email: origoldbsc@gmail.com
 
+# Instructions:
 # (1) To compile the code, run 'make'.
 # (2) To run the game, execute './Catan' in the terminal.
 # (3) To run a simulation of one round, execute './main' after building the test target with 'make main'.
