@@ -56,11 +56,11 @@ The first player to reach 10 victory points wins the game.
   - `upgradeSettlementToCity()`: Upgrades an existing settlement to a city.
 - **Explanation:** Each tile on the board is uniquely identified by its coordinates, which are represented by vertices. The game board is a network of junctions, numbered from 1 to 54, known as intersections. Each intersection acts as a critical point where up to three tiles converge. To facilitate a clear and visually coherent representation of the board using ASCII characters, the original board layout has been rotated to the right. 
 
-  ![](board_image.png)
+  ![](images/board_image.png)
 
 - Below is an example of how the game board is dynamically visualized during play:
 
-  ![](gameboard_image.png)
+  ![](images/gameboard_image.png)
 
 ## Card Class
 
